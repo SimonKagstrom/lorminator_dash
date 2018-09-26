@@ -12,7 +12,7 @@
 #ifndef __MENU_H__
 #define __MENU_H__
 
-#include <lessphun.h>
+#include <stdint.h>
 
 typedef struct
 {

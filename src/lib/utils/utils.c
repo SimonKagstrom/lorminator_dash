@@ -9,7 +9,7 @@
  * $Id: utils.c 11242 2006-09-25 18:48:33Z ska $
  *
  ********************************************************************/
-#include <lessphun.h>
+
 #include <utils.h>
 
 /* Get the screen size, from 2dbackground.c */

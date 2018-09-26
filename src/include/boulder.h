@@ -12,11 +12,10 @@
 #ifndef __BOULDER_H__
 #define __BOULDER_H__
 
-#include <lessphun.h>
 #include <assert.h>
+#include <string.h>
 
 #include "types.h"
-#include "res.h"
 #include "point.h"
 #include "dir.h"
 #include "utils.h"
@@ -72,6 +71,24 @@
 struct s_special;
 struct s_game;
 
+typedef struct
+{
+  int width;           /**< The width of this SPRITE */
+  int height;          /**< The height of this SPRITE */
+
+  /* Private */
+  int frame;           /* The frame this SPRITE shows */
+} SPRITE;
+
+typedef struct
+{
+  int width;
+  int height;
+  uint8_t *mapoffset;
+  uint8_t *tiledata;      /* Actually a tilemap image */
+  int flag;
+  int format;
+} MAP_HEADER;
 
 typedef enum
 {

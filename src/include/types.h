@@ -12,6 +12,11 @@
 #ifndef __TYPES_H__
 #define __TYPES_H__
 
+#include <stddef.h>
+#include <stdint.h>
+#include <stdlib.h>
+
+typedef unsigned bool_t;
 typedef uint16_t tile_t;
 
 typedef struct
