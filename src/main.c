@@ -35,7 +35,7 @@ static void teleport(game_t *p_game, player_t *p_player)
   /* Teleport! */
   do
     {
-      nr = vGetRandom() % p_game->p_cur_level->n_teleporters;
+      nr = rand() % p_game->p_cur_level->n_teleporters;
     } while (pt_eq(p_player->sprite.pt, pt_to_sprite(p_game->p_cur_level->p_teleporters[nr].pt)));
 
   /* Erase the old buffer */
@@ -81,7 +81,7 @@ void explode(game_t *p_game, int16_t x_in, int16_t y_in, int16_t r)
   level_t *p_level = p_game->p_cur_level;
   int16_t x,y;
 
-  DbgPrintf("Explode %d:%d\n", x_in, y_in);
+  debug_msg("Explode %d:%d\n", x_in, y_in);
   status_enqueue_message(p_game, "YOU HEAR AN EXPLOSION");
   sound_play(p_game, EXPLOSION);
 
@@ -303,7 +303,7 @@ static void player_handle_input(game_t *p_game, dir_t dir, uint32_t fire)
 		p_game->p_cur_level->p_level_data[p_game->exit_y*p_game->p_cur_level->w + p_game->exit_x] =
 		  TILE_EXIT | TILE_ANIMATE(1);
 
-		DbgPrintf("Enough diamonds!");
+		debug_msg("Enough diamonds!");
 	      }
 	    elem_remove(p_game, p_elem);
 	  }
@@ -522,9 +522,9 @@ static void game_fini(game_t *p_game)
 {
   level_free(p_game, p_game->p_cur_level);
 
-  vDisposePtr(p_game->p_title);
-  vDisposePtr(p_game->p_tiles);
-  vDisposePtr(p_game->pp_sprite_frames);
+  free(p_game->p_title);
+  free(p_game->p_tiles);
+  free(p_game->pp_sprite_frames);
 
   /* FIXME: Display finish screen */
   vMapDispose();
@@ -594,10 +594,10 @@ static void game_do(game_t *p_game)
       /* Check for exit */
       if (MASK_TILE_IS_EXIT(cur_tile))
 	{
-	  DbgPrintf("Level finished!\n");
+	  debug_msg("Level finished!\n");
 	  if (++p_game->cur_level >= N_LEVELS)
 	    {
-	      DbgPrintf("No more levels!\n");
+	      debug_msg("No more levels!\n");
 	      return; /* Not ongoing */
 	    }
 
@@ -642,7 +642,7 @@ static void game_do(game_t *p_game)
 	}
 #if 0
       else
-	DbgPrintf("Missed frame: %d ms\n", (after-before)-SLEEP_PERIOD);
+	debug_msg("Missed frame: %d ms\n", (after-before)-SLEEP_PERIOD);
 #endif
       p_game->frame_count++;
     }
@@ -681,7 +681,7 @@ int main(int argc, char *argv[])
   LPH_init();
   LPH_setTileImageSize(16,16);
 
-  DbgPrintf("Boulder Dash build %s, %s\n", __DATE__, __TIME__);
+  debug_msg("Boulder Dash build %s, %s\n", __DATE__, __TIME__);
 
   /* srand() */
   vSetRandom(vGetTickCount());
@@ -735,7 +735,7 @@ int main(int argc, char *argv[])
 		else if (submenus[0] == 1) /* Off */
 		  game.conf.sound = FALSE;
 
-		DbgPrintf("Sound: %d\n", submenus[0]);
+		debug_msg("Sound: %d\n", submenus[0]);
 		break;
 	      default:
 		error_msg("Unknown menu option!\n");

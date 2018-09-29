@@ -12,7 +12,7 @@
 #ifndef __FILE_HANDLING_H__
 #define __FILE_HANDLING_H__
 
-typedef int32_t  file_handle_t;
+#include <stdio.h>
 
 #include "types.h"
 #include "point.h"
@@ -120,9 +120,9 @@ typedef struct
 #define FILE_SECTION_MINSIZE ( sizeof(uint32_t) + sizeof(header_type_t) + sizeof(uint16_t) )
 #define FILE_HEADER_MINSIZE  sizeof(file_header_t)
 
-file_section_t *file_section_get(file_handle_t handle, file_section_table_t *p_sectab, int level_index);
-file_section_table_t *file_get_section_table(file_handle_t handle, file_header_t *p_hdr);
-file_header_t *file_read_header(file_handle_t handle);
+file_section_t *file_section_get(FILE* handle, file_section_table_t *p_sectab, int level_index);
+file_section_table_t *file_get_section_table(FILE* handle, file_header_t *p_hdr);
+file_header_t *file_read_header(FILE* handle);
 
 
 #endif /* !__FILE_HANDLING_H__ */

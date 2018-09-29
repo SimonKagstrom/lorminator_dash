@@ -68,13 +68,13 @@ void bomb_place(game_t *p_game, point_t in_pt)
 void flame_init(game_t *p_game, elem_t *p_elem, point_t p)
 {
   p_elem->type = FLAME;
-  p_elem->u.flame.countdown = 7 + (vGetRandom() & 3);
+  p_elem->u.flame.countdown = 7 + (rand() & 3);
   sprite_init(&p_elem->sprite, p, FRAMES_FLAME);
 }
 
 static void flame_animate(game_t *p_game, elem_t *p_elem)
 {
-  p_elem->sprite.frame = vGetRandom() & 1;
+  p_elem->sprite.frame = rand() & 1;
 }
 
 
@@ -104,7 +104,7 @@ void player_kill(game_t *p_game, player_t *p_player)
   assert(p_player == &p_game->player);
 
   /* Player dies! */
-  DbgPrintf("Player dies!!\n");
+  debug_msg("Player dies!!\n");
 
   if (p_player->active_delay == 0)
     {
@@ -116,7 +116,7 @@ void player_kill(game_t *p_game, player_t *p_player)
 void diamond_init(game_t *p_game, elem_t *p_elem, point_t p)
 {
   p_elem->type = DIAMOND;
-  sprite_init(&p_elem->sprite, p, FRAMES_DIAMOND + (vGetRandom() % 3));
+  sprite_init(&p_elem->sprite, p, FRAMES_DIAMOND + (rand() % 3));
 }
 
 void ghost_init(game_t *p_game, elem_t *p_elem, point_t p)
@@ -141,8 +141,8 @@ void ghost_move(game_t *p_game, elem_t *p_elem)
     status_enqueue_message(p_game, "YOU HEAR FOOTSTEPS");
 
   if (!MASK_TILE_IS_EMPTY_OR_PLAYER(dirs[p_elem->u.ghost.cur_dir]) ||
-      ((vGetRandom() & 255) < 32))
-    p_elem->u.ghost.cur_dir = vGetRandom() & 3;
+      ((rand() & 255) < 32))
+    p_elem->u.ghost.cur_dir = rand() & 3;
 
   if (!MASK_TILE_IS_EMPTY_OR_PLAYER(dirs[p_elem->u.ghost.cur_dir]))
     return;
@@ -173,7 +173,7 @@ elem_t *elem_add(game_t *p_game, elem_type_t type, point_t p, void *p_arg)
     }
   if (i >= N_ELEMS)
     {
-      DbgPrintf("WARNING: Too many elements. %d at %d:%d!\n", type, p.x, p.y);
+      debug_msg("WARNING: Too many elements. %d at %d:%d!\n", type, p.x, p.y);
       return NULL;
     }
   if (i >= p_game->n_elems)
@@ -209,7 +209,7 @@ elem_t *elem_add(game_t *p_game, elem_type_t type, point_t p, void *p_arg)
   p_elem->sprite.view_pt.x = -TILE_W;
   p_elem->sprite.view_frame = p_elem->sprite.base_frame;
 
-  DbgPrintf("Added %d (%d:%d) at %d\n", type, p.x/TILE_W, p.y/TILE_H, i);
+  debug_msg("Added %d (%d:%d) at %d\n", type, p.x/TILE_W, p.y/TILE_H, i);
 
   return p_elem;
 }
@@ -223,7 +223,7 @@ void elem_remove(game_t *p_game, elem_t *p_elem)
     {
       mask_tile_t *p_mask_tile = &MTILE_AT(p_game,x,y);
 
-      DbgPrintf("Removing %d:%d\n", p_elem->type, p_mask_tile->id);
+      debug_msg("Removing %d:%d\n", p_elem->type, p_mask_tile->id);
 
       /* Use this as the first free if possible */
       if (p_game->first_free > p_mask_tile->id)

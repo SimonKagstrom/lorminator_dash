@@ -11,23 +11,12 @@
  ********************************************************************/
 
 #include <utils.h>
+#include <stdio.h>
 
 /* Get the screen size, from 2dbackground.c */
 int get_screen_size(int32_t *p_w, int32_t *p_h)
 {
-  VIDEOCAPS videocaps;
-
-  videocaps.size = sizeof(VIDEOCAPS);
-
-  if(vGetCaps(CAPS_VIDEO, &videocaps))
-    {
-      *p_w  = videocaps.width;
-      *p_h = videocaps.height;
-    }
-  else
-    return -1;
-
-  return 0;
+	return -1;
 }
 
 
@@ -87,40 +76,32 @@ int bresenham(int x0, int y0, int x1, int y1,
   return 0;
 }
 
-void print_font(VMGPFONT *p_font, uint32_t color, int32_t x, int32_t y, const char *msg)
-{
-  vSetForeColor(color);
-
-  vSetActiveFont(p_font);
-  vPrint(MODE_TRANS, x,y, msg);
-}
-
 void *get_resource(char *filename, uint32_t size)
 {
   uint8_t *p_out;
-  int fd;
+  FILE *fd;
   int n_read;
 
-  if ( !(p_out = (uint8_t*)vNewPtr(size)) )
+  if ( !(p_out = (uint8_t*)malloc(size)) )
     {
       debug_msg("Alloc space failed\n");
       return NULL;
     }
 
-  if ( (fd = vStreamOpen((const char*)filename, STREAM_RESOURCE | STREAM_READ )) < 0)
+  if ( (fd = fopen((const char*)filename, "r" )) < 0)
     {
-      debug_msg("vStreamOpen failed!\n");
-      vDisposePtr(p_out);
+      debug_msg("fopen failed!\n");
+      free(p_out);
       return NULL;
     }
 
-  if ((n_read = vStreamRead(fd, p_out, size)) != size)
+  if ((n_read = fread(p_out, size, 1, fd)) != size)
     {
-      debug_msg("vStreamRead(): Could not read enough: %d vs %d!\n", n_read, size);
-      vDisposePtr(p_out);
+      debug_msg("fread(): Could not read enough: %d vs %d!\n", n_read, size);
+      free(p_out);
       return NULL;
     }
-  vStreamClose(fd);
+  fclose(fd);
 
   return p_out;
 }
@@ -135,17 +116,17 @@ void store_midifile(const char *filename, uint8_t *p_data, uint32_t size)
   int fd;
   int n_read;
 
-  fd = vStreamOpen(filename, STREAM_FILE | STREAM_READ);
+  fd = fopen(filename, STREAM_FILE | STREAM_READ);
   if (fd < 0)
     {
-      fd = vStreamOpen(filename, STREAM_FILE | STREAM_WRITE | STREAM_BINARY | STREAM_CREATE);
+      fd = fopen(filename, STREAM_FILE | STREAM_WRITE | STREAM_BINARY | STREAM_CREATE);
       if (fd < 0)
 	return; /* Error in opening! */
       vStreamWrite(fd, p_data, size);
-      vStreamClose(fd);
+      fclose(fd);
     }
   else
-    vStreamClose(fd);
+    fclose(fd);
 #endif
 }
 

@@ -49,7 +49,7 @@ static void menu_draw(menu_t *p_menu)
 	  int n_pipe = 0;
 	  int n;
 
-	  DbgPrintf("Submenu!...\n");
+	  debug_msg("Submenu!...\n");
 	  for (n=0; msg[n] != '\0'; n++)
 	    {
 	      /* Underline the selected entry */
@@ -137,9 +137,9 @@ void menu_init(menu_t *p_menu, VMGPFONT *p_font, char *pp_msgs[],
       if (len * p_font->width > p_menu->text_w)
 	p_menu->text_w = len * p_font->width;
     }
-  if ( !(p_menu->p_submenus = vNewPtr(sizeof(submenu_t) * p_menu->n_submenus)) )
+  if ( !(p_menu->p_submenus = malloc(sizeof(submenu_t) * p_menu->n_submenus)) )
     {
-      DbgPrintf("vNewPtr failed!\n");
+      debug_msg("malloc failed!\n");
       vTerminateVMGP();
     }
 
@@ -153,7 +153,7 @@ void menu_init(menu_t *p_menu, VMGPFONT *p_font, char *pp_msgs[],
 	    {
 	      int n;
 
-	      DbgPrintf("Init submenu %d:%d\n", i, j);
+	      debug_msg("Init submenu %d:%d\n", i, j);
 	      p_menu->p_submenus[i].index = j;
 	      p_menu->p_submenus[i].sel = 0;
 	      p_menu->p_submenus[i].n_entries = 0;
@@ -170,7 +170,7 @@ void menu_init(menu_t *p_menu, VMGPFONT *p_font, char *pp_msgs[],
 
 void menu_fini(menu_t *p_menu)
 {
-  vDisposePtr(p_menu->p_submenus);
+  free(p_menu->p_submenus);
 }
 
 

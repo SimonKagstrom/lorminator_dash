@@ -36,8 +36,8 @@ static level_t *level_alloc(game_t *p_game, level_t *p_level)
 
   for (i=0; i<p_level->n_specials; i++)
     size += p_level->p_specials[i].sizeof_special;
-  if ( !(p_out = vNewPtr( size )) )
-    error_msg("vNewPtr failed");
+  if ( !(p_out = malloc( size )) )
+    error_msg("malloc failed");
 
   *p_out = *p_level;
   if (p_level->p_specials)
@@ -67,19 +67,19 @@ static level_t *level_alloc(game_t *p_game, level_t *p_level)
     }
   if (n_teleporters > 0)
     {
-      if ( !(p_out->p_teleporters = vNewPtr(n_teleporters * sizeof(teleporter_t))) )
-	error_msg("vNewPtr failed!\n");
+      if ( !(p_out->p_teleporters = malloc(n_teleporters * sizeof(teleporter_t))) )
+	error_msg("malloc failed!\n");
     }
   else
     p_out->p_teleporters = NULL;
 
   /* Allocate the level mask */
-  if ( !(p_game->p_level_mask = vNewPtr( (p_level->w * p_level->h) * sizeof(mask_tile_t))) )
-    error_msg("vNewPtr failed");
+  if ( !(p_game->p_level_mask = malloc( (p_level->w * p_level->h) * sizeof(mask_tile_t))) )
+    error_msg("malloc failed");
   memset(p_game->p_level_mask, 0, (p_level->w * p_level->h) * sizeof(mask_tile_t));
   /* Allocate the view mask */
-  if ( !(p_game->p_view_data = vNewPtr( (p_level->w * p_level->h) * sizeof(tile_t))) )
-    error_msg("vNewPtr failed");
+  if ( !(p_game->p_view_data = malloc( (p_level->w * p_level->h) * sizeof(tile_t))) )
+    error_msg("malloc failed");
   memset(p_game->p_view_data, TILE_UNDISCOVERED, (p_level->w * p_level->h) * sizeof(tile_t));
 
   return p_out;
@@ -90,16 +90,16 @@ void level_free(game_t *p_game, level_t *p_level)
   if (p_level)
     {
       if (p_level->p_level_data)
-	vDisposePtr(p_level->p_level_data);
+	free(p_level->p_level_data);
       if (p_level->p_teleporters)
-	vDisposePtr(p_level->p_teleporters);
-      vDisposePtr(p_level);
+	free(p_level->p_teleporters);
+      free(p_level);
     }
 
   if (p_game->p_level_mask)
-    vDisposePtr(p_game->p_level_mask);
+    free(p_game->p_level_mask);
   if (p_game->p_view_data)
-    vDisposePtr(p_game->p_view_data);
+    free(p_game->p_view_data);
 }
 
 /* Goto a level */
@@ -126,8 +126,6 @@ void game_goto_level(game_t *p_game, level_t *p_level)
   p_bgmap->height = p_level->h;
   p_bgmap->mapoffset = (uint8_t*)p_game->p_view_data;
   p_bgmap->tiledata = (uint8_t*)p_game->p_tiles;
-  p_bgmap->flag = 0;//MAP_USERATTRIBUTE|MAP_AUTOANIM;
-  p_bgmap->format = BG_TILES_FORMAT;    /* the format of the bitmaps */
 
   p_game->n_elems = 0;
   p_game->first_free = 0;
@@ -210,7 +208,7 @@ level_t *level_set_load_level(game_t *p_game, level_set_t *p_set, int level_nr)
   if ( !(p_level_data_sec = file_section_get(p_set->handle, p_set->p_sectab,
 					     p_level_sec->u.level.level_data_sect)) )
     goto clean_1;
-  if ( !(p_out = vNewPtr(sizeof(level_t))) )
+  if ( !(p_out = malloc(sizeof(level_t))) )
     goto clean_2;
 
   /* Initialize the level */
@@ -222,29 +220,29 @@ level_t *level_set_load_level(game_t *p_game, level_set_t *p_set, int level_nr)
   p_out->time = p_level_sec->u.level.time;
   p_out->n_teleporters = 0;
 
-  if ( !(p_out->p_level_data = vNewPtr(p_out->w * p_out->h * sizeof (tile_t))) )
+  if ( !(p_out->p_level_data = malloc(p_out->w * p_out->h * sizeof (tile_t))) )
     goto clean_3;
   memcpy(p_out->p_level_data, p_level_data_sec->u.level_data.data, p_out->w * p_out->h * sizeof (tile_t));
   /* FIXME! Allocate and read specials */
 
-  vDisposePtr(p_level_data_sec);
-  vDisposePtr(p_level_sec);
+  free(p_level_data_sec);
+  free(p_level_sec);
 
   return p_out;
 
  clean_3:
-  vDisposePtr(p_out);
+  free(p_out);
  clean_2:
-  vDisposePtr(p_level_data_sec);
+  free(p_level_data_sec);
  clean_1:
-  vDisposePtr(p_level_sec);
+  free(p_level_sec);
  clean_0:
   return NULL;
 
 }
 
 
-bool_t level_set_init(game_t *p_game, level_set_t *p_out, int level_set_nr, file_handle_t handle)
+bool_t level_set_init(game_t *p_game, level_set_t *p_out, int level_set_nr, FILE* handle)
 {
   p_out->level_set_idx = 0;
   p_out->p_hdr = file_read_header(handle);
@@ -267,9 +265,9 @@ bool_t level_set_init(game_t *p_game, level_set_t *p_out, int level_set_nr, file
   return TRUE;
 
  clean_2:
-  vDisposePtr(p_out->p_sectab);
+  free(p_out->p_sectab);
  clean_1:
-  vDisposePtr(p_out->p_hdr);
+  free(p_out->p_hdr);
  clean_0:
 
   return FALSE;
@@ -277,33 +275,33 @@ bool_t level_set_init(game_t *p_game, level_set_t *p_out, int level_set_nr, file
 
 void level_set_fini(game_t *p_game, level_set_t *p_set)
 {
-  vDisposePtr(p_set->p_sectab);
-  vDisposePtr(p_set->p_hdr);
+  free(p_set->p_sectab);
+  free(p_set->p_hdr);
 }
 
 
-file_handle_t level_set_open_file(game_t *p_game, const char *filename)
+FILE* level_set_open_file(game_t *p_game, const char *filename)
 {
-  file_handle_t out;
+  FILE* out;
 
-  if ( (out = vStreamOpen(filename, STREAM_FILE | STREAM_READ )) < 0)
-    debug_msg("vStreamOpen failed!\n");
+  if ( (out = fopen(filename, STREAM_FILE | STREAM_READ )) < 0)
+    debug_msg("fopen failed!\n");
 
   return out;
 }
 
-file_handle_t level_set_open_resource(game_t *p_game, int32_t id)
+FILE* level_set_open_resource(game_t *p_game, int32_t id)
 {
-  file_handle_t out;
+  FILE* out;
 
-  if ( (out = vStreamOpen((const char*)NULL, (id << 16) | STREAM_RESOURCE | STREAM_READ )) < 0)
-    debug_msg("vStreamOpen failed!\n");
+  if ( (out = fopen((const char*)NULL, (id << 16) | STREAM_RESOURCE | STREAM_READ )) < 0)
+    debug_msg("fopen failed!\n");
 
   return out;
 }
 
-void level_set_close(game_t *p_game, file_handle_t handle)
+void level_set_close(game_t *p_game, FILE* handle)
 {
-  vStreamClose(handle);
+  fclose(handle);
 }
 #endif

@@ -14,6 +14,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include <stdio.h>
 
 #ifndef abs
 # define abs(x) ( (x) < 0 ? -(x) : (x) )
@@ -37,11 +38,11 @@
 #define CLEAR_BITS(x, val) ( (x) &= ~(val) )
 
 #ifndef NDEBUG
-#  define debug_msg(x...) do {DbgPrintf(x); } while(0)
+#  define debug_msg(x...) do {printf(x); } while(0)
 #else
-#  define debug_msg(x...) do {DbgPrintf(x); } while(0)
+#  define debug_msg(x...) do {printf(x); } while(0)
 #endif /* NDEBUG */
-#define error_msg(x...) do {debug_msg(x); DbgBreak(); vTerminateVMGP();} while(0)
+#define error_msg(x...) do {debug_msg(x); exit(1);} while(0)
 
 static inline int sign(int x)
 {

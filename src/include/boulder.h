@@ -86,8 +86,6 @@ typedef struct
   int height;
   uint8_t *mapoffset;
   uint8_t *tiledata;      /* Actually a tilemap image */
-  int flag;
-  int format;
 } MAP_HEADER;
 
 typedef enum
@@ -123,6 +121,17 @@ typedef enum
   SCRATCHING = 2,
   DIAMOND_TAKEN = 3,
 } sound_type_t;
+
+typedef enum
+{
+	KEY_FIRE = 1,
+	KEY_FIRE2 = 2,
+	KEY_UP = 4,
+	KEY_DOWN = 8,
+	KEY_LEFT = 16,
+	KEY_RIGHT = 32,
+	KEY_SELECT = 64,
+} keys_t;
 
 typedef enum
 {
@@ -252,7 +261,7 @@ typedef struct
 
 typedef struct
 {
-  file_handle_t handle;
+  FILE* handle;
   file_header_t *p_hdr;
   file_section_table_t *p_sectab;
   file_section_t *p_set;
@@ -327,11 +336,11 @@ void explode(game_t *p_game, int16_t x_in, int16_t y_in, int16_t radius);
 void game_goto_level(game_t *p_game, level_t *p_level);
 
 level_t *level_set_load_level(game_t *p_game, level_set_t *p_set, int level_nr);
-bool_t level_set_init(game_t *p_game, level_set_t *p_out, int level_set_nr, file_handle_t handle);
+bool_t level_set_init(game_t *p_game, level_set_t *p_out, int level_set_nr, FILE* handle);
 void level_set_fini(game_t *p_game, level_set_t *p_set);
-file_handle_t level_set_open_file(game_t *p_game, const char *filename);
-file_handle_t level_set_open_resource(game_t *p_game, int32_t id);
-void level_set_close(game_t *p_game, file_handle_t handle);
+FILE* level_set_open_file(game_t *p_game, const char *filename);
+FILE* level_set_open_resource(game_t *p_game, int32_t id);
+void level_set_close(game_t *p_game, FILE* handle);
 
 void level_free(game_t *p_game, level_t *p_level);
 void status_draw(game_t *p_game);

@@ -18,10 +18,9 @@ void sound_play(game_t *p_game, sound_type_t which)
   switch(which)
     {
     case EXPLOSION:
-      vBeep(200, 30);
+    	// Something here
       break;
     case DIAMOND_TAKEN:
-      vBeep(2000, 60);
       break;
     default:
       break;
