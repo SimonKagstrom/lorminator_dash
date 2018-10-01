@@ -512,8 +512,6 @@ static void game_init(game_t *p_game)
   memset(p_game, 0, sizeof(game_t));
 
   p_game->pp_sprite_frames = LPH_splitSprites(&SPRITE_FRAMES, N_FRAMES);
-
-  p_game->p_title = &LOGO;
   p_game->p_tiles = BG_TILES;
 
   p_game->conf.sound = FALSE;
@@ -528,9 +526,6 @@ static void game_fini(game_t *p_game)
   free(p_game->p_title);
   free(p_game->p_tiles);
   free(p_game->pp_sprite_frames);
-
-  /* FIXME: Display finish screen */
-  vMapDispose();
 }
 
 /* The main game loop */
@@ -630,9 +625,7 @@ static void game_do(game_t *p_game)
       /* Draw the status field */
       if ((p_game->frame_count & 2) == 0)
 	{
-	  vSetClipWindow(0, PLAYFIELD_HEIGHT, screen_w, screen_h);
 	  status_draw(p_game);
-	  vSetClipWindow(0,0, screen_w, PLAYFIELD_HEIGHT-1);
 	}
 
       vFlipScreen(1);
@@ -681,9 +674,6 @@ int main(int argc, char *argv[])
   bool_t done = FALSE;
   menu_t main_menu, options_menu;
 
-  LPH_init();
-  LPH_setTileImageSize(16,16);
-
   debug_msg("Boulder Dash build %s, %s\n", __DATE__, __TIME__);
 
   /* srand() */
@@ -691,9 +681,6 @@ int main(int argc, char *argv[])
 
   /* Get the size of the screen */
   get_screen_size(&screen_w, &screen_h);
-
-  /* Initialise the graphics */
-  vSetTransferMode(MODE_TRANS);
 
   /* Init the game and the menu */
   game_init(&game);
