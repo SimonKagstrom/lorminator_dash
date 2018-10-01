@@ -10,16 +10,18 @@
  *
  ********************************************************************/
 #include <boulder.h>
+#include <utils.h>
 
 #define le_to_be16(x) ( ((x) & 0xff00) >> 8) | ( ((x) & 0xff) << 8)
 
 int level_unpack(game_t *p_game, level_t *p_level)
 {
-  uint16_t *tmp = (uint16_t*)get_resource(p_level->u.filename, p_level->res_packed_size);
+	size_t sz;
+  uint16_t *tmp = (uint16_t*)get_resource(p_level->u.filename, &sz);
   int i;
 
   /* Byte swap */
-  for (i=0; i < p_level->res_packed_size / sizeof(int16_t); i++)
+  for (i=0; i < sz / sizeof(int16_t); i++)
     tmp[i] = le_to_be16(tmp[i]);
 
   p_level->p_level_data = tmp;
@@ -107,9 +109,6 @@ void game_goto_level(game_t *p_game, level_t *p_level)
 {
   int16_t x,y;
   MAP_HEADER *p_bgmap = &p_game->bgmap;
-
-  /* Dispose the old map */
-  vMapDispose();
 
   memset(p_bgmap, 0, sizeof(MAP_HEADER));
   memset(p_game->elems, 0, sizeof(elem_t)*N_ELEMS);

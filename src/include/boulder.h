@@ -254,8 +254,6 @@ typedef struct
     int32_t  res_id;
     char    *filename;
   } u;
-  int32_t  res_packed_size;
-  int32_t  res_unpacked_size;
   int32_t  level_handle;
 } level_t;
 

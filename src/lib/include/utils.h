@@ -60,6 +60,6 @@ static inline int get_manhattan_dist(int x1, int y1, int x2, int y2)
 
 int get_screen_size(int32_t *p_w, int32_t *p_h);
 int bresenham(int x0, int y0, int x1, int y1, int (*callback)(int x, int y, void *p), void *p_callback_arg);
-void *get_resource(char *filename, uint32_t size);
+void *get_resource(const char *filename, size_t *out_sz);
 
 #endif /* !__UTILS_H__ */

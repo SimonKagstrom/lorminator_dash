@@ -13,6 +13,12 @@
 #include <utils.h>
 #include <stdio.h>
 
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+
+
+
 /* Get the screen size, from 2dbackground.c */
 int get_screen_size(int32_t *p_w, int32_t *p_h)
 {
@@ -76,13 +82,24 @@ int bresenham(int x0, int y0, int x1, int y1,
   return 0;
 }
 
-void *get_resource(char *filename, uint32_t size)
+void *get_resource(const char *filename, size_t *out_sz)
 {
   uint8_t *p_out;
   FILE *fd;
   int n_read;
 
-  if ( !(p_out = (uint8_t*)malloc(size)) )
+  size_t file_sz = 0;
+  struct stat st;
+
+  if (lstat(filename, &st) < 0)
+  {
+	  error_msg("Can't lstat %s\n", filename);
+	  return NULL;
+  }
+  file_sz = st.st_size;
+  *out_sz = file_sz;
+
+  if ( !(p_out = (uint8_t*)malloc(file_sz)) )
     {
       debug_msg("Alloc space failed\n");
       return NULL;
@@ -95,9 +112,9 @@ void *get_resource(char *filename, uint32_t size)
       return NULL;
     }
 
-  if ((n_read = fread(p_out, size, 1, fd)) != size)
+  if ((n_read = fread(p_out, file_sz, 1, fd)) != file_sz)
     {
-      debug_msg("fread(): Could not read enough: %d vs %d!\n", n_read, size);
+      debug_msg("fread(): Could not read enough: %d vs %d!\n", n_read, file_sz);
       free(p_out);
       return NULL;
     }

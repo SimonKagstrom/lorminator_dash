@@ -62,8 +62,6 @@ level_t levels[] =
       .diamonds_required = 20,
       .time = 150,
       .u.filename = "/level.0.dat",
-      .res_packed_size = LEVEL_0_SIZE,
-      .res_unpacked_size = LEVEL_0_UNPACKED_SIZE
     },
     { /* Level 1 */
       .w = 37,
@@ -75,8 +73,6 @@ level_t levels[] =
       .p_specials = l1_specials,
       .init_special_fn = l1_init_special,
       .u.filename = "/level.1.dat",
-      .res_packed_size = LEVEL_1_SIZE,
-      .res_unpacked_size = LEVEL_1_UNPACKED_SIZE
     },
     { /* Level 2 */
       .w = 40,
@@ -88,8 +84,6 @@ level_t levels[] =
       .p_specials = l2_specials,
       .init_special_fn = special_init_generic,
       .u.filename = "/level.2.dat",
-      .res_packed_size = LEVEL_2_SIZE,
-      .res_unpacked_size = LEVEL_2_UNPACKED_SIZE
     },
   };
 
