@@ -191,7 +191,7 @@ void game_goto_level(game_t *p_game, level_t *p_level)
     error_msg("vMapInit failed");
 
   vSetDisplayWindow(max(screen_w, p_level->w*TILE_W), max(screen_h, p_level->h*TILE_H));
-  p_game->start_ticks = vGetTickCount();
+  p_game->start_ticks = SDL_GetTicks();
 }
 
 #if 0

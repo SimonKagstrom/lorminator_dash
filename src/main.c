@@ -12,6 +12,9 @@
 #include <boulder.h>
 #include <levels.h>
 
+#include <time.h>
+#include <SDL2/SDL.h>
+
 int32_t screen_w;
 int32_t screen_h;
 static game_t game; /* For phone calls */
@@ -542,7 +545,7 @@ static void game_do(game_t *p_game)
       uint32_t before, after;
       uint32_t keys;
 
-      before = vGetTickCount(); /* Get the current ms ticks */
+      before = SDL_GetTicks(); /* Get the current ms ticks */
 
       /* Read the keys */
       keys = vGetButtonData();
@@ -634,7 +637,7 @@ static void game_do(game_t *p_game)
 
       vFlipScreen(1);
 
-      after = vGetTickCount(); /* Get the current ms ticks */
+      after = SDL_GetTicks(); /* Get the current ms ticks */
       /* Every loop iteration should take about SLEEP_PERIOD, see to that */
       if ((after - before) < SLEEP_PERIOD)
 	{
@@ -684,7 +687,7 @@ int main(int argc, char *argv[])
   debug_msg("Boulder Dash build %s, %s\n", __DATE__, __TIME__);
 
   /* srand() */
-  vSetRandom(vGetTickCount());
+  srand(time(NULL));
 
   /* Get the size of the screen */
   get_screen_size(&screen_w, &screen_h);
@@ -694,6 +697,7 @@ int main(int argc, char *argv[])
 
   /* Init the game and the menu */
   game_init(&game);
+#if 0
   menu_init(&main_menu, &SMALL_FONT, main_menu_msgs,
 	    0, screen_h/2, screen_w, screen_h);
   menu_init(&options_menu, &SMALL_FONT, options_menu_msgs,
@@ -759,9 +763,12 @@ int main(int argc, char *argv[])
 	  error_msg("Unknown menu option!\n");
 	}
     }
+#endif
 
-  menu_fini(&main_menu);
-  menu_fini(&options_menu);
+  game_do(&game);
+
+//  menu_fini(&main_menu);
+ // menu_fini(&options_menu);
   game_fini(&game);
 
   return 0;

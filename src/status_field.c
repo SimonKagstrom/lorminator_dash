@@ -86,7 +86,7 @@ static void print_status_entry_with_symbol(game_t *p_game, int n, int16_t x, int
 void status_draw(game_t *p_game)
 {
   int32_t diamonds = p_game->p_cur_level->diamonds_required - p_game->player.diamonds;
-  int32_t time_left = p_game->p_cur_level->time - ((vGetTickCount() - p_game->start_ticks) / 1000);
+  int32_t time_left = p_game->p_cur_level->time - ((SDL_GetTicks() - p_game->start_ticks) / 1000);
   int16_t x_start;
   int16_t y_start;
   int i;
