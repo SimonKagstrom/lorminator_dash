@@ -28,6 +28,50 @@ static void game_check_all_elems(game_t *p_game);
 static void game_init(game_t *p_game);
 static void game_do(game_t *p_game);
 
+static uint32_t get_key_state(void)
+{
+	static uint32_t keys = 0;
+
+	SDL_Event ev;
+
+	while (SDL_PollEvent(&ev))
+	{
+		if (ev.type == SDL_QUIT)
+		{
+			exit(1);
+		}
+
+		if (ev.type == SDL_KEYDOWN)
+		{
+			if (ev.key.keysym.sym == SDLK_SPACE)
+				keys |= KEY_FIRE;
+			if (ev.key.keysym.sym == SDLK_UP)
+				keys |= KEY_UP;
+			if (ev.key.keysym.sym == SDLK_LEFT)
+				keys |= KEY_LEFT;
+			if (ev.key.keysym.sym == SDLK_RIGHT)
+				keys |= KEY_RIGHT;
+			if (ev.key.keysym.sym == SDLK_q)
+				exit(1);
+		}
+		if (ev.type == SDL_KEYUP)
+		{
+			if (ev.key.keysym.sym == SDLK_SPACE)
+				keys &= ~KEY_FIRE;
+			if (ev.key.keysym.sym == SDLK_UP)
+				keys &= ~KEY_UP;
+			if (ev.key.keysym.sym == SDLK_DOWN)
+				keys &= ~KEY_DOWN;
+			if (ev.key.keysym.sym == SDLK_LEFT)
+				keys &= ~KEY_LEFT;
+			if (ev.key.keysym.sym == SDLK_RIGHT)
+				keys &= ~KEY_RIGHT;
+		}
+	}
+
+	return keys;
+}
+
 
 static void teleport(game_t *p_game, player_t *p_player)
 {
@@ -543,7 +587,7 @@ static void game_do(game_t *p_game)
       before = SDL_GetTicks(); /* Get the current ms ticks */
 
       /* Read the keys */
-      keys = vGetButtonData();
+      keys = get_key_state();
 
       if ((p_game->frame_count & 4) &&
 	  p_game->p_cur_level->time - ((before - p_game->start_ticks) / 1000) <= 0)
@@ -634,7 +678,7 @@ static void game_do(game_t *p_game)
       /* Every loop iteration should take about SLEEP_PERIOD, see to that */
       if ((after - before) < SLEEP_PERIOD)
 	{
-	  msSleep( SLEEP_PERIOD - (after-before) );
+	  SDL_Delay( SLEEP_PERIOD - (after-before) );
 	}
 #if 0
       else
@@ -672,15 +716,25 @@ static char *options_menu_msgs[] =
 int main(int argc, char *argv[])
 {
   bool_t done = FALSE;
-  menu_t main_menu, options_menu;
+  SDL_Window *window;
 
   debug_msg("Boulder Dash build %s, %s\n", __DATE__, __TIME__);
 
   /* srand() */
   srand(time(NULL));
 
+  if (SDL_Init(SDL_INIT_VIDEO) != 0)
+  {
+          printf("No init\n");
+          return 1;
+  }
+
+  window = SDL_CreateWindow("DASH", 100, 100, 1800, 1500,
+                  SDL_WINDOW_FULLSCREEN_DESKTOP | SDL_WINDOW_SHOWN);
+
+
   /* Get the size of the screen */
-  get_screen_size(&screen_w, &screen_h);
+  SDL_GetWindowSize(window, &screen_w, &screen_h);
 
   /* Init the game and the menu */
   game_init(&game);
