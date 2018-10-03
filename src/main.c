@@ -26,7 +26,6 @@ static void handle_user_tile(game_t *p_game, mask_tile_t mask_tile);
 
 static void game_check_all_elems(game_t *p_game);
 static void game_init(game_t *p_game);
-static void game_do(game_t *p_game);
 
 static uint32_t get_key_state(void)
 {
@@ -573,7 +572,7 @@ static void game_fini(game_t *p_game)
 }
 
 /* The main game loop */
-static void game_do(game_t *p_game)
+static void game_do(game_t *p_game, SDL_Renderer *ren)
 {
   int16_t teleporter_count = 0;
   p_game->game_on = TRUE;
@@ -625,7 +624,6 @@ static void game_do(game_t *p_game)
       game_center_map(p_game);
       game_update_view_buffer(p_game);
 
-      vUpdateMap();
       game_check_all_elems(p_game); /* Handle elements (and draw them) */
 
       /* Check/call all callbacks */
@@ -672,7 +670,7 @@ static void game_do(game_t *p_game)
 	  status_draw(p_game);
 	}
 
-      vFlipScreen(1);
+	SDL_RenderPresent(ren);
 
       after = SDL_GetTicks(); /* Get the current ms ticks */
       /* Every loop iteration should take about SLEEP_PERIOD, see to that */
@@ -717,6 +715,7 @@ int main(int argc, char *argv[])
 {
   bool_t done = FALSE;
   SDL_Window *window;
+  SDL_Renderer *ren;
 
   debug_msg("Boulder Dash build %s, %s\n", __DATE__, __TIME__);
 
@@ -731,6 +730,15 @@ int main(int argc, char *argv[])
 
   window = SDL_CreateWindow("DASH", 100, 100, 1800, 1500,
                   SDL_WINDOW_FULLSCREEN_DESKTOP | SDL_WINDOW_SHOWN);
+
+  ren = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+  if (ren == NULL)
+  {
+	  SDL_DestroyWindow(window);
+	  printf("NO renderer\n");
+	  SDL_Quit();
+	  return 1;
+  }
 
 
   /* Get the size of the screen */
@@ -766,9 +774,9 @@ int main(int argc, char *argv[])
 	    game_goto_level(&game, &levels[game.cur_level]);
 	  }
 	case 1:
-	  /* The main game loop */
-	  game_do(&game);
-	  break;
+		  /* The main game loop */
+			  game_do(&game);
+			  break;
 	case 3:
 	  {
 	    int submenus[1];
@@ -806,11 +814,16 @@ int main(int argc, char *argv[])
     }
 #endif
 
-  game_do(&game);
+  game_do(&game, ren);
 
 //  menu_fini(&main_menu);
  // menu_fini(&options_menu);
   game_fini(&game);
+
+  SDL_DestroyRenderer(ren);
+  SDL_DestroyWindow(window);
+  SDL_Quit();
+
 
   return 0;
 }
