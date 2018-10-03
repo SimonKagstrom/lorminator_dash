@@ -12,6 +12,8 @@
 #include <boulder.h>
 #include <utils.h>
 
+#include <SDL2/SDL.h>
+
 #define le_to_be16(x) ( ((x) & 0xff00) >> 8) | ( ((x) & 0xff) << 8)
 
 int level_unpack(game_t *p_game, level_t *p_level)
@@ -124,7 +126,6 @@ void game_goto_level(game_t *p_game, level_t *p_level)
   p_bgmap->width = p_level->w;
   p_bgmap->height = p_level->h;
   p_bgmap->mapoffset = (uint8_t*)p_game->p_view_data;
-  p_bgmap->tiledata = (uint8_t*)p_game->p_tiles;
 
   p_game->n_elems = 0;
   p_game->first_free = 0;
@@ -187,10 +188,7 @@ void game_goto_level(game_t *p_game, level_t *p_level)
     error_msg("Need more or less than one teleporter!\n");
 
   /* Setup the background map */
-  if ( !vMapInit(p_bgmap) )
-    error_msg("vMapInit failed");
-
-  vSetDisplayWindow(max(screen_w, p_level->w*TILE_W), max(screen_h, p_level->h*TILE_H));
+//  vSetDisplayWindow(max(screen_w, p_level->w*TILE_W), max(screen_h, p_level->h*TILE_H));
   p_game->start_ticks = SDL_GetTicks();
 }
 

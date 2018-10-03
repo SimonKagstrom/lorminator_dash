@@ -555,7 +555,6 @@ static void game_init(game_t *p_game)
   memset(p_game, 0, sizeof(game_t));
 
   p_game->pp_sprite_frames = LPH_splitSprites(&SPRITE_FRAMES, N_FRAMES);
-  p_game->p_tiles = BG_TILES;
 
   p_game->conf.sound = FALSE;
 
@@ -567,7 +566,6 @@ static void game_fini(game_t *p_game)
   level_free(p_game, p_game->p_cur_level);
 
   free(p_game->p_title);
-  free(p_game->p_tiles);
   free(p_game->pp_sprite_frames);
 }
 

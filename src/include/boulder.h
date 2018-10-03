@@ -85,7 +85,6 @@ typedef struct
   int width;
   int height;
   uint8_t *mapoffset;
-  uint8_t *tiledata;      /* Actually a tilemap image */
 } MAP_HEADER;
 
 typedef enum
@@ -281,7 +280,6 @@ typedef struct s_game
   int16_t      dx;
   int16_t      dy;
   SPRITE     **pp_sprite_frames;
-  uint8_t     *p_tiles;
   SPRITE      *p_title;
 
   level_t     *p_cur_level;
