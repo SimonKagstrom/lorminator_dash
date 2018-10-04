@@ -14,17 +14,11 @@
 
 #include <SDL2/SDL.h>
 
-#define le_to_be16(x) ( ((x) & 0xff00) >> 8) | ( ((x) & 0xff) << 8)
-
 int level_unpack(game_t *p_game, level_t *p_level)
 {
 	size_t sz;
   uint16_t *tmp = (uint16_t*)get_resource(p_level->u.filename, &sz);
   int i;
-
-  /* Byte swap */
-  for (i=0; i < sz / sizeof(int16_t); i++)
-    tmp[i] = le_to_be16(tmp[i]);
 
   p_level->p_level_data = tmp;
 
@@ -79,8 +73,6 @@ static level_t *level_alloc(game_t *p_game, level_t *p_level)
 
   /* Allocate the level mask */
   if ( !(p_game->p_level_mask = malloc( (p_level->w * p_level->h) * sizeof(mask_tile_t))) )
-    error_msg("malloc failed");
-  if ( !(p_game->p_level_map = malloc( (p_level->w * p_level->h) * sizeof(tile_t))) )
     error_msg("malloc failed");
   memset(p_game->p_level_mask, 0, (p_level->w * p_level->h) * sizeof(mask_tile_t));
   /* Allocate the view mask */

@@ -55,7 +55,7 @@
 
 #define TRANSPORT_TO_DIR(x) (dir_t)((x) - MASK_ID_LEFT_TRANSPORT + 2)
 
-#define TILE_AT(p_game, x, y) ((p_game)->p_level_map[(y) * (p_game)->p_cur_level->w + (x)])
+#define TILE_AT(p_game, x, y) ((p_game)->p_view_data[(y) * (p_game)->p_cur_level->w + (x)])
 #define MTILE_AT(p_game, x, y) ((p_game)->p_level_mask[(y) * (p_game)->p_cur_level->w + (x)])
 #define TILE_SWAP(p_game, x1,y1, x2, y2) do { \
 				  level_t *p_level = (p_game)->p_cur_level; \
@@ -289,7 +289,6 @@ typedef struct s_game
   int16_t      exit_y;
 
   mask_tile_t *p_level_mask;
-  tile_t *p_level_map;
   tile_t      *p_view_data;
   elem_t       elems[N_ELEMS];
   callback_t   callbacks[N_CALLBACKS];

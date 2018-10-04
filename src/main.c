@@ -541,7 +541,7 @@ static void game_erase_view_buffer(game_t *p_game)
 	      tile != TILE_EMPTY &&
 	      tile < TILE_MAX)
 	    {
-	      TILE_AT(p_game, x,y) =  tile + TILE_MAX;
+	      TILE_AT(p_game, x,y) = tile + TILE_MAX;
 	      if (MASK_TILE_IS_ELEM(mask_tile) &&
 		  p_game->elems[mask_tile.id].display_counter > 0)
 		p_game->elems[mask_tile.id].display_counter = 10;
@@ -561,6 +561,49 @@ static void game_init(game_t *p_game)
   p_game->conf.sound = FALSE;
 
   player_set_name(p_game, &p_game->player, "SIMON");
+}
+
+static void game_draw_map(game_t *p_game)
+{
+	unsigned x, y;
+	printf("W: %d, H: %d\n", p_game->p_cur_level->w, p_game->p_cur_level->h);
+	for (y = 0; y < p_game->p_cur_level->h; y++)
+	{
+		for (x = 0; x < p_game->p_cur_level->w; x++)
+		{
+			tile_t cur = TILE_ID(TILE_AT(p_game, x, y));
+
+			if (cur == TILE_EMPTY)
+			{
+				printf(" ");
+			}
+			else if (cur == TILE_BOULDER)
+			{
+				printf("o");
+			}
+			else if (cur == TILE_DIRT)
+			{
+				printf("#");
+			}
+			else if (cur == TILE_UNDISCOVERED)
+			{
+				printf("?");
+			}
+			else if (cur == TILE_STONE_WALL)
+			{
+				printf("w");
+			}
+			else if (cur == TILE_WEAK_STONE_WALL)
+			{
+				printf("v");
+			}
+			else
+			{
+				printf("x");
+			}
+		}
+		printf("\n");
+	}
 }
 
 static void game_fini(game_t *p_game)
@@ -624,6 +667,8 @@ static void game_do(game_t *p_game, SDL_Renderer *ren)
       game_center_map(p_game);
       game_update_view_buffer(p_game);
 
+      game_draw_map(p_game);
+
       game_check_all_elems(p_game); /* Handle elements (and draw them) */
 
       /* Check/call all callbacks */
@@ -670,7 +715,7 @@ static void game_do(game_t *p_game, SDL_Renderer *ren)
 	  status_draw(p_game);
 	}
 
-	SDL_RenderPresent(ren);
+//	SDL_RenderPresent(ren);
 
       after = SDL_GetTicks(); /* Get the current ms ticks */
       /* Every loop iteration should take about SLEEP_PERIOD, see to that */
@@ -728,6 +773,7 @@ int main(int argc, char *argv[])
           return 1;
   }
 
+#if 0
   window = SDL_CreateWindow("DASH", 100, 100, 1800, 1500,
                   SDL_WINDOW_FULLSCREEN_DESKTOP | SDL_WINDOW_SHOWN);
 
@@ -739,6 +785,7 @@ int main(int argc, char *argv[])
 	  SDL_Quit();
 	  return 1;
   }
+#endif
 
 
   /* Get the size of the screen */

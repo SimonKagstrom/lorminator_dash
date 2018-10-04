@@ -11,6 +11,8 @@
  ********************************************************************/
 #include <boulder.h>
 
+#include <SDL2/SDL.h>
+
 #define MESSAGE_TIME 13
 #define N_MSGS 3
 
