@@ -80,6 +80,8 @@ static level_t *level_alloc(game_t *p_game, level_t *p_level)
   /* Allocate the level mask */
   if ( !(p_game->p_level_mask = malloc( (p_level->w * p_level->h) * sizeof(mask_tile_t))) )
     error_msg("malloc failed");
+  if ( !(p_game->p_level_map = malloc( (p_level->w * p_level->h) * sizeof(tile_t))) )
+    error_msg("malloc failed");
   memset(p_game->p_level_mask, 0, (p_level->w * p_level->h) * sizeof(mask_tile_t));
   /* Allocate the view mask */
   if ( !(p_game->p_view_data = malloc( (p_level->w * p_level->h) * sizeof(tile_t))) )

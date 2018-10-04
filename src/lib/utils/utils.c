@@ -112,7 +112,7 @@ void *get_resource(const char *filename, size_t *out_sz)
       return NULL;
     }
 
-  if ((n_read = fread(p_out, file_sz, 1, fd)) != file_sz)
+  if ((n_read = fread(p_out, 1, file_sz, fd)) != file_sz)
     {
       debug_msg("fread(): Could not read enough: %d vs %d!\n", n_read, file_sz);
       free(p_out);

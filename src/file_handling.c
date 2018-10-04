@@ -29,7 +29,7 @@ file_section_t *file_section_get(FILE* handle, file_section_table_t *p_sectab, i
     goto clean_0;
   if (fseek(handle, p_sectab->entries[level_index].file_offset, SEEK_SET) < 0)
     goto clean_1;
-  if (fread(p_out, p_sectab->entries[level_index].size, 1, handle) < 0)
+  if (fread(p_out, 1, p_sectab->entries[level_index].size, handle) < 0)
     {
       debug_msg("Reading failed!\n");
       goto clean_1;
@@ -58,7 +58,7 @@ file_section_table_t *file_get_section_table(FILE* handle, file_header_t *p_hdr)
 
   if (fseek(handle, p_hdr->section_table_offs, SEEK_SET) < 0)
     goto clean_1;
-  if (fread(p_out, p_hdr->section_table_size, 1, handle) < 0)
+  if (fread(p_out, 1, p_hdr->section_table_size, handle) < 0)
     goto clean_1;
 
   return p_out;
@@ -75,7 +75,7 @@ file_header_t *file_read_header(FILE* handle)
   file_header_t *p_out;
   file_header_t hdr;
 
-  if (fread(&hdr, sizeof(file_header_t), 1, handle) < 0)
+  if (fread(&hdr, 1, sizeof(file_header_t), handle) < 0)
     goto clean_0;
 
   if (hdr.magic != FILE_MAGIC)
@@ -86,7 +86,7 @@ file_header_t *file_read_header(FILE* handle)
 
   if (fseek(handle, 0, SEEK_SET) < 0)
     goto clean_1;
-  if (fread(p_out, hdr.size, 1, handle) < 0)
+  if (fread(p_out, 1, hdr.size, handle) < 0)
     goto clean_1;
 
   return p_out;

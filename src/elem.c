@@ -95,8 +95,8 @@ void player_init(game_t *p_game, player_t *p_player, point_t p)
 void player_draw(game_t *p_game, player_t *p_player)
 {
   p_player->sprite.frame = p_player->sprite.dir;
-  vDrawObject(p_player->sprite.pt.x-p_game->bg_x, p_player->sprite.pt.y-p_game->bg_y,
-	      p_game->pp_sprite_frames[p_player->sprite.base_frame + p_player->sprite.frame]);
+//  vDrawObject(p_player->sprite.pt.x-p_game->bg_x, p_player->sprite.pt.y-p_game->bg_y,
+	//      p_game->pp_sprite_frames[p_player->sprite.base_frame + p_player->sprite.frame]);
 }
 
 void player_kill(game_t *p_game, player_t *p_player)
@@ -394,7 +394,7 @@ void elem_draw(game_t *p_game, elem_t *p_elem)
 
   if (p_elem->sprite.view_pt.x >= 0)
     {
-      vDrawObject(p_elem->sprite.view_pt.x-p_game->bg_x, p_elem->sprite.view_pt.y-p_game->bg_y,
-		  p_game->pp_sprite_frames[frame]);
+//      vDrawObject(p_elem->sprite.view_pt.x-p_game->bg_x, p_elem->sprite.view_pt.y-p_game->bg_y,
+	//	  p_game->pp_sprite_frames[frame]);
     }
 }

@@ -61,7 +61,7 @@ level_t levels[] =
       .player_pt = {TILE_W,TILE_H},
       .diamonds_required = 20,
       .time = 150,
-      .u.filename = "/level.0.dat",
+      .u.filename = "resources/level.0.dat",
     },
     { /* Level 1 */
       .w = 37,
@@ -72,7 +72,7 @@ level_t levels[] =
       .n_specials = sizeof(l1_specials)/sizeof(special_t),
       .p_specials = l1_specials,
       .init_special_fn = l1_init_special,
-      .u.filename = "/level.1.dat",
+      .u.filename = "resources/level.1.dat",
     },
     { /* Level 2 */
       .w = 40,
@@ -83,7 +83,7 @@ level_t levels[] =
       .n_specials = sizeof(l2_specials)/sizeof(special_t),
       .p_specials = l2_specials,
       .init_special_fn = special_init_generic,
-      .u.filename = "/level.2.dat",
+      .u.filename = "resources/level.2.dat",
     },
   };
 

@@ -27,6 +27,7 @@ static void handle_user_tile(game_t *p_game, mask_tile_t mask_tile);
 static void game_check_all_elems(game_t *p_game);
 static void game_init(game_t *p_game);
 
+
 static uint32_t get_key_state(void)
 {
 	static uint32_t keys = 0;
@@ -362,7 +363,7 @@ static void player_handle_input(game_t *p_game, dir_t dir, uint32_t fire)
       (fire & KEY_FIRE) )
     {
       p_game->p_cur_level->p_level_data[new_pt.y*p_game->p_cur_level->w+new_pt.x] = TILE_EMPTY;
-      vMapSetTile(new_pt.x, new_pt.y, TILE_EMPTY);
+      TILE_AT(p_game, new_pt.x, new_pt.y) =  TILE_EMPTY;
 
       /* Clean up after the player */
       if (!MASK_TILE_IS_ELEM(*p_next_tile))
@@ -449,7 +450,7 @@ static void game_center_map(game_t *p_game)
       break;
     }
 
-  vMapSetXY(p_game->bg_x, p_game->bg_y);
+  //vMapSetXY(p_game->bg_x, p_game->bg_y);
 }
 
 static bool_t show_tile(game_t *p_game, point_t tile_pt)
@@ -460,7 +461,8 @@ static bool_t show_tile(game_t *p_game, point_t tile_pt)
   mask_tile = MTILE_AT(p_game, tile_pt.x, tile_pt.y);
   tile = p_game->p_cur_level->p_level_data[tile_pt.y * p_game->p_cur_level->w + tile_pt.x];
 
-  vMapSetTile(tile_pt.x,tile_pt.y,tile);
+  TILE_AT(p_game, tile_pt.x, tile_pt.y) = tile;
+
   if (MASK_TILE_IS_ELEM(mask_tile))
     p_game->elems[mask_tile.id].display_counter = 10;
 
@@ -533,13 +535,13 @@ static void game_erase_view_buffer(game_t *p_game)
       for (x=x_start; x<=x_end; x++)
 	{
 	  mask_tile_t mask_tile = MTILE_AT(p_game, x,y);
-	  tile_t tile = vMapGetTile(x,y);
+	  tile_t tile = TILE_AT(p_game, x,y);
 
 	  if (tile != TILE_UNDISCOVERED &&
 	      tile != TILE_EMPTY &&
 	      tile < TILE_MAX)
 	    {
-	      vMapSetTile(x,y, tile + TILE_MAX);
+	      TILE_AT(p_game, x,y) =  tile + TILE_MAX;
 	      if (MASK_TILE_IS_ELEM(mask_tile) &&
 		  p_game->elems[mask_tile.id].display_counter > 0)
 		p_game->elems[mask_tile.id].display_counter = 10;
@@ -554,7 +556,7 @@ static void game_init(game_t *p_game)
 {
   memset(p_game, 0, sizeof(game_t));
 
-  p_game->pp_sprite_frames = LPH_splitSprites(&SPRITE_FRAMES, N_FRAMES);
+  p_game->pp_sprite_frames = calloc(N_FRAMES, sizeof(SPRITE*));//LPH_splitSprites(&SPRITE_FRAMES, N_FRAMES);
 
   p_game->conf.sound = FALSE;
 
@@ -744,6 +746,7 @@ int main(int argc, char *argv[])
 
   /* Init the game and the menu */
   game_init(&game);
+  game_goto_level(&game, &levels[game.cur_level]);
 #if 0
   menu_init(&main_menu, &SMALL_FONT, main_menu_msgs,
 	    0, screen_h/2, screen_w, screen_h);
