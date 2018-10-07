@@ -80,7 +80,10 @@ public:
 	static std::unique_ptr<Level> fromFile(const std::string &levelFile);
 
 private:
-	Level(extents size);
+	static bool verify(const std::string &data);
+
+	Level(extents size, const std::string &data);
 
 	extents m_size;
+	std::vector<std::shared_ptr<Entity>> m_entities;
 };

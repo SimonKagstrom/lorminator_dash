@@ -1,11 +1,23 @@
 #include <level.hh>
+#include <entity.hh>
+
 #include <utils.hh>
 
 #include <algorithm>
 
-Level::Level(extents size)  :
+Level::Level(extents size, const std::string &data)  :
 	m_size(size)
 {
+	// Try to create entities for all data
+	for (auto &c : data)
+	{
+		std::shared_ptr<Entity> ent = Entity::fromChar(c);
+
+		if (ent)
+		{
+			m_entities.push_back(ent);
+		}
+	}
 }
 
 Level::~Level()
@@ -19,8 +31,7 @@ const extents &Level::getSize() const
 
 std::vector<std::shared_ptr<Entity>> Level::getEntities()
 {
-	std::vector<std::shared_ptr<Entity>> out;
-	return out;
+	return m_entities;
 }
 
 bool Level::pointIsPassable(const point &where) const
@@ -45,6 +56,21 @@ void Level::explode(const point &where)
 }
 
 
+bool Level::verify(const std::string &data)
+{
+	std::string validChars = " .#xwotpgbIGR";
+
+	for (auto &c : data)
+	{
+		if (validChars.find(c) == std::string::npos)
+		{
+			return false;
+		}
+	}
+
+	return true;
+}
+
 std::unique_ptr<Level> Level::fromString(const std::string &levelString)
 {
 	auto words = split_string(levelString, " ");
@@ -62,22 +88,28 @@ std::unique_ptr<Level> Level::fromString(const std::string &levelString)
 	// Empty
 	if (size == extents{0,0})
 	{
-		return std::unique_ptr<Level>(new Level(size));
+		return std::unique_ptr<Level>(new Level(size, ""));
 	}
 
 	// width. We know the words exist because of the split above
 	auto tmp = levelString.find(' ');
-	auto dataIdx = levelString.find(' ', tmp) + 1; // Data starts afterwards
+	auto dataIdx = levelString.find(' ', tmp + 1) + 1; // Data starts afterwards
 
 	// The data portion, without newlines
 	auto data = levelString.substr(dataIdx);
 	data.erase(std::remove(data.begin(), data.end(), '\n'), data.end());
 
-	// The size is wrong
 	if (data.size() != size.height * size.width)
 	{
+		// The size is wrong
 		return nullptr;
 	}
 
-	return std::unique_ptr<Level>(new Level(size));
+	if (!Level::verify(data))
+	{
+		// Invalid characters in the data
+		return nullptr;
+	}
+
+	return std::unique_ptr<Level>(new Level(size, data));
 }
