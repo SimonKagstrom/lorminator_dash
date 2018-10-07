@@ -21,9 +21,11 @@ target_link_libraries(lorminator_dash ${SDL2_LIBRARY})
 
 
 add_executable(ut
+	src/entity.cc
 	src/level.cc
 	src/utils.cc
 	test/unit-tests/tests-main.cc
+	test/unit-tests/tests-entity.cc
 	test/unit-tests/tests-level.cc
 )
 set_target_properties(ut PROPERTIES
