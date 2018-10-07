@@ -1,0 +1,16 @@
+#pragma once
+
+
+enum class TileType
+{
+	EMPTY,
+	DIRT,
+	MAGIC_WALL,
+	LEFT_TRANSPORT,
+	RIGHT_TRANSPORT,
+	STONE_WALL,
+	WEAK_STONE_WALL,
+	TELEPORTER,
+	CONVEYOR,
+	EXIT,
+};
