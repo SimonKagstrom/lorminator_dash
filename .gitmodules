@@ -1,0 +1,6 @@
+[submodule "test/unit-tests/trompeloeil"]
+	path = test/unit-tests/trompeloeil
+	url = https://github.com/rollbear/trompeloeil.git
+[submodule "test/unit-tests/Catch2"]
+	path = test/unit-tests/Catch2
+	url = https://github.com/catchorg/Catch2.git
