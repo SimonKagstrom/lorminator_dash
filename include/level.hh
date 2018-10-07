@@ -19,6 +19,12 @@ struct extents
 {
 	unsigned width{0};
 	unsigned height{0};
+
+	bool operator==(const extents &other) const
+	{
+		return width == other.width &&
+				height == other.height;
+	}
 };
 
 struct point
@@ -58,7 +64,7 @@ class Level
 public:
 	virtual ~Level();
 
-	virtual struct extents getSize() const;
+	virtual const struct extents &getSize() const;
 
 	virtual std::vector<std::shared_ptr<Entity>> getEntities();
 
@@ -72,4 +78,9 @@ public:
 
 	static std::unique_ptr<Level> fromString(const std::string &levelString);
 	static std::unique_ptr<Level> fromFile(const std::string &levelFile);
+
+private:
+	Level(extents size);
+
+	extents m_size;
 };
