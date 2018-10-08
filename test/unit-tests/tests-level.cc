@@ -37,7 +37,7 @@ TEST_CASE("A non-empty level can be created from a string", "[level]")
 {
 	WHEN("the level is square")
 	{
-		auto lvl = Level::fromString("2 2 oooo"); // 4 boulders
+		auto lvl = Level::fromString("2 2 ooop"); // 3 boulders and the player
 		REQUIRE(lvl);
 
 		WHEN("entities can be created")
@@ -46,10 +46,21 @@ TEST_CASE("A non-empty level can be created from a string", "[level]")
 
 			REQUIRE(entities.size() == 4);
 
+			unsigned boulders = 0;
+			unsigned players = 0;
 			for (auto &it : entities)
 			{
-				REQUIRE(it->getType() == EntityType::BOULDER);
+				if (it->getType() == EntityType::BOULDER)
+				{
+					boulders++;
+				}
+				else if (it->getType() == EntityType::PLAYER)
+				{
+					players++;
+				}
 			}
+			REQUIRE(boulders == 3);
+			REQUIRE(players == 1);
 		}
 	}
 
@@ -64,4 +75,18 @@ TEST_CASE("A non-empty level can be created from a string", "[level]")
 		auto lvl = Level::fromString("2 3 ooo\noop");
 		REQUIRE(lvl);
 	}
+}
+
+TEST_CASE("A level can be queried for tiles", "[level]")
+{
+	auto lvl = Level::fromString("2 2 ...p");
+	REQUIRE(lvl);
+
+	auto t00 = lvl->tileAt({0,0});
+	REQUIRE(t00);
+	REQUIRE(t00 == TileType::DIRT);
+}
+
+TEST_CASE("A level can be queried for passable positions", "[level]")
+{
 }

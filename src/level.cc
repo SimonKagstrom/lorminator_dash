@@ -5,6 +5,36 @@
 
 #include <algorithm>
 
+class Level
+{
+public:
+	virtual ~Level();
+
+	virtual const struct extents &getSize() const;
+
+	virtual std::vector<std::shared_ptr<Entity>> getEntities();
+
+	virtual bool pointIsPassable(const point &where) const;
+
+	virtual bool pointIsSolid(const point &where) const;
+
+	virtual std::optional<TileType> tileAt(const point &where) const;
+
+	virtual void explode(const point &where);
+
+	static std::unique_ptr<Level> fromString(const std::string &levelString);
+	static std::unique_ptr<Level> fromFile(const std::string &levelFile);
+
+private:
+	static bool verify(const std::string &data);
+
+	Level(extents size, const std::string &data);
+
+	extents m_size;
+	std::vector<std::shared_ptr<Entity>> m_entities;
+};
+
+
 Level::Level(extents size, const std::string &data)  :
 	m_size(size)
 {
