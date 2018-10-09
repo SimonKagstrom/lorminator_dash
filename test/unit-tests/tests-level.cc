@@ -93,7 +93,7 @@ TEST_CASE("A non-empty level can be created from a string", "[level]")
 
 TEST_CASE("A level can be queried for tiles", "[level]")
 {
-	auto lvl = ILevel::fromString("2 2 ..#p");
+	auto lvl = ILevel::fromString("3 2 ...#.p");
 	REQUIRE(lvl);
 
 	auto t44 = lvl->tileAt({4,4});
@@ -107,7 +107,7 @@ TEST_CASE("A level can be queried for tiles", "[level]")
 	REQUIRE(t01);
 	REQUIRE(t01 == TileType::STONE_WALL);
 
-	auto t11 = lvl->tileAt({1,1});
+	auto t11 = lvl->tileAt({2,1});
 	REQUIRE(t11);
 	REQUIRE(t11 == TileType::EMPTY); // The player
 }
