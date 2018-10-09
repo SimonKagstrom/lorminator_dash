@@ -5,7 +5,7 @@
 
 TEST_CASE("An entity can't be created from an invalid character", "[entity]")
 {
-	auto ent = Entity::fromChar('.'); // Not an entity in the map
+	auto ent = IEntity::fromChar('.'); // Not an entity in the map
 	REQUIRE(!ent);
 }
 
@@ -13,12 +13,12 @@ TEST_CASE("An entity can be created from a character", "[entity]")
 {
 	WHEN("the entity is a boulder")
 	{
-		auto ent = Entity::fromChar('o');
+		auto ent = IEntity::fromChar('o');
 		REQUIRE(ent);
 	}
 	WHEN("the entity is a player")
 	{
-		auto ent = Entity::fromChar('p');
+		auto ent = IEntity::fromChar('p');
 		REQUIRE(ent);
 	}
 }

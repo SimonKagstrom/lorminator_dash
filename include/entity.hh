@@ -15,17 +15,14 @@ enum class EntityType
 	RED_KEY,
 };
 
-class Entity
+class IEntity
 {
 public:
-	virtual ~Entity();
+	virtual ~IEntity()
+	{
+	}
 
-	EntityType getType() const;
+	virtual EntityType getType() const = 0;
 
-	static std::unique_ptr<Entity> fromChar(char c);
-
-private:
-	Entity(EntityType type);
-
-	const EntityType m_type;
+	static std::unique_ptr<IEntity> fromChar(char c);
 };

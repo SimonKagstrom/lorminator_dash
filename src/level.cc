@@ -5,33 +5,31 @@
 
 #include <algorithm>
 
-class Level
+class Level : public ILevel
 {
 public:
-	virtual ~Level();
-
-	virtual const struct extents &getSize() const;
-
-	virtual std::vector<std::shared_ptr<Entity>> getEntities();
-
-	virtual bool pointIsPassable(const point &where) const;
-
-	virtual bool pointIsSolid(const point &where) const;
-
-	virtual std::optional<TileType> tileAt(const point &where) const;
-
-	virtual void explode(const point &where);
-
-	static std::unique_ptr<Level> fromString(const std::string &levelString);
-	static std::unique_ptr<Level> fromFile(const std::string &levelFile);
-
-private:
-	static bool verify(const std::string &data);
-
 	Level(extents size, const std::string &data);
 
+	virtual ~Level();
+
+	virtual const struct extents &getSize() const override;
+
+	virtual std::vector<std::shared_ptr<IEntity>> getEntities() override;
+
+	virtual bool pointIsPassable(const point &where) const override;
+
+	virtual bool pointIsSolid(const point &where) const override;
+
+	virtual std::optional<TileType> tileAt(const point &where) const override;
+
+	virtual void explode(const point &where) override;
+
+
+	static bool verify(const std::string &data);
+
+private:
 	extents m_size;
-	std::vector<std::shared_ptr<Entity>> m_entities;
+	std::vector<std::shared_ptr<IEntity>> m_entities;
 };
 
 
@@ -41,7 +39,7 @@ Level::Level(extents size, const std::string &data)  :
 	// Try to create entities for all data
 	for (auto &c : data)
 	{
-		std::shared_ptr<Entity> ent = Entity::fromChar(c);
+		std::shared_ptr<IEntity> ent = IEntity::fromChar(c);
 
 		if (ent)
 		{
@@ -59,7 +57,7 @@ const extents &Level::getSize() const
 	return m_size;
 }
 
-std::vector<std::shared_ptr<Entity>> Level::getEntities()
+std::vector<std::shared_ptr<IEntity>> Level::getEntities()
 {
 	return m_entities;
 }
@@ -101,7 +99,7 @@ bool Level::verify(const std::string &data)
 	return true;
 }
 
-std::unique_ptr<Level> Level::fromString(const std::string &levelString)
+std::unique_ptr<ILevel> ILevel::fromString(const std::string &levelString)
 {
 	auto words = split_string(levelString, " ");
 	if (words.size() < 2)
@@ -118,7 +116,7 @@ std::unique_ptr<Level> Level::fromString(const std::string &levelString)
 	// Empty
 	if (size == extents{0,0})
 	{
-		return std::unique_ptr<Level>(new Level(size, ""));
+		return std::unique_ptr<ILevel>(new Level(size, ""));
 	}
 
 	// width. We know the words exist because of the split above
@@ -141,5 +139,5 @@ std::unique_ptr<Level> Level::fromString(const std::string &levelString)
 		return nullptr;
 	}
 
-	return std::unique_ptr<Level>(new Level(size, data));
+	return std::unique_ptr<ILevel>(new Level(size, data));
 }

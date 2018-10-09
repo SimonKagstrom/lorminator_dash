@@ -6,7 +6,7 @@
 
 TEST_CASE("An empty level can be created from a string", "[level]")
 {
-	auto lvl = Level::fromString("0 0");
+	auto lvl = ILevel::fromString("0 0");
 
     REQUIRE(lvl);
     REQUIRE(lvl->getEntities().empty());
@@ -17,18 +17,20 @@ TEST_CASE("A level can't be created from an invalid string", "[level]")
 {
 	WHEN("the string is empty")
 	{
-		auto lvl = Level::fromString("");
+		auto lvl = ILevel::fromString("");
 		REQUIRE(!lvl);
 	}
+
 	WHEN("the size is invalid")
 	{
 		// 1x2 size, but only 3 entries
-		auto lvl = Level::fromString("1 2 ...");
+		auto lvl = ILevel::fromString("1 2 ..p");
 		REQUIRE(!lvl);
 	}
+
 	WHEN("the string contains invalid characters")
 	{
-		auto lvl = Level::fromString("2 2 ...M");
+		auto lvl = ILevel::fromString("2 2 ..pM");
 		REQUIRE(!lvl);
 	}
 }
@@ -37,7 +39,7 @@ TEST_CASE("A non-empty level can be created from a string", "[level]")
 {
 	WHEN("the level is square")
 	{
-		auto lvl = Level::fromString("2 2 ooop"); // 3 boulders and the player
+		auto lvl = ILevel::fromString("2 2 ooop"); // 3 boulders and the player
 		REQUIRE(lvl);
 
 		WHEN("entities can be created")
@@ -66,20 +68,20 @@ TEST_CASE("A non-empty level can be created from a string", "[level]")
 
 	WHEN("the level is not square")
 	{
-		auto lvl = Level::fromString("2 3 ooooop");
+		auto lvl = ILevel::fromString("2 3 ooooop");
 		REQUIRE(lvl);
 	}
 
 	WHEN("the level data contains newlines")
 	{
-		auto lvl = Level::fromString("2 3 ooo\noop");
+		auto lvl = ILevel::fromString("2 3 ooo\noop");
 		REQUIRE(lvl);
 	}
 }
 
 TEST_CASE("A level can be queried for tiles", "[level]")
 {
-	auto lvl = Level::fromString("2 2 ...p");
+	auto lvl = ILevel::fromString("2 2 ...p");
 	REQUIRE(lvl);
 
 	auto t00 = lvl->tileAt({0,0});
