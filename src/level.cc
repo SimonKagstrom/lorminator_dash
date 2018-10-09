@@ -147,6 +147,13 @@ bool Level::verify(const std::string &data)
 		return false;
 	}
 
+	auto teleporterCount = std::count_if(data.begin(), data.end(), [](char c) { return c == 't'; });
+	if (teleporterCount == 1)
+	{
+		// Need 0 or > 1 teleporters, for obvious reasons
+		return false;
+	}
+
 	return true;
 }
 

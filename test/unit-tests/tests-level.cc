@@ -39,6 +39,12 @@ TEST_CASE("A level can't be created from an invalid string", "[level]")
 		auto lvl = ILevel::fromString("2 2 ....");
 		REQUIRE(!lvl);
 	}
+
+	WHEN("the level has a single teleporter")
+	{
+		auto lvl = ILevel::fromString("2 2 ..tp");
+		REQUIRE(!lvl);
+	}
 }
 
 TEST_CASE("A non-empty level can be created from a string", "[level]")
