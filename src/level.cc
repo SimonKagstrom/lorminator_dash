@@ -28,15 +28,21 @@ public:
 	static bool verify(const std::string &data);
 
 private:
+	static TileType tileFromChar(char c);
+
 	extents m_size;
 	std::vector<std::shared_ptr<IEntity>> m_entities;
+	std::vector<TileType> m_tiles;
 };
 
 
 Level::Level(extents size, const std::string &data)  :
 	m_size(size)
 {
+	m_tiles.resize(size.height * size.width);
+
 	// Try to create entities for all data
+	unsigned cur = 0;
 	for (auto &c : data)
 	{
 		std::shared_ptr<IEntity> ent = IEntity::fromChar(c);
@@ -44,7 +50,14 @@ Level::Level(extents size, const std::string &data)  :
 		if (ent)
 		{
 			m_entities.push_back(ent);
+			m_tiles[cur] = TileType::EMPTY;
 		}
+		else
+		{
+			m_tiles[cur] = Level::tileFromChar(c);
+		}
+
+		cur++;
 	}
 }
 
@@ -75,6 +88,14 @@ bool Level::pointIsSolid(const point &where) const
 std::optional<TileType> Level::tileAt(const point &where) const
 {
 	std::optional<TileType> out;
+
+	auto idx = where.y * m_size.width + where.x;
+	if (idx > m_size.height * m_size.width)
+	{
+		return out;
+	}
+	out = m_tiles[idx];
+
 	return out;
 }
 
@@ -83,17 +104,47 @@ void Level::explode(const point &where)
 
 }
 
+// Assumes the level has been verified
+TileType Level::tileFromChar(char c)
+{
+	switch (c)
+	{
+	case '.':
+		return TileType::DIRT;
+	case '#':
+		return TileType::STONE_WALL;
+	case 'w':
+		return TileType::WEAK_STONE_WALL;
+	case 't':
+		return TileType::TELEPORTER;
+	case ' ':
+	default:
+		break;
+	}
+
+	return TileType::EMPTY;
+}
 
 bool Level::verify(const std::string &data)
 {
-	std::string validChars = " .#xwotpgbIGR";
+	std::string validChars = " .#xwt";
 
 	for (auto &c : data)
 	{
-		if (validChars.find(c) == std::string::npos)
+		if (!IEntity::fromChar(c))
 		{
-			return false;
+			if (validChars.find(c) == std::string::npos)
+			{
+				// Not an entity and not a map character
+				return false;
+			}
 		}
+	}
+
+	if (std::find_if(data.begin(), data.end(), [](char c) { return c == 'p';} ) == data.end())
+	{
+		// No player
+		return false;
 	}
 
 	return true;

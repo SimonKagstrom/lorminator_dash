@@ -33,6 +33,12 @@ TEST_CASE("A level can't be created from an invalid string", "[level]")
 		auto lvl = ILevel::fromString("2 2 ..pM");
 		REQUIRE(!lvl);
 	}
+
+	WHEN("the level does not have a player")
+	{
+		auto lvl = ILevel::fromString("2 2 ....");
+		REQUIRE(!lvl);
+	}
 }
 
 TEST_CASE("A non-empty level can be created from a string", "[level]")
@@ -81,14 +87,29 @@ TEST_CASE("A non-empty level can be created from a string", "[level]")
 
 TEST_CASE("A level can be queried for tiles", "[level]")
 {
-	auto lvl = ILevel::fromString("2 2 ...p");
+	auto lvl = ILevel::fromString("2 2 ..#p");
 	REQUIRE(lvl);
+
+	auto t44 = lvl->tileAt({4,4});
+	REQUIRE(!t44); // Out of bounds
 
 	auto t00 = lvl->tileAt({0,0});
 	REQUIRE(t00);
 	REQUIRE(t00 == TileType::DIRT);
+
+	auto t01 = lvl->tileAt({0, 1});
+	REQUIRE(t01);
+	REQUIRE(t01 == TileType::STONE_WALL);
+
+	auto t11 = lvl->tileAt({1,1});
+	REQUIRE(t11);
+	REQUIRE(t11 == TileType::EMPTY); // The player
 }
 
 TEST_CASE("A level can be queried for passable positions", "[level]")
+{
+}
+
+TEST_CASE("Entities on a level are created at the correct positions", "[level]")
 {
 }
