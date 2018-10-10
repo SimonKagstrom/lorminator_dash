@@ -122,3 +122,90 @@ TEST_CASE("A level can be queried for passable positions", "[level]")
 TEST_CASE("Entities on a level are created at the correct positions", "[level]")
 {
 }
+
+static bool compareLevels(std::unique_ptr<ILevel> one, std::unique_ptr<ILevel> other)
+{
+	if (one->getSize() != other->getSize())
+	{
+		return false;
+	}
+
+	auto size = one->getSize();
+	for (auto x = 0; x < size.width; x++)
+	{
+		for (auto y = 0; y < size.height; y++)
+		{
+			if (one->tileAt({x,y}) != other->tileAt({x, y}))
+			{
+				return false;
+			}
+		}
+	}
+
+	return true;
+}
+
+TEST_CASE("Explosions can cause havoc on levels", "[level]")
+{
+	WHEN("there is only dirt around the explosion")
+	{
+		auto lvl = ILevel::fromString("9 9 "
+				"........."
+				"........."
+				"........."
+				"........."
+				"........."
+				"........."
+				"........."
+				"........."
+				"........p");
+		REQUIRE(lvl);
+
+		lvl->explode({4, 1});
+
+		auto cmp = ILevel::fromString("9 9 "
+				".... ...."
+				"...   ..."
+				"...   ..."
+				".... ...."
+				"........."
+				"........."
+				"........."
+				"........."
+				"........p");
+		REQUIRE(cmp);
+
+		REQUIRE(compareLevels(std::move(lvl), std::move(cmp)));
+	}
+
+	WHEN("the explosion sits in the corner")
+	{
+	}
+
+	WHEN("stone walls withstand the explosion")
+	{
+	}
+
+	WHEN("weak stone walls are obliterated by the explosion")
+	{
+	}
+
+	WHEN("wooden doors are broken by the explosion")
+	{
+	}
+}
+
+TEST_CASE("The light can show your way", "[level]")
+{
+	WHEN("there is open space around")
+	{
+	}
+
+	WHEN("in a narrow corridor")
+	{
+	}
+
+	WHEN("there are blocking stuff around")
+	{
+	}
+}

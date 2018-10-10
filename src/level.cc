@@ -101,7 +101,26 @@ std::optional<TileType> Level::tileAt(const point &where) const
 
 void Level::explode(const point &where)
 {
+	const std::vector<point> radius =
+	{
+			         {0,-1},
+			{-1, 0}, {0, 0}, {1, 0},
+			{-1, 1}, {0, 1}, {1, 1},
+			         {0, 2}
+	};
 
+	for (const auto &it : radius)
+	{
+		const auto cur = where + it;
+
+		auto idx = cur.y * m_size.width + cur.x;
+		if (idx < 0 || idx > m_size.height * m_size.width)
+		{
+			continue;
+		}
+
+		m_tiles[idx] = TileType::EMPTY;
+	}
 }
 
 // Assumes the level has been verified
@@ -117,7 +136,7 @@ TileType Level::tileFromChar(char c)
 		return TileType::WEAK_STONE_WALL;
 	case 't':
 		return TileType::TELEPORTER;
-	case ' ':
+	case ' ': // Empty
 	default:
 		break;
 	}
