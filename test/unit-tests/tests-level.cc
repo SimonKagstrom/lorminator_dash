@@ -96,6 +96,9 @@ TEST_CASE("A level can be queried for tiles", "[level]")
 	auto lvl = ILevel::fromString("3 2 ...#.p");
 	REQUIRE(lvl);
 
+	auto tm10 = lvl->tileAt({-1, 0});
+	REQUIRE(!tm10); // Out of bounds
+
 	auto t44 = lvl->tileAt({4,4});
 	REQUIRE(!t44); // Out of bounds
 

@@ -90,7 +90,7 @@ std::optional<TileType> Level::tileAt(const point &where) const
 	std::optional<TileType> out;
 
 	auto idx = where.y * m_size.width + where.x;
-	if (idx > m_size.height * m_size.width)
+	if (idx < 0 || idx > m_size.height * m_size.width)
 	{
 		return out;
 	}

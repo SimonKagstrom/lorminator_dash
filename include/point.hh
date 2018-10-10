@@ -10,8 +10,8 @@ enum class Direction
 
 struct point
 {
-	unsigned x{0};
-	unsigned y{0};
+	int x{0};
+	int y{0};
 
 	point operator+(const Direction other) const
 	{
