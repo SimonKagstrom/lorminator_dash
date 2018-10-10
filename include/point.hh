@@ -36,6 +36,11 @@ struct point
 
 		return out;
 	}
+
+	point operator+(const point &other) const
+	{
+		return {x + other.x, y + other.y};
+	}
 };
 
 struct extents
@@ -47,5 +52,10 @@ struct extents
 	{
 		return width == other.width &&
 				height == other.height;
+	}
+
+	bool operator!=(const extents &other) const
+	{
+		return !(*this == other);
 	}
 };
