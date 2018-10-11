@@ -161,14 +161,14 @@ TEST_CASE("Explosions can cause havoc on levels", "[level]")
 				"........p");
 		REQUIRE(lvl);
 
-		lvl->explode({4, 1});
+		lvl->explode({4, 2});
 
 		auto cmp = ILevel::fromString("9 9 "
 				".... ...."
 				"...   ..."
 				"...   ..."
+				"...   ..."
 				".... ...."
-				"........."
 				"........."
 				"........."
 				"........."
@@ -184,6 +184,33 @@ TEST_CASE("Explosions can cause havoc on levels", "[level]")
 
 	WHEN("stone walls withstand the explosion")
 	{
+		auto lvl = ILevel::fromString("9 9 "
+				"........."
+				".....#..."
+				".....#..."
+				".....#..."
+				"....#...."
+				"........."
+				"........."
+				"........."
+				"........p");
+		REQUIRE(lvl);
+
+		lvl->explode({4, 2});
+
+		auto cmp = ILevel::fromString("9 9 "
+				".... ...."
+				"...  #..."
+				"...  #..."
+				"...  #..."
+				"....#...."
+				"........."
+				"........."
+				"........."
+				"........p");
+		REQUIRE(cmp);
+
+		REQUIRE(compareLevels(std::move(lvl), std::move(cmp)));
 	}
 
 	WHEN("weak stone walls are obliterated by the explosion")

@@ -4,6 +4,7 @@
 #include <utils.hh>
 
 #include <algorithm>
+#include <list>
 
 class Level : public ILevel
 {
@@ -33,7 +34,35 @@ private:
 	extents m_size;
 	std::vector<std::shared_ptr<IEntity>> m_entities;
 	std::vector<TileType> m_tiles;
+	std::vector<point> m_explosionScanOrder;
 };
+
+static std::vector<point> getScanOrder(const std::vector<point> &radius, unsigned centreIdx)
+{
+	const auto &center = radius[centreIdx];
+	std::list<point> order;
+
+	// Find the order of which to visit entries
+	for (const auto &cur : radius)
+	{
+		bresenham(center, cur,
+				[&order](const point &where)
+				{
+					order.push_back(where);
+					return true;
+				});
+	}
+	// Remove duplicate entries
+	order.unique();
+
+	std::vector<point> out;
+	for (auto &cur : order)
+	{
+		out.push_back(cur);
+	}
+
+	return out;
+}
 
 
 Level::Level(extents size, const std::string &data)  :
@@ -59,6 +88,17 @@ Level::Level(extents size, const std::string &data)  :
 
 		cur++;
 	}
+
+	const std::vector<point> radius =
+	{
+			         {0,-2},
+			{-1,-1}, {0,-1}, {1,-1},
+			{-1, 0}, {0, 0}, {1, 0}, // 5 is the center
+			{-1, 1}, {0, 1}, {1, 1},
+			         {0, 2}
+	};
+
+	m_explosionScanOrder = getScanOrder(radius, 5);
 }
 
 Level::~Level()
@@ -101,20 +141,17 @@ std::optional<TileType> Level::tileAt(const point &where) const
 
 void Level::explode(const point &where)
 {
-	const std::vector<point> radius =
-	{
-			         {0,-1},
-			{-1, 0}, {0, 0}, {1, 0},
-			{-1, 1}, {0, 1}, {1, 1},
-			         {0, 2}
-	};
-
-	for (const auto &it : radius)
+	for (const auto &it : m_explosionScanOrder)
 	{
 		const auto cur = where + it;
 
 		auto idx = cur.y * m_size.width + cur.x;
 		if (idx < 0 || idx > m_size.height * m_size.width)
+		{
+			continue;
+		}
+
+		if (m_tiles[idx] == TileType::STONE_WALL)
 		{
 			continue;
 		}

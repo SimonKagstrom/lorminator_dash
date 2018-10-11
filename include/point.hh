@@ -41,6 +41,16 @@ struct point
 	{
 		return {x + other.x, y + other.y};
 	}
+
+	bool operator==(const point &other) const
+	{
+		return x == other.x && y == other.y;
+	}
+
+	bool operator!=(const point &other) const
+	{
+		return !(*this == other);
+	}
 };
 
 struct extents
