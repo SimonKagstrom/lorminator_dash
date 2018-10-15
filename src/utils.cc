@@ -58,10 +58,10 @@ int64_t string_to_integer(const std::string &str, unsigned base)
 /* Bresenhams algorithm, from http://www.fact-index.com/b/br/bresenham_s_line_algorithm_c_code.html */
 void bresenham(const point &from, const point &to, std::function<bool(const point &where)> callback)
 {
-	auto x0 = from.x;
-	auto y0 = from.y;
-	auto x1 = to.x;
-	auto y1 = to.y;
+	int x0 = from.x;
+	int y0 = from.y;
+	int x1 = to.x;
+	int y1 = to.y;
 	int steep = 1;
 	int sx, sy;  /* step positive or negative (1 or -1) */
 	int dx, dy;  /* delta (difference in X and Y between points) */

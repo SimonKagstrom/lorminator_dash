@@ -123,102 +123,129 @@ TEST_CASE("Entities on a level are created at the correct positions", "[level]")
 {
 }
 
-static bool compareLevels(std::unique_ptr<ILevel> one, std::unique_ptr<ILevel> other)
+static void require_level_equals_to(std::unique_ptr<ILevel> one, const char *levelStr)
 {
-	if (one->getSize() != other->getSize())
-	{
-		return false;
-	}
+	auto other = ILevel::fromString(levelStr);
+	REQUIRE(other);
+
+	REQUIRE(one->getSize() == other->getSize());
+
+	printf("ONE:\n%sOTHER:\n%s\n", one->toString().c_str(), other->toString().c_str());
 
 	auto size = one->getSize();
 	for (auto x = 0; x < size.width; x++)
 	{
 		for (auto y = 0; y < size.height; y++)
 		{
-			if (one->tileAt({x,y}) != other->tileAt({x, y}))
-			{
-				return false;
-			}
+			REQUIRE (one->tileAt({x,y}) == other->tileAt({x, y}));
 		}
 	}
-
-	return true;
 }
 
-TEST_CASE("Explosions can cause havoc on levels", "[level]")
+SCENARIO("Explosions can cause havoc on levels", "[level]")
 {
-	WHEN("there is only dirt around the explosion")
+	GIVEN("that there is an explosion")
 	{
-		auto lvl = ILevel::fromString("9 9 "
-				"........."
-				"........."
-				"........."
-				"........."
-				"........."
-				"........."
-				"........."
-				"........."
-				"........p");
-		REQUIRE(lvl);
+		WHEN("there is only dirt around the explosion")
+		{
+			auto lvl = ILevel::fromString("9 9 "
+					"........."
+					"........."
+					"........."
+					"........."
+					"........."
+					"........."
+					"........."
+					"........."
+					"........p");
+			REQUIRE(lvl);
 
-		lvl->explode({4, 2});
+			lvl->explode({4, 2});
 
-		auto cmp = ILevel::fromString("9 9 "
-				".... ...."
-				"...   ..."
-				"...   ..."
-				"...   ..."
-				".... ...."
-				"........."
-				"........."
-				"........."
-				"........p");
-		REQUIRE(cmp);
+			THEN("the dirt is cleared")
+			{
+				require_level_equals_to(std::move(lvl),
+						"9 9 "
+						".... ...."
+						"...   ..."
+						"...   ..."
+						"...   ..."
+						".... ...."
+						"........."
+						"........."
+						"........."
+						"........p");
+			}
 
-		REQUIRE(compareLevels(std::move(lvl), std::move(cmp)));
-	}
+			AND_THEN("fireballs show up")
+			{
+				REQUIRE(false);
+			}
+		}
 
-	WHEN("the explosion sits in the corner")
-	{
-	}
+		WHEN("there are stone walls around the explosion")
+		{
+			auto lvl = ILevel::fromString("9 9 "
+					"........."
+					".....#..."
+					".....#..."
+					".....#..."
+					"....#...."
+					"........."
+					"........."
+					"........."
+					"........p");
+			REQUIRE(lvl);
 
-	WHEN("stone walls withstand the explosion")
-	{
-		auto lvl = ILevel::fromString("9 9 "
-				"........."
-				".....#..."
-				".....#..."
-				".....#..."
-				"....#...."
-				"........."
-				"........."
-				"........."
-				"........p");
-		REQUIRE(lvl);
+			lvl->explode({4, 2});
 
-		lvl->explode({4, 2});
+			THEN("they withstand the explosive force")
+			{
+			require_level_equals_to(std::move(lvl),
+					"9 9 "
+					".... ...."
+					"...  #..."
+					"...  #..."
+					"...  #..."
+					"....#...."
+					"........."
+					"........."
+					"........."
+					"........p");
+			}
 
-		auto cmp = ILevel::fromString("9 9 "
-				".... ...."
-				"...  #..."
-				"...  #..."
-				"...  #..."
-				"....#...."
-				"........."
-				"........."
-				"........."
-				"........p");
-		REQUIRE(cmp);
+			AND_THEN("fireballs only show up on empty spots")
+			{
+				REQUIRE(false);
+			}
+		}
 
-		REQUIRE(compareLevels(std::move(lvl), std::move(cmp)));
-	}
+		WHEN("the explosion is in the corner")
+		{
+			THEN("only affected areas are cleared")
+			{
+			}
+		}
 
-	WHEN("weak stone walls are obliterated by the explosion")
-	{
-	}
+		WHEN("weak walls are in the way of the explosion")
+		{
+			THEN("they are obliterated by the explosion")
+			{
+				REQUIRE(false);
+			}
+		}
 
-	WHEN("wooden doors are broken by the explosion")
-	{
+		WHEN("doors are in the way of the explosion")
+		{
+			THEN("wooden doors are oobliterated by the explosion")
+			{
+				REQUIRE(false);
+			}
+			AND_THEN("iron doors withstand the explosion without problems")
+			{
+				REQUIRE(false);
+			}
+		}
 	}
 }
 

@@ -4,7 +4,24 @@
 #include <utils.hh>
 
 #include <algorithm>
-#include <list>
+#include <unordered_map>
+
+static const std::unordered_map<TileType, char> tileToChar =
+{
+	{TileType::EMPTY, ' '},
+	{TileType::DIRT, '.'},
+	{TileType::STONE_WALL, '#'},
+	{TileType::WEAK_STONE_WALL, 'w'},
+	{TileType::TELEPORTER, 't'},
+};
+static const std::unordered_map<char, TileType> charToTile =
+{
+	{' ', TileType::EMPTY},
+	{'.', TileType::DIRT},
+	{'#', TileType::STONE_WALL},
+	{'w', TileType::WEAK_STONE_WALL},
+	{'t', TileType::TELEPORTER},
+};
 
 class Level : public ILevel
 {
@@ -25,10 +42,15 @@ public:
 
 	virtual void explode(const point &where) override;
 
+	virtual std::string toString() const override;
+
 
 	static bool verify(const std::string &data);
 
 private:
+	TileType *rawTile(const point &where);
+	int pointToIndex(const point &where) const;
+
 	static TileType tileFromChar(char c);
 
 	extents m_size;
@@ -36,33 +58,6 @@ private:
 	std::vector<TileType> m_tiles;
 	std::vector<point> m_explosionScanOrder;
 };
-
-static std::vector<point> getScanOrder(const std::vector<point> &radius, unsigned centreIdx)
-{
-	const auto &center = radius[centreIdx];
-	std::list<point> order;
-
-	// Find the order of which to visit entries
-	for (const auto &cur : radius)
-	{
-		bresenham(center, cur,
-				[&order](const point &where)
-				{
-					order.push_back(where);
-					return true;
-				});
-	}
-	// Remove duplicate entries
-	order.unique();
-
-	std::vector<point> out;
-	for (auto &cur : order)
-	{
-		out.push_back(cur);
-	}
-
-	return out;
-}
 
 
 Level::Level(extents size, const std::string &data)  :
@@ -88,17 +83,6 @@ Level::Level(extents size, const std::string &data)  :
 
 		cur++;
 	}
-
-	const std::vector<point> radius =
-	{
-			         {0,-2},
-			{-1,-1}, {0,-1}, {1,-1},
-			{-1, 0}, {0, 0}, {1, 0}, // 5 is the center
-			{-1, 1}, {0, 1}, {1, 1},
-			         {0, 2}
-	};
-
-	m_explosionScanOrder = getScanOrder(radius, 5);
 }
 
 Level::~Level()
@@ -125,12 +109,34 @@ bool Level::pointIsSolid(const point &where) const
 	return false;
 }
 
+int Level::pointToIndex(const point &where) const
+{
+	auto idx = where.y * m_size.width + where.x;
+	if (idx < 0 || idx > m_size.height * m_size.width)
+	{
+		return -1;
+	}
+
+	return idx;
+}
+
+TileType *Level::rawTile(const point &where)
+{
+	auto idx = pointToIndex(where);
+	if (idx < 0)
+	{
+		return nullptr;
+	}
+
+	return &m_tiles[idx];
+}
+
 std::optional<TileType> Level::tileAt(const point &where) const
 {
 	std::optional<TileType> out;
 
-	auto idx = where.y * m_size.width + where.x;
-	if (idx < 0 || idx > m_size.height * m_size.width)
+	auto idx = pointToIndex(where);
+	if (idx < 0)
 	{
 		return out;
 	}
@@ -141,44 +147,47 @@ std::optional<TileType> Level::tileAt(const point &where) const
 
 void Level::explode(const point &where)
 {
-	for (const auto &it : m_explosionScanOrder)
+	const std::vector<point> radius =
 	{
-		const auto cur = where + it;
+			         {0,-3},
+			{-2,-2}, {0,-1}, {2,-2},
+			{-2, 0}, {0, 0}, {2, 0}, // 5 is the center
+			{-2, 2}, {0, 1}, {2, 2},
+			         {0, 3}
+	};
+	const auto &center = radius[5];
 
-		auto idx = cur.y * m_size.width + cur.x;
-		if (idx < 0 || idx > m_size.height * m_size.width)
+	auto src = where + center;
+	for (auto &it : radius)
+	{
+		auto dst = where + it;
+
+		bresenham(src, dst, [this](const point &cur)
 		{
-			continue;
-		}
+			auto tile = rawTile(cur);
 
-		if (m_tiles[idx] == TileType::STONE_WALL)
-		{
-			continue;
-		}
+			if (tile && *tile == TileType::STONE_WALL)
+			{
+				return true;
+			}
+			*tile = TileType::EMPTY;
 
-		m_tiles[idx] = TileType::EMPTY;
+			return false;
+		});
 	}
 }
 
 // Assumes the level has been verified
 TileType Level::tileFromChar(char c)
 {
-	switch (c)
+	auto it = charToTile.find(c);
+
+	if (it == charToTile.end())
 	{
-	case '.':
-		return TileType::DIRT;
-	case '#':
-		return TileType::STONE_WALL;
-	case 'w':
-		return TileType::WEAK_STONE_WALL;
-	case 't':
-		return TileType::TELEPORTER;
-	case ' ': // Empty
-	default:
-		break;
+		return TileType::EMPTY;
 	}
 
-	return TileType::EMPTY;
+	return it->second;
 }
 
 bool Level::verify(const std::string &data)
@@ -254,4 +263,38 @@ std::unique_ptr<ILevel> ILevel::fromString(const std::string &levelString)
 	}
 
 	return std::unique_ptr<ILevel>(new Level(size, data));
+}
+
+std::string Level::toString() const
+{
+	std::string out;
+
+	for (auto y = 0; y < m_size.height; y++)
+	{
+		for (auto x = 0; x < m_size.width; x++)
+		{
+			const auto tile = tileAt({x,y});
+
+			if (tile)
+			{
+				auto it = tileToChar.find(*tile);
+
+				if (it != tileToChar.end())
+				{
+					out += it->second;
+				}
+				else
+				{
+					out += '?';
+				}
+			}
+			else
+			{
+				out += "?";
+			}
+		}
+		out += '\n';
+	}
+
+	return out;
 }

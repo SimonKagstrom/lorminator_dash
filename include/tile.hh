@@ -3,7 +3,7 @@
 
 enum class TileType
 {
-	EMPTY,
+	EMPTY = 0,
 	DIRT,
 	MAGIC_WALL,
 	LEFT_TRANSPORT,
