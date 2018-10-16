@@ -162,6 +162,13 @@ void Level::explode(const point &where)
 	{
 		auto dst = where + it;
 
+		// Skip out-of-bounds stuff
+		auto idx = pointToIndex(dst);
+		if (idx < 0)
+		{
+			continue;;
+		}
+
 		bresenham(src, dst, [this](const point &cur)
 		{
 			auto tile = rawTile(cur);

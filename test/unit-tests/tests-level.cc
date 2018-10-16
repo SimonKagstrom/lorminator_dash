@@ -222,24 +222,94 @@ SCENARIO("Explosions can cause havoc on levels", "[level]")
 
 		WHEN("the explosion is in the corner")
 		{
+			auto lvl = ILevel::fromString("9 9 "
+					"........."
+					"........."
+					"........."
+					"........."
+					"........."
+					"........."
+					"........."
+					"........."
+					"........p");
+			REQUIRE(lvl);
+
+			lvl->explode({0, 0});
 			THEN("only affected areas are cleared")
 			{
+				require_level_equals_to(std::move(lvl),
+						"9 9 "
+						"  ......."
+						"  ......."
+						" ........"
+						"........."
+						"........."
+						"........."
+						"........."
+						"........."
+						"........p");
 			}
 		}
 
 		WHEN("weak walls are in the way of the explosion")
 		{
+			auto lvl = ILevel::fromString("9 9 "
+					"........."
+					".....#..."
+					".....#..."
+					".....w..."
+					"....#...."
+					"........."
+					"........."
+					"........."
+					"........p");
+			REQUIRE(lvl);
+
+			lvl->explode({4, 2});
 			THEN("they are obliterated by the explosion")
 			{
-				REQUIRE(false);
+				require_level_equals_to(std::move(lvl),
+						"9 9 "
+						".... ...."
+						"...  #..."
+						"...  #..."
+						"...  ...."
+						"....#...."
+						"........."
+						"........."
+						"........."
+						"........p");
 			}
 		}
 
 		WHEN("doors are in the way of the explosion")
 		{
-			THEN("wooden doors are oobliterated by the explosion")
+			auto lvl = ILevel::fromString("9 9 "
+					"........."
+					".....d..."
+					".....#..."
+					".....#..."
+					"....#...."
+					"........."
+					"........."
+					"........."
+					"........p");
+			REQUIRE(lvl);
+
+			lvl->explode({4, 2});
+			THEN("wooden doors are obliterated by the explosion")
 			{
-				REQUIRE(false);
+				require_level_equals_to(std::move(lvl),
+						"9 9 "
+						".... ...."
+						"...  d..."
+						"...  #..."
+						"...  #..."
+						"....#...."
+						"........."
+						"........."
+						"........."
+						"........p");
 			}
 			AND_THEN("iron doors withstand the explosion without problems")
 			{
@@ -249,17 +319,26 @@ SCENARIO("Explosions can cause havoc on levels", "[level]")
 	}
 }
 
-TEST_CASE("The light can show your way", "[level]")
+SCENARIO("The light can show your way", "[level]")
 {
 	WHEN("there is open space around")
 	{
+		THEN("the light illuminates a cone")
+		{
+		}
 	}
 
 	WHEN("in a narrow corridor")
 	{
+		THEN("the light only shows the corridor")
+		{
+		}
 	}
 
 	WHEN("there are blocking stuff around")
 	{
+		THEN("the light is also blocked")
+		{
+		}
 	}
 }
