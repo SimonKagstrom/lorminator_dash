@@ -192,13 +192,11 @@ TileType Level::tileFromChar(char c)
 
 bool Level::verify(const std::string &data)
 {
-	std::string validChars = " .#xwt";
-
 	for (auto &c : data)
 	{
 		if (!IEntity::fromChar(c))
 		{
-			if (validChars.find(c) == std::string::npos)
+			if (charToTile.find(c) == charToTile.end())
 			{
 				// Not an entity and not a map character
 				return false;
