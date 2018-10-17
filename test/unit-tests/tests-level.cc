@@ -302,7 +302,7 @@ SCENARIO("Explosions can cause havoc on levels", "[level]")
 				require_level_equals_to(std::move(lvl),
 						"9 9 "
 						".... ...."
-						"...  d..."
+						"...   ..."
 						"...  #..."
 						"...  #..."
 						"....#...."
