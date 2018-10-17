@@ -12,4 +12,10 @@ bool string_is_integer(const std::string &str, unsigned base = 0);
 
 int64_t string_to_integer(const std::string &str, unsigned base = 0);
 
-void bresenham(const point &from, const point &to, std::function<bool(const point &where)> callback);
+enum class BresenhamCallbackRv
+{
+	CONTINUE_SCANNING,
+	STOP_SCANNING
+};
+
+void bresenham(const point &from, const point &to, std::function<BresenhamCallbackRv(const point &where)> callback);

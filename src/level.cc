@@ -175,11 +175,11 @@ void Level::explode(const point &where)
 
 			if (tile && *tile == TileType::STONE_WALL)
 			{
-				return true;
+				return BresenhamCallbackRv::STOP_SCANNING;
 			}
 			*tile = TileType::EMPTY;
 
-			return false;
+			return BresenhamCallbackRv::CONTINUE_SCANNING;
 		});
 	}
 }

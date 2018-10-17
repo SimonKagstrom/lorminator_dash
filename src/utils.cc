@@ -56,7 +56,7 @@ int64_t string_to_integer(const std::string &str, unsigned base)
 }
 
 /* Bresenhams algorithm, from http://www.fact-index.com/b/br/bresenham_s_line_algorithm_c_code.html */
-void bresenham(const point &from, const point &to, std::function<bool(const point &where)> callback)
+void bresenham(const point &from, const point &to, std::function<BresenhamCallbackRv(const point &where)> callback)
 {
 	int x0 = from.x;
 	int y0 = from.y;
@@ -88,14 +88,14 @@ void bresenham(const point &from, const point &to, std::function<bool(const poin
 	{
 		if (steep)
 		{
-			if (callback({x0,y0}))
+			if (callback({x0,y0}) == BresenhamCallbackRv::STOP_SCANNING)
 			{
 				return;
 			}
 		}
 		else
 		{
-			if (callback({y0,x0}))
+			if (callback({y0,x0}) == BresenhamCallbackRv::STOP_SCANNING)
 			{
 				return;
 			}
