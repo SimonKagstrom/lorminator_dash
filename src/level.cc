@@ -278,24 +278,16 @@ std::string Level::toString() const
 	{
 		for (auto x = 0; x < m_size.width; x++)
 		{
-			const auto tile = tileAt({x,y});
+			const auto tile = m_tiles[y * m_size.width + x];
+			auto it = tileToChar.find(tile);
 
-			if (tile)
+			if (it != tileToChar.end())
 			{
-				auto it = tileToChar.find(*tile);
-
-				if (it != tileToChar.end())
-				{
-					out += it->second;
-				}
-				else
-				{
-					out += '?';
-				}
+				out += it->second;
 			}
 			else
 			{
-				out += "?";
+				out += '?';
 			}
 		}
 		out += '\n';
