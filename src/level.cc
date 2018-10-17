@@ -69,7 +69,7 @@ Level::Level(extents size, const std::string &data)  :
 	unsigned cur = 0;
 	for (auto &c : data)
 	{
-		std::shared_ptr<IEntity> ent = IEntity::fromChar(c);
+		std::shared_ptr<IEntity> ent = IEntity::fromChar(c, {cur % (int)size.width, cur / (int)size.width});
 
 		if (ent)
 		{
@@ -201,7 +201,7 @@ bool Level::verify(const std::string &data)
 {
 	for (auto &c : data)
 	{
-		if (!IEntity::fromChar(c))
+		if (!IEntity::isValid(c))
 		{
 			if (charToTile.find(c) == charToTile.end())
 			{

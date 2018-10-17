@@ -1,19 +1,23 @@
 #include <entity.hh>
 
+#include <point.hh>
+
 class Entity : public IEntity
 {
 public:
-	Entity(EntityType type);
+	Entity(EntityType type, const point &where);
 	~Entity();
 
 	EntityType getType() const override;
 
 private:
 	const EntityType m_type;
+	point m_position;
 };
 
-Entity::Entity(EntityType type) :
-	m_type(type)
+Entity::Entity(EntityType type, const point &where) :
+	m_type(type),
+	m_position(where)
 {
 }
 
@@ -26,14 +30,31 @@ EntityType Entity::getType() const
 	return m_type;
 }
 
-std::unique_ptr<IEntity> IEntity::fromChar(char c)
+bool IEntity::isValid(char c)
 {
+	std::string validChars = "op";
+
+	if (validChars.find(c) == std::string::npos)
+	{
+		return false;
+	}
+
+	return true;
+}
+
+std::unique_ptr<IEntity> IEntity::fromChar(char c, const point &where)
+{
+	if (!isValid(c))
+	{
+		return nullptr;
+	}
+
 	switch (c)
 	{
 	case 'o':
-		return std::unique_ptr<IEntity>(new Entity(EntityType::BOULDER));
+		return std::unique_ptr<IEntity>(new Entity(EntityType::BOULDER, where));
 	case 'p':
-		return std::unique_ptr<IEntity>(new Entity(EntityType::PLAYER));
+		return std::unique_ptr<IEntity>(new Entity(EntityType::PLAYER, where));
 	}
 
 	return nullptr;

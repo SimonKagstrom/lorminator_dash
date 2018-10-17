@@ -2,6 +2,8 @@
 
 #include <memory>
 
+struct point;
+
 enum class EntityType
 {
 	BOULDER,
@@ -24,5 +26,6 @@ public:
 
 	virtual EntityType getType() const = 0;
 
-	static std::unique_ptr<IEntity> fromChar(char c);
+	static std::unique_ptr<IEntity> fromChar(char c, const point &where);
+	static bool isValid(char c);
 };
