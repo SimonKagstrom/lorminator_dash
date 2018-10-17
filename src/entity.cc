@@ -42,7 +42,7 @@ bool IEntity::isValid(char c)
 	return true;
 }
 
-std::unique_ptr<IEntity> IEntity::fromChar(char c, const point &where)
+std::shared_ptr<IEntity> IEntity::fromChar(char c, const point &where)
 {
 	if (!isValid(c))
 	{
@@ -52,9 +52,9 @@ std::unique_ptr<IEntity> IEntity::fromChar(char c, const point &where)
 	switch (c)
 	{
 	case 'o':
-		return std::unique_ptr<IEntity>(new Entity(EntityType::BOULDER, where));
+		return std::shared_ptr<IEntity>(new Entity(EntityType::BOULDER, where));
 	case 'p':
-		return std::unique_ptr<IEntity>(new Entity(EntityType::PLAYER, where));
+		return std::shared_ptr<IEntity>(new Entity(EntityType::PLAYER, where));
 	}
 
 	return nullptr;

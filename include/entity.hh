@@ -26,6 +26,6 @@ public:
 
 	virtual EntityType getType() const = 0;
 
-	static std::unique_ptr<IEntity> fromChar(char c, const point &where);
+	static std::shared_ptr<IEntity> fromChar(char c, const point &where);
 	static bool isValid(char c);
 };
