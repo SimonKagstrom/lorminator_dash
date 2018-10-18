@@ -10,6 +10,10 @@ public:
 
 	EntityType getType() const override;
 
+	point getPosition() const override;
+
+	void setPosition(const point &dst) override;
+
 private:
 	const EntityType m_type;
 	point m_position;
@@ -36,6 +40,16 @@ Entity::~Entity()
 EntityType Entity::getType() const
 {
 	return m_type;
+}
+
+point Entity::getPosition() const
+{
+	return m_position;
+}
+
+void Entity::setPosition(const point &dst)
+{
+	m_position = dst;
 }
 
 bool IEntity::isValid(char c)
