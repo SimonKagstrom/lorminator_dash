@@ -32,6 +32,7 @@ public:
 
 	// Creation etc
 	static std::shared_ptr<IEntity> createFromChar(char c, const point &where);
+	static std::shared_ptr<IEntity> createFromType(EntityType type, const point &where);
 	static bool isValid(char c);
 };
 

@@ -2,6 +2,14 @@
 
 #include <point.hh>
 
+#include <unordered_map>
+
+static const std::unordered_map<char, EntityType> charToEntity =
+{
+	{'o', EntityType::BOULDER},
+	{'p', EntityType::PLAYER},
+};
+
 class Entity : public IEntity
 {
 public:
@@ -54,9 +62,7 @@ void Entity::setPosition(const point &dst)
 
 bool IEntity::isValid(char c)
 {
-	std::string validChars = "op";
-
-	if (validChars.find(c) == std::string::npos)
+	if (charToEntity.find(c) == charToEntity.end())
 	{
 		return false;
 	}
@@ -66,22 +72,31 @@ bool IEntity::isValid(char c)
 
 std::shared_ptr<IEntity> IEntity::createFromChar(char c, const point &where)
 {
-	if (!isValid(c))
+	auto it = charToEntity.find(c);
+
+	if (it == charToEntity.end())
 	{
 		return nullptr;
 	}
 
-	switch (c)
+	return createFromType(it->second, where);
+}
+
+std::shared_ptr<IEntity> IEntity::createFromType(EntityType type, const point &where)
+{
+	switch (type)
 	{
-	case 'o':
+	case EntityType::BOULDER:
 		return std::shared_ptr<IEntity>(new Entity(EntityType::BOULDER, where));
-	case 'p':
+	case EntityType::PLAYER:
 		return std::shared_ptr<IEntity>(new Entity(EntityType::PLAYER, where));
+
+	default:
+		break;
 	}
 
 	return nullptr;
 }
-
 
 EntityStore::EntityStore()
 {
