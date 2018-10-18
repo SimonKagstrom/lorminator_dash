@@ -30,7 +30,8 @@ public:
 
 	virtual void setPosition(const point &dst) = 0;
 
-	static std::shared_ptr<IEntity> fromChar(char c, const point &where);
+	// Creation etc
+	static std::shared_ptr<IEntity> createFromChar(char c, const point &where);
 	static bool isValid(char c);
 };
 

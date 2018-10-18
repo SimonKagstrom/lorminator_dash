@@ -69,7 +69,7 @@ Level::Level(extents size, const std::string &data)  :
 	int cur = 0;
 	for (auto &c : data)
 	{
-		std::shared_ptr<IEntity> ent = IEntity::fromChar(c, {cur % (int)size.width, cur / (int)size.width});
+		std::shared_ptr<IEntity> ent = IEntity::createFromChar(c, {cur % (int)size.width, cur / (int)size.width});
 
 		if (ent)
 		{

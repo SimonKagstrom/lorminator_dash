@@ -64,7 +64,7 @@ bool IEntity::isValid(char c)
 	return true;
 }
 
-std::shared_ptr<IEntity> IEntity::fromChar(char c, const point &where)
+std::shared_ptr<IEntity> IEntity::createFromChar(char c, const point &where)
 {
 	if (!isValid(c))
 	{
