@@ -30,6 +30,8 @@ public:
 
 	virtual void setPosition(const point &dst) = 0;
 
+	virtual uint32_t getId() const = 0;
+
 	// Creation etc
 	static std::shared_ptr<IEntity> createFromChar(char c, const point &where);
 	static std::shared_ptr<IEntity> createFromType(EntityType type, const point &where);

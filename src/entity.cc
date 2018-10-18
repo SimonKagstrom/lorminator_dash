@@ -22,15 +22,23 @@ public:
 
 	void setPosition(const point &dst) override;
 
+	uint32_t getId() const;
+
 private:
 	const EntityType m_type;
 	point m_position;
+	uint32_t m_id;
 };
 
 class EntityStore : public IEntityStore
 {
 public:
 	EntityStore();
+
+	void add(std::shared_ptr<IEntity> entity);
+
+private:
+	std::unordered_map<uint32_t, std::shared_ptr<IEntity>> m_entities;
 };
 
 
@@ -39,6 +47,9 @@ Entity::Entity(EntityType type, const point &where) :
 	m_type(type),
 	m_position(where)
 {
+	static uint32_t g_entityId = 1;
+
+	m_id = g_entityId++;
 }
 
 Entity::~Entity()
@@ -53,6 +64,11 @@ EntityType Entity::getType() const
 point Entity::getPosition() const
 {
 	return m_position;
+}
+
+uint32_t Entity::getId() const
+{
+	return m_id;
 }
 
 void Entity::setPosition(const point &dst)
@@ -84,22 +100,37 @@ std::shared_ptr<IEntity> IEntity::createFromChar(char c, const point &where)
 
 std::shared_ptr<IEntity> IEntity::createFromType(EntityType type, const point &where)
 {
+	std::shared_ptr<IEntity> out;
+
 	switch (type)
 	{
 	case EntityType::BOULDER:
-		return std::shared_ptr<IEntity>(new Entity(EntityType::BOULDER, where));
+		out = std::shared_ptr<IEntity>(new Entity(EntityType::BOULDER, where));
+		break;
 	case EntityType::PLAYER:
-		return std::shared_ptr<IEntity>(new Entity(EntityType::PLAYER, where));
-
+		out = std::shared_ptr<IEntity>(new Entity(EntityType::PLAYER, where));
+		break;
 	default:
 		break;
 	}
 
-	return nullptr;
+	if (out)
+	{
+		auto store = std::dynamic_pointer_cast<EntityStore>(IEntityStore::getInstance());
+
+		store->add(out);
+	}
+
+	return out;
 }
 
 EntityStore::EntityStore()
 {
+}
+
+void EntityStore::add(std::shared_ptr<IEntity> entity)
+{
+	m_entities[entity->getId()] = entity;
 }
 
 std::shared_ptr<IEntityStore> IEntityStore::getInstance()
