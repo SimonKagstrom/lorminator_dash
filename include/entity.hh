@@ -29,3 +29,14 @@ public:
 	static std::shared_ptr<IEntity> fromChar(char c, const point &where);
 	static bool isValid(char c);
 };
+
+// Singleton keeper of all entities
+class IEntityStore
+{
+public:
+	virtual ~IEntityStore()
+	{
+	}
+
+	static std::shared_ptr<IEntityStore> getInstance();
+};

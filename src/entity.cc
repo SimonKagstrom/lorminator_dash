@@ -15,6 +15,14 @@ private:
 	point m_position;
 };
 
+class EntityStore : public IEntityStore
+{
+public:
+	EntityStore();
+};
+
+
+
 Entity::Entity(EntityType type, const point &where) :
 	m_type(type),
 	m_position(where)
@@ -60,3 +68,24 @@ std::shared_ptr<IEntity> IEntity::fromChar(char c, const point &where)
 	return nullptr;
 }
 
+
+EntityStore::EntityStore()
+{
+}
+
+std::shared_ptr<IEntityStore> IEntityStore::getInstance()
+{
+	// See https://dakerfp.github.io/post/weak_ptr_singleton/
+	static std::weak_ptr<IEntityStore> g_instance;
+
+	if (auto p = g_instance.lock())
+	{
+		return p;
+	}
+
+	// Create a new one
+	auto p = std::shared_ptr<IEntityStore>(new EntityStore());
+	g_instance = p;
+
+	return p;
+}
