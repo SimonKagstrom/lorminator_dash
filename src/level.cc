@@ -66,7 +66,7 @@ Level::Level(extents size, const std::string &data)  :
 	m_tiles.resize(size.height * size.width);
 
 	// Try to create entities for all data
-	unsigned cur = 0;
+	int cur = 0;
 	for (auto &c : data)
 	{
 		std::shared_ptr<IEntity> ent = IEntity::fromChar(c, {cur % (int)size.width, cur / (int)size.width});
