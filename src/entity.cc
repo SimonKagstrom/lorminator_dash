@@ -104,24 +104,11 @@ std::shared_ptr<IEntity> IEntity::createFromType(EntityType type, const point &w
 {
 	std::shared_ptr<IEntity> out;
 
-	switch (type)
-	{
-	case EntityType::BOULDER:
-		out = std::shared_ptr<IEntity>(new Entity(EntityType::BOULDER, where));
-		break;
-	case EntityType::PLAYER:
-		out = std::shared_ptr<IEntity>(new Entity(EntityType::PLAYER, where));
-		break;
-	default:
-		break;
-	}
+	out = std::shared_ptr<IEntity>(new Entity(type, where));
 
-	if (out)
-	{
-		auto store = std::dynamic_pointer_cast<EntityStore>(IEntityStore::getInstance());
+	auto store = std::dynamic_pointer_cast<EntityStore>(IEntityStore::getInstance());
 
-		store->add(out);
-	}
+	store->add(out);
 
 	return out;
 }
