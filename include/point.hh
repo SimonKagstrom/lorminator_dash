@@ -51,6 +51,21 @@ struct point
 	{
 		return !(*this == other);
 	}
+
+	bool operator<(const point &other) const
+	{
+		if (y < other.y)
+		{
+			return true;
+		}
+
+		if (y > other.y)
+		{
+			return false;
+		}
+
+		return x < other.x;
+	}
 };
 
 struct extents
