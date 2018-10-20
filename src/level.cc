@@ -104,6 +104,12 @@ bool Level::pointIsSolid(const point &where) const
 
 int Level::pointToIndex(const point &where) const
 {
+	// Dont allow wrapping to the last line
+	if (where.x < 0 || where.y < 0)
+	{
+		return -1;
+	}
+
 	auto idx = where.y * m_size.width + where.x;
 	if (idx < 0 || idx >= m_size.height * m_size.width)
 	{
