@@ -1,5 +1,6 @@
 #pragma once
 
+#include <vector>
 #include <memory>
 
 struct point;
@@ -45,6 +46,9 @@ public:
 	virtual ~IEntityStore()
 	{
 	}
+
+	virtual std::vector<std::shared_ptr<IEntity>> getEntities() = 0;
+
 
 	static std::shared_ptr<IEntityStore> getInstance();
 };

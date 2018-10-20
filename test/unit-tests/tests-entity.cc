@@ -37,3 +37,36 @@ TEST_CASE("The position of the entity can be read and modified")
 		REQUIRE(ent->getPosition() == (point){99, 56});
 	}
 }
+
+SCENARIO("Entities can be placed and retrieved from the entity store")
+{
+	WHEN("the store singleton has not been created before")
+	{
+		THEN("entries are lost after creation")
+		{
+			auto ent = IEntity::createFromChar('o', {90,1});
+			REQUIRE(ent);
+
+			REQUIRE(IEntityStore::getInstance()->getEntities().size() == 0);
+		}
+	}
+
+	WHEN("the store singleton is present")
+	{
+		auto inst = IEntityStore::getInstance();
+
+		THEN("entries can be retrieved from the store")
+		{
+			auto ent = IEntity::createFromChar('o', {90,1});
+			REQUIRE(ent);
+			ent = IEntity::createFromChar('o', {92,1});
+			REQUIRE(ent);
+
+			auto all = IEntityStore::getInstance()->getEntities();
+			REQUIRE(all.size() == 2);
+
+			REQUIRE(all[0]->getType() == EntityType::BOULDER);
+			REQUIRE(all[1]->getType() == EntityType::BOULDER);
+		}
+	}
+}

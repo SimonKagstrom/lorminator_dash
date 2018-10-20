@@ -35,6 +35,8 @@ class EntityStore : public IEntityStore
 public:
 	EntityStore();
 
+	std::vector<std::shared_ptr<IEntity>> getEntities() override;
+
 	void add(std::shared_ptr<IEntity> entity);
 
 private:
@@ -126,6 +128,18 @@ std::shared_ptr<IEntity> IEntity::createFromType(EntityType type, const point &w
 
 EntityStore::EntityStore()
 {
+}
+
+std::vector<std::shared_ptr<IEntity>> EntityStore::getEntities()
+{
+	std::vector<std::shared_ptr<IEntity>> out;
+
+	for (auto &it : m_entities)
+	{
+		out.push_back(it.second);
+	}
+
+	return out;
 }
 
 void EntityStore::add(std::shared_ptr<IEntity> entity)
