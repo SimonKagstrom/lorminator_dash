@@ -19,8 +19,6 @@ public:
 
 	virtual const struct extents &getSize() const = 0;
 
-	virtual std::vector<std::shared_ptr<IEntity>> getEntities() = 0;
-
 	virtual bool pointIsPassable(const point &where) const = 0;
 
 	virtual bool pointIsSolid(const point &where) const = 0;

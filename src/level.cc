@@ -32,7 +32,6 @@ public:
 
 	virtual const struct extents &getSize() const override;
 
-	virtual std::vector<std::shared_ptr<IEntity>> getEntities() override;
 
 	virtual bool pointIsPassable(const point &where) const override;
 
@@ -54,7 +53,6 @@ private:
 	static TileType tileFromChar(char c);
 
 	extents m_size;
-	std::vector<std::shared_ptr<IEntity>> m_entities;
 	std::vector<TileType> m_tiles;
 	std::vector<point> m_explosionScanOrder;
 };
@@ -73,7 +71,6 @@ Level::Level(extents size, const std::string &data)  :
 
 		if (ent)
 		{
-			m_entities.push_back(ent);
 			m_tiles[cur] = TileType::EMPTY;
 		}
 		else
@@ -92,11 +89,6 @@ Level::~Level()
 const extents &Level::getSize() const
 {
 	return m_size;
-}
-
-std::vector<std::shared_ptr<IEntity>> Level::getEntities()
-{
-	return m_entities;
 }
 
 bool Level::pointIsPassable(const point &where) const

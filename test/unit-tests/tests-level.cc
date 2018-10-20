@@ -9,7 +9,6 @@ TEST_CASE("An empty level can be created from a string", "[level]")
 	auto lvl = ILevel::fromString("0 0");
 
     REQUIRE(lvl);
-    REQUIRE(lvl->getEntities().empty());
     REQUIRE(lvl->getSize() == extents{0,0});
 }
 
@@ -47,16 +46,18 @@ TEST_CASE("A level can't be created from an invalid string", "[level]")
 	}
 }
 
-TEST_CASE("A non-empty level can be created from a string", "[level]")
+SCENARIO("A non-empty level can be created from a string", "[level]")
 {
 	WHEN("the level is square")
 	{
+		auto store = IEntityStore::getInstance();
+
 		auto lvl = ILevel::fromString("2 2 ooop"); // 3 boulders and the player
 		REQUIRE(lvl);
 
-		WHEN("entities can be created")
+		THEN("entities can be created")
 		{
-			auto entities = lvl->getEntities();
+			auto entities = store->getEntities();
 
 			REQUIRE(entities.size() == 4);
 
