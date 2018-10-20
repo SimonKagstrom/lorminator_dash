@@ -4,6 +4,8 @@
 #include <level.hh>
 #include <entity.hh>
 
+#include <set>
+
 TEST_CASE("An empty level can be created from a string", "[level]")
 {
 	auto lvl = ILevel::fromString("0 0");
@@ -149,6 +151,8 @@ SCENARIO("Explosions can cause havoc on levels", "[level]")
 	{
 		WHEN("there is only dirt around the explosion")
 		{
+			auto store = IEntityStore::getInstance();
+
 			auto lvl = ILevel::fromString("9 9 "
 					"........."
 					"........."
@@ -180,12 +184,38 @@ SCENARIO("Explosions can cause havoc on levels", "[level]")
 
 			AND_THEN("fireballs show up")
 			{
-				REQUIRE(false);
+				auto ents = store->getEntities();
+				unsigned fireballs = 0;
+
+				std::set<point> ballPoints;
+				for (auto &it : ents)
+				{
+					fireballs += it->getType() == EntityType::FIREBALL;
+					if (it->getType() == EntityType::FIREBALL)
+					{
+						ballPoints.insert(it->getPosition());
+					}
+				}
+
+				REQUIRE(fireballs == 11);
+
+				std::set<point> expectedPoints =
+				{
+					         {4, 0},
+					{ 3, 1}, {4, 1}, {5, 1},
+					{ 3, 2}, {4, 2}, {5, 2},
+					{ 3, 3}, {4, 3}, {5, 3},
+					         {4, 4}
+				};
+
+				REQUIRE(ballPoints == expectedPoints);
 			}
 		}
 
 		WHEN("there are stone walls around the explosion")
 		{
+			auto store = IEntityStore::getInstance();
+
 			auto lvl = ILevel::fromString("9 9 "
 					"........."
 					".....#..."
@@ -217,7 +247,31 @@ SCENARIO("Explosions can cause havoc on levels", "[level]")
 
 			AND_THEN("fireballs only show up on empty spots")
 			{
-				REQUIRE(false);
+				auto ents = store->getEntities();
+
+				unsigned fireballs = 0;
+
+				std::set<point> ballPoints;
+				for (auto &it : ents)
+				{
+					fireballs += it->getType() == EntityType::FIREBALL;
+					if (it->getType() == EntityType::FIREBALL)
+					{
+						ballPoints.insert(it->getPosition());
+					}
+				}
+
+				REQUIRE(fireballs == 7);
+
+				std::set<point> expectedPoints =
+				{
+					         {4, 0},
+					{ 3, 1}, {4, 1},
+					{ 3, 2}, {4, 2},
+					{ 3, 3}, {4, 3}
+				};
+
+				REQUIRE(ballPoints == expectedPoints);
 			}
 		}
 

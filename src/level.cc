@@ -4,6 +4,7 @@
 #include <utils.hh>
 
 #include <algorithm>
+#include <set>
 #include <unordered_map>
 
 static const std::unordered_map<TileType, char> tileToChar =
@@ -149,12 +150,14 @@ void Level::explode(const point &where)
 	};
 	const auto &center = radius[5];
 
+	std::set<point> wreckedPositions;
+
 	auto src = where + center;
 	for (auto &it : radius)
 	{
 		auto dst = where + it;
 
-		bresenham(src, dst, [this](const point &cur)
+		bresenham(src, dst, [this, &wreckedPositions](const point &cur)
 		{
 			// Skip out-of-bounds stuff
 			auto idx = pointToIndex(cur);
@@ -169,10 +172,21 @@ void Level::explode(const point &where)
 			{
 				return BresenhamCallbackRv::STOP_SCANNING;
 			}
-			*tile = TileType::EMPTY;
+
+			// OK, mark this as a wrecked position
+			wreckedPositions.insert(cur);
 
 			return BresenhamCallbackRv::CONTINUE_SCANNING;
 		});
+	}
+
+	for (auto &cur : wreckedPositions)
+	{
+		auto tile = rawTile(cur);
+
+		// destroy this point and create a fireball
+		*tile = TileType::EMPTY;
+		IEntity::createFromType(EntityType::FIREBALL, cur);
 	}
 }
 
