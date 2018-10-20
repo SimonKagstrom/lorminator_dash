@@ -104,7 +104,7 @@ bool Level::pointIsSolid(const point &where) const
 int Level::pointToIndex(const point &where) const
 {
 	auto idx = where.y * m_size.width + where.x;
-	if (idx < 0 || idx > m_size.height * m_size.width)
+	if (idx < 0 || idx >= m_size.height * m_size.width)
 	{
 		return -1;
 	}
@@ -142,9 +142,9 @@ void Level::explode(const point &where)
 	const std::vector<point> radius =
 	{
 			         {0,-3},
-			{-2,-2}, {0,-1}, {2,-2},
+			{-2,-2}, {0,-2}, {2,-2},
 			{-2, 0}, {0, 0}, {2, 0}, // 5 is the center
-			{-2, 2}, {0, 1}, {2, 2},
+			{-2, 2}, {0, 2}, {2, 2},
 			         {0, 3}
 	};
 	const auto &center = radius[5];
@@ -154,15 +154,15 @@ void Level::explode(const point &where)
 	{
 		auto dst = where + it;
 
-		// Skip out-of-bounds stuff
-		auto idx = pointToIndex(dst);
-		if (idx < 0)
-		{
-			continue;;
-		}
-
 		bresenham(src, dst, [this](const point &cur)
 		{
+			// Skip out-of-bounds stuff
+			auto idx = pointToIndex(cur);
+			if (idx < 0)
+			{
+				return BresenhamCallbackRv::STOP_SCANNING;
+			}
+
 			auto tile = rawTile(cur);
 
 			if (tile && *tile == TileType::STONE_WALL)
