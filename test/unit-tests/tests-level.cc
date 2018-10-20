@@ -275,6 +275,39 @@ SCENARIO("Explosions can cause havoc on levels", "[level]")
 			}
 		}
 
+		WHEN("a stone wall blocks the explosion")
+		{
+			auto lvl = ILevel::fromString("9 9 "
+					"........."
+					"....##..."
+					".....#..."
+					".....#..."
+					"....#...."
+					"........."
+					"........."
+					"........."
+					"........p");
+			REQUIRE(lvl);
+
+			lvl->explode({4, 2});
+
+
+			THEN("tiles on the other side of the wall is unaffected by the explosion")
+			{
+				require_level_equals_to(std::move(lvl),
+						"9 9 "
+						"........."
+						"... ##..."
+						"...  #..."
+						"...  #..."
+						"....#...."
+						"........."
+						"........."
+						"........."
+						"........p");
+			}
+		}
+
 		WHEN("the explosion is in the corner")
 		{
 			auto lvl = ILevel::fromString("9 9 "
