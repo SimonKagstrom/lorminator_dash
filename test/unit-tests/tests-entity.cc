@@ -22,6 +22,12 @@ TEST_CASE("An entity can be created from a character", "[entity]")
 		auto ent = IEntity::createFromChar('p', {0,0});
 		REQUIRE(ent);
 	}
+	WHEN("the entity is a fireball")
+	{
+		auto ent = IEntity::createFromChar('f', {0,0});
+		REQUIRE(ent);
+		REQUIRE(ent->getType() == EntityType::FIREBALL);
+	}
 }
 
 TEST_CASE("The position of the entity can be read and modified")

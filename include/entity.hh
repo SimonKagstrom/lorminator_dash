@@ -16,6 +16,7 @@ enum class EntityType
 	IRON_KEY,
 	GOLD_KEY,
 	RED_KEY,
+	FIREBALL,
 };
 
 class IEntity
