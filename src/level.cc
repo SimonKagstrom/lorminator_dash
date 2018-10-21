@@ -149,12 +149,12 @@ void Level::explode(const point &where)
 	const std::vector<point> radius =
 	{
 			         {0,-3},
-			{-2,-2}, {0,-2}, {2,-2},
-			{-2, 0}, {0, 0}, {2, 0}, // 5 is the center
-			{-2, 2}, {0, 2}, {2, 2},
+			{-2,-2},         {2,-2},
+			{-2, 0}, {0, 0}, {2, 0}, // this is the center
+			{-2, 2},         {2, 2},
 			         {0, 3}
 	};
-	const auto &center = radius[5];
+	const auto &center = radius[4];
 
 	std::set<point> wreckedPositions;
 
