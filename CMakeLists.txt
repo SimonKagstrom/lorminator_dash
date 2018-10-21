@@ -25,6 +25,7 @@ add_executable(ut
 	src/level.cc
 	src/utils.cc
 	test/unit-tests/tests-main.cc
+	test/unit-tests/tests-behavior.cc
 	test/unit-tests/tests-entity.cc
 	test/unit-tests/tests-level.cc
 )
