@@ -42,6 +42,8 @@ public:
 
 	virtual void explode(const point &where) override;
 
+	virtual std::set<point> getIllumination(const point &where, Direction dir) override;
+
 	virtual std::string toString() const override;
 
 
@@ -194,6 +196,65 @@ void Level::explode(const point &where)
 		*tile = TileType::EMPTY;
 		IEntity::createFromType(EntityType::FIREBALL, cur);
 	}
+}
+
+std::set<point> Level::getIllumination(const point &where, Direction dir)
+{
+	std::set<point> out;
+
+	// This means down
+	std::vector<point> radius =
+	{
+		              { 0, 0},
+	         {-1, 0},          { 1, 0},
+			 {-1, 1},          { 1, 2},
+	{-2, 3}, {-1, 3}, { 0, 3}, { 1, 3}, {2, 3},
+	                  { 0, 4}
+	};
+	auto &center = radius[0];
+
+	if (dir == Direction::UP)
+	{
+		std::for_each(radius.begin(), radius.end(), [](point &cur){ cur.y *= -1; });
+	}
+	else if (dir == Direction::LEFT)
+	{
+		std::for_each(radius.begin(), radius.end(), [](point &cur){ std::swap(cur.x, cur.y); });
+	}
+	else if (dir == Direction::RIGHT)
+	{
+		std::for_each(radius.begin(), radius.end(), [](point &cur){ std::swap(cur.x, cur.y); cur.x *= -1; });
+	}
+
+	auto src = where + center;
+	for (auto &it : radius)
+	{
+		auto dst = where + it;
+
+		bresenham(src, dst, [this, &out](const point &cur)
+		{
+			// Skip out-of-bounds stuff
+			auto idx = pointToIndex(cur);
+			if (idx < 0)
+			{
+				return BresenhamCallbackRv::STOP_SCANNING;
+			}
+
+			auto tile = rawTile(cur);
+
+			if (*tile != TileType::DIRT && *tile != TileType::EMPTY)
+			{
+				return BresenhamCallbackRv::STOP_SCANNING;
+			}
+
+			// We can light that!
+			out.insert(cur);
+
+			return BresenhamCallbackRv::CONTINUE_SCANNING;
+		});
+	}
+
+	return out;
 }
 
 // Assumes the level has been verified

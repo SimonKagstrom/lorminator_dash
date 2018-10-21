@@ -6,6 +6,7 @@
 #include <string>
 #include <memory>
 #include <vector>
+#include <set>
 #include <optional>
 
 class IEntity;
@@ -26,6 +27,11 @@ public:
 	virtual std::optional<TileType> tileAt(const point &where) const = 0;
 
 	virtual void explode(const point &where) = 0;
+
+	/**
+	 * Get the flashlight cone from a point
+	 */
+	virtual std::set<point> getIllumination(const point &where, Direction dir) = 0;
 
 	virtual std::string toString() const = 0;
 

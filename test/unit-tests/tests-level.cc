@@ -145,6 +145,55 @@ static void require_level_equals_to(std::unique_ptr<ILevel> one, const char *lev
 	}
 }
 
+static void print_points(const std::set<point> &points, const extents &size)
+{
+	for (auto y = 0; y < size.height; y++)
+	{
+		for (auto x = 0; x < size.width; x++)
+		{
+			point cur{x,y};
+
+			if (points.find(cur) != points.end())
+			{
+				printf("X");
+			}
+			else
+			{
+				printf(".");
+			}
+		}
+		printf("\n");
+	}
+}
+
+static bool points_in_x(const std::set<point> &points, const extents &size, const char *str)
+{
+	unsigned cnt = 0;
+
+	auto left = points;
+
+	for (auto y = 0; y < size.height; y++)
+	{
+		for (auto x = 0; x < size.width; x++)
+		{
+			if (str[cnt] == 'x')
+			{
+				left.erase({x, y});
+			}
+
+			cnt++;
+		}
+	}
+
+	if (!left.empty())
+	{
+		print_points(points, size);
+		return false;
+	}
+
+	return true;
+}
+
 SCENARIO("Explosions can cause havoc on levels", "[level]")
 {
 	GIVEN("that there is an explosion")
@@ -411,8 +460,40 @@ SCENARIO("The light can show your way", "[level]")
 {
 	WHEN("there is open space around")
 	{
+		auto lvl = ILevel::fromString("9 7 "
+				"........."
+				"........."
+				"........."
+				"........."
+				"........."
+				"........."
+				"........p");
+		REQUIRE(lvl);
+
 		THEN("the light illuminates a cone")
 		{
+			auto lightUp = lvl->getIllumination({4, 3}, Direction::UP);
+
+			REQUIRE(points_in_x(lightUp, {9, 7},
+					"....x...."
+					"...xxx..."
+					"...xxx..."
+					"....x...."
+					"........."
+					"........."
+					"........."));
+
+			auto lightDown = lvl->getIllumination({4, 3}, Direction::DOWN);
+
+			REQUIRE(points_in_x(lightDown, {9, 7},
+					"........."
+					"........."
+					"........."
+					"....x...."
+					"...xxx..."
+					"...xxx..."
+					"....x...."
+));
 		}
 	}
 
