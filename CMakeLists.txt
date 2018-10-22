@@ -32,5 +32,3 @@ add_executable(ut
 set_target_properties(ut PROPERTIES
             CXX_STANDARD 17
             CXX_EXTENSIONS OFF)
-
-add_subdirectory(legacy)
