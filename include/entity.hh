@@ -3,6 +3,8 @@
 #include <vector>
 #include <memory>
 
+#include <observer.hh>
+
 struct point;
 
 enum class EntityType
@@ -34,6 +36,7 @@ public:
 
 	virtual uint32_t getId() const = 0;
 
+
 	// Creation etc
 	static std::shared_ptr<IEntity> createFromChar(char c, const point &where);
 	static std::shared_ptr<IEntity> createFromType(EntityType type, const point &where);
@@ -48,7 +51,9 @@ public:
 	{
 	}
 
-	virtual std::vector<std::shared_ptr<IEntity>> getEntities() = 0;
+    virtual std::vector<std::shared_ptr<IEntity>> getEntities() = 0;
+
+    virtual std::shared_ptr<IEntity> getEntityByPoint(const point &where) = 0;
 
 
 	static std::shared_ptr<IEntityStore> getInstance();

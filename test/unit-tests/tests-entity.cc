@@ -68,11 +68,21 @@ SCENARIO("Entities can be placed and retrieved from the entity store")
             ent = IEntity::createFromChar('o', {92,1});
             REQUIRE(ent);
 
-            auto all = IEntityStore::getInstance()->getEntities();
+            auto store = IEntityStore::getInstance();
+            auto all = store->getEntities();
             REQUIRE(all.size() == 2);
 
             REQUIRE(all[0]->getType() == EntityType::BOULDER);
             REQUIRE(all[1]->getType() == EntityType::BOULDER);
+
+            // Get by point
+            auto e90_1 = store->getEntityByPoint({90,1});
+            auto e91_1 = store->getEntityByPoint({91,1});
+            auto e92_1 = store->getEntityByPoint({92,1});
+
+            REQUIRE(!e91_1);
+            REQUIRE(e90_1);
+            REQUIRE(e92_1);
         }
     }
 }

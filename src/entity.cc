@@ -38,6 +38,8 @@ public:
 
     std::vector<std::shared_ptr<IEntity>> getEntities() override;
 
+    std::shared_ptr<IEntity> getEntityByPoint(const point &where) override;
+
     void add(std::shared_ptr<IEntity> entity);
 
 private:
@@ -128,6 +130,19 @@ std::vector<std::shared_ptr<IEntity>> EntityStore::getEntities()
     }
 
     return out;
+}
+
+std::shared_ptr<IEntity> EntityStore::getEntityByPoint(const point &where)
+{
+    for (auto &it : m_entities)
+    {
+        if (it.second->getPosition() == where)
+        {
+            return it.second;
+        }
+    }
+
+    return nullptr;
 }
 
 void EntityStore::add(std::shared_ptr<IEntity> entity)
