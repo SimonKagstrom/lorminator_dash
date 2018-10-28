@@ -134,6 +134,7 @@ std::vector<std::shared_ptr<IEntity>> EntityStore::getEntities()
 
 std::shared_ptr<IEntity> EntityStore::getEntityByPoint(const point &where)
 {
+    // Make this more efficient later
     for (auto &it : m_entities)
     {
         if (it.second->getPosition() == where)

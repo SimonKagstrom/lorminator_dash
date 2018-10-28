@@ -1,26 +1,102 @@
 #include <catch.hpp>
 #include <trompeloeil.hpp>
 
-SCENARIO("a boulder falls")
+#include <level.hh>
+#include <entity.hh>
+#include <behavior.hh>
+
+SCENARIO("a boulder can fall")
 {
+    WHEN("the boulder is standing on solid ground")
+    {
+        auto store = IEntityStore::getInstance();
+
+        std::shared_ptr<ILevel> lvl = ILevel::fromString("2 4 "
+                "o."
+                ".."
+                ".."
+                ".p"
+                );
+        REQUIRE(lvl);
+
+        auto boulder = store->getEntityByPoint({0,0});
+        REQUIRE(boulder);
+
+        auto behavior = IBehavior::fromEntity(lvl, boulder);
+        REQUIRE(behavior);
+
+        THEN("it will not fall")
+        {
+            behavior->run(100);
+            REQUIRE(boulder->getPosition() == (point){0,0});
+        }
+    }
+
     WHEN("an empty space is created under a boulder")
     {
+        auto store = IEntityStore::getInstance();
+
+        std::shared_ptr<ILevel> lvl = ILevel::fromString("2 4 "
+                "o."
+                " ."
+                ".."
+                ".p"
+                );
+        REQUIRE(lvl);
+
+        auto boulder = store->getEntityByPoint({0,0});
+        REQUIRE(boulder);
+
+        auto behavior = IBehavior::fromEntity(lvl, boulder);
+        REQUIRE(behavior);
+
         THEN("it will fall")
         {
+            behavior->run(100);
+            REQUIRE(boulder->getPosition() == (point){0,1});
         }
 
         AND_THEN("stop when it encounters firm ground")
         {
+            behavior->run(100);
+            REQUIRE(boulder->getPosition() == (point){0,1});
         }
     }
 
     WHEN("a boulder sits on top of another boulder with empty space on the side and below")
     {
+        auto store = IEntityStore::getInstance();
+
+        std::shared_ptr<ILevel> lvl = ILevel::fromString("3 4 "
+                " o."
+                " o."
+                "..."
+                ".p."
+                );
+        REQUIRE(lvl);
+
+        auto boulder = store->getEntityByPoint({1,0});
+        REQUIRE(boulder);
+
+        auto behavior = IBehavior::fromEntity(lvl, boulder);
+        REQUIRE(behavior);
+
         THEN("the boulder will fall")
-            {
-            }
+        {
+            behavior->run(100);
+            REQUIRE(boulder->getPosition() == (point){0,0});
+            behavior->run(100);
+            REQUIRE(boulder->getPosition() == (point){0,1});
+        }
 
         AND_THEN("it will stop to the right or left of the other boulder")
+        {
+        }
+    }
+
+    WHEN("only a short time has passed")
+    {
+        THEN("the boulder will not have moved. yet.")
         {
         }
     }
