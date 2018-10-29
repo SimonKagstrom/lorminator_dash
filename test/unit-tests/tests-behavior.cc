@@ -5,6 +5,8 @@
 #include <entity.hh>
 #include <behavior.hh>
 
+static const unsigned FALL_TIME = 100;
+
 SCENARIO("a boulder can fall")
 {
     WHEN("the boulder is standing on solid ground")
@@ -27,7 +29,7 @@ SCENARIO("a boulder can fall")
 
         THEN("it will not fall")
         {
-            behavior->run(100);
+            behavior->run(FALL_TIME);
             REQUIRE(boulder->getPosition() == (point){0,0});
         }
     }
@@ -52,13 +54,13 @@ SCENARIO("a boulder can fall")
 
         THEN("it will fall")
         {
-            behavior->run(100);
+            behavior->run(FALL_TIME);
             REQUIRE(boulder->getPosition() == (point){0,1});
         }
 
         AND_THEN("stop when it encounters firm ground")
         {
-            behavior->run(100);
+            behavior->run(FALL_TIME);
             REQUIRE(boulder->getPosition() == (point){0,1});
         }
     }
@@ -83,9 +85,9 @@ SCENARIO("a boulder can fall")
 
         THEN("the boulder will fall")
         {
-            behavior->run(100);
+            behavior->run(FALL_TIME);
             REQUIRE(boulder->getPosition() == (point){0,0});
-            behavior->run(100);
+            behavior->run(FALL_TIME);
             REQUIRE(boulder->getPosition() == (point){0,1});
         }
     }
@@ -110,9 +112,9 @@ SCENARIO("a boulder can fall")
 
         THEN("the boulder will fall")
         {
-            behavior->run(100);
+            behavior->run(FALL_TIME);
             REQUIRE(boulder->getPosition() == (point){2,0});
-            behavior->run(100);
+            behavior->run(FALL_TIME);
             REQUIRE(boulder->getPosition() == (point){2,1});
         }
     }
