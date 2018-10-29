@@ -35,10 +35,42 @@ public:
 
     bool run(unsigned ms) override
     {
+        auto isEmpty = [](const std::optional<TileType> tile)
+        {
+            if (tile)
+            {
+                return *tile == TileType::EMPTY;
+            }
+
+            return false;
+        };
+
         auto cur = m_entity->getPosition();
         auto below = m_level->tileAt(cur + Direction::DOWN);
 
-        if (below && *below == TileType::EMPTY)
+        auto entityBelow = IEntityStore::getInstance()->getEntityByPoint(cur + Direction::DOWN);
+
+        // Standing on an entity?
+        if (entityBelow && entityBelow->getType() != EntityType::PLAYER)
+        {
+            // Fall is it's free to the side and down
+            auto left = m_level->tileAt(cur + Direction::LEFT);
+            auto downLeft = m_level->tileAt((cur + Direction::LEFT) + Direction::DOWN);
+            auto right = m_level->tileAt(cur + Direction::RIGHT);
+            auto downRight = m_level->tileAt((cur + Direction::RIGHT) + Direction::DOWN);
+
+            if (isEmpty(left) && isEmpty(downLeft))
+            {
+                m_entity->setPosition(cur + Direction::LEFT);
+                return true;
+            }
+            else if (isEmpty(right) && isEmpty(downRight))
+            {
+                m_entity->setPosition(cur + Direction::RIGHT);
+                return true;
+            }
+        }
+        else if (!entityBelow && isEmpty(below))
         {
             m_entity->setPosition(cur + Direction::DOWN);
 

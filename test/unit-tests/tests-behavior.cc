@@ -63,7 +63,7 @@ SCENARIO("a boulder can fall")
         }
     }
 
-    WHEN("a boulder sits on top of another boulder with empty space on the side and below")
+    WHEN("a boulder sits on top of another boulder with empty space on the left and below")
     {
         auto store = IEntityStore::getInstance();
 
@@ -88,9 +88,32 @@ SCENARIO("a boulder can fall")
             behavior->run(100);
             REQUIRE(boulder->getPosition() == (point){0,1});
         }
+    }
 
-        AND_THEN("it will stop to the right or left of the other boulder")
+    WHEN("a boulder sits on top of another boulder with empty space on the right and below")
+    {
+        auto store = IEntityStore::getInstance();
+
+        std::shared_ptr<ILevel> lvl = ILevel::fromString("3 4 "
+                ".o "
+                ".o "
+                "..."
+                ".p."
+                );
+        REQUIRE(lvl);
+
+        auto boulder = store->getEntityByPoint({1,0});
+        REQUIRE(boulder);
+
+        auto behavior = IBehavior::fromEntity(lvl, boulder);
+        REQUIRE(behavior);
+
+        THEN("the boulder will fall")
         {
+            behavior->run(100);
+            REQUIRE(boulder->getPosition() == (point){2,0});
+            behavior->run(100);
+            REQUIRE(boulder->getPosition() == (point){2,1});
         }
     }
 
