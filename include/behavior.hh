@@ -15,4 +15,5 @@ public:
     virtual void run(unsigned ms) = 0;
 
     static std::shared_ptr<IBehavior> fromEntity(std::shared_ptr<ILevel> level, std::shared_ptr<IEntity> entity);
+    static std::shared_ptr<IBehavior> fromLevel(std::shared_ptr<ILevel> level);
 };

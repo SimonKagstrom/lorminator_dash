@@ -144,3 +144,33 @@ protected:
 
     std::unordered_map<uint32_t, std::function<void(A0, A1)>> m_listeners;
 };
+
+template<typename A0, typename A1, typename A2>
+class Notifier3 : public NotifierBase
+{
+public:
+    void invoke(A0 arg0, A1 arg1, A2 arg2)
+    {
+        for (auto &kv : m_listeners)
+        {
+            kv.second(arg0, arg1, arg2);
+        }
+    }
+
+    std::unique_ptr<ObserverCookie> listen(std::function<void(A0, A1, A2)> cb)
+    {
+        auto id = (uint32_t)m_listeners.size();
+
+        m_listeners[id] = cb;
+
+        return std::make_unique<ObserverCookie>(id, shared_from_this());
+    }
+
+protected:
+    void detach(uint32_t id) override
+    {
+        m_listeners.erase(id);
+    }
+
+    std::unordered_map<uint32_t, std::function<void(A0, A1, A2)>> m_listeners;
+};

@@ -11,7 +11,7 @@ static const std::unordered_map<char, EntityType> charToEntity =
     {'f', EntityType::FIREBALL},
 };
 
-class Entity : public IEntity
+class Entity : public IEntity, public std::enable_shared_from_this<Entity>
 {
 public:
     Entity(EntityType type, const point &where);
@@ -23,12 +23,22 @@ public:
 
     void setPosition(const point &dst) override;
 
-    uint32_t getId() const;
+    uint32_t getId() const override;
+
+    void remove() override;
+
+    std::unique_ptr<ObserverCookie> onRemoval(std::function<void(std::shared_ptr<IEntity>)> cb) override;
+
+    std::unique_ptr<ObserverCookie> onMovement(std::function<void(std::shared_ptr<IEntity>,
+            const point &from, const point &to)> cb) override;
 
 private:
     const EntityType m_type;
     point m_position;
     uint32_t m_id;
+
+    Notifier1<std::shared_ptr<IEntity>> m_onRemoval;
+    Notifier3<std::shared_ptr<IEntity>, const point &, const point &> m_onMovement;
 };
 
 class EntityStore : public IEntityStore
@@ -42,8 +52,12 @@ public:
 
     void add(std::shared_ptr<IEntity> entity);
 
+    std::unique_ptr<ObserverCookie> onCollision(std::function<void(std::shared_ptr<IEntity> one, std::shared_ptr<IEntity> other)> cb) override;
+
 private:
     std::unordered_map<uint32_t, std::shared_ptr<IEntity>> m_entities;
+    std::unordered_map<uint32_t, std::unique_ptr<ObserverCookie>> m_movementCookies;
+    Notifier2<std::shared_ptr<IEntity>, std::shared_ptr<IEntity>> m_onCollision;
 };
 
 
@@ -78,8 +92,27 @@ uint32_t Entity::getId() const
 
 void Entity::setPosition(const point &dst)
 {
+    m_onMovement.invoke(shared_from_this(), m_position, dst);
     m_position = dst;
 }
+
+void Entity::remove()
+{
+    m_onRemoval.invoke(shared_from_this());
+}
+
+std::unique_ptr<ObserverCookie> Entity::onRemoval(std::function<void(std::shared_ptr<IEntity>)> cb)
+{
+    return m_onRemoval.listen(cb);
+}
+
+std::unique_ptr<ObserverCookie> Entity::onMovement(std::function<void(std::shared_ptr<IEntity>,
+        const point &from, const point &to)> cb)
+{
+    return m_onMovement.listen(cb);
+}
+
+
 
 bool IEntity::isValid(char c)
 {
@@ -148,7 +181,24 @@ std::shared_ptr<IEntity> EntityStore::getEntityByPoint(const point &where)
 
 void EntityStore::add(std::shared_ptr<IEntity> entity)
 {
+    // Check for collisions on movement
+    m_movementCookies[entity->getId()] = entity->onMovement([this](std::shared_ptr<IEntity> ent, const point &from, const point &to)
+    {
+        auto other = getEntityByPoint(to);
+
+        if (other)
+        {
+            m_onCollision.invoke(ent, other);
+        }
+    });
+
     m_entities[entity->getId()] = entity;
+}
+
+std::unique_ptr<ObserverCookie> EntityStore::onCollision(std::function<void(std::shared_ptr<IEntity> one,
+        std::shared_ptr<IEntity> other)> cb)
+{
+    return m_onCollision.listen(cb);
 }
 
 std::shared_ptr<IEntityStore> IEntityStore::getInstance()

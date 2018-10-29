@@ -131,24 +131,53 @@ SCENARIO("a boulder falls on the player")
 {
     WHEN("the player stands under a boulder")
     {
+        auto store = IEntityStore::getInstance();
+
+        std::shared_ptr<ILevel> lvl = ILevel::fromString("2 4 "
+                "o."
+                "p."
+                ".."
+                ".."
+        );
+        REQUIRE(lvl);
+
+        auto boulder = store->getEntityByPoint({0,0});
+        REQUIRE(boulder);
+
+        auto behavior = IBehavior::fromEntity(lvl, boulder);
+        REQUIRE(behavior);
+
         THEN("the boulder will stay put")
         {
-        }
-    }
-
-    WHEN("the player stands under the boulder, but moves downwards")
-    {
-        THEN("the boulder will fall")
-        {
+            behavior->run(FALL_TIME);
+            REQUIRE(boulder->getPosition() == (point){0,0});
         }
 
-        AND_THEN("the boulder will cause an explosion when hitting the player")
+        WHEN("the player moves downwards")
         {
-            // Because the player carries explosive material
-        }
+            auto player = store->getEntityByPoint({0,1});
 
-        AND_THEN("the player will die")
-        {
+            player->setPosition({0,2});
+
+            THEN("the boulder will fall")
+            {
+                behavior->run(FALL_TIME);
+                REQUIRE(boulder->getPosition() == (point){0,1});
+            }
+
+            AND_THEN("the boulder will cause an explosion when hitting the player")
+            {
+                // Because the player carries explosive material
+                behavior->run(FALL_TIME);
+
+                auto fire = player = store->getEntityByPoint({0,1});
+                REQUIRE(fire);
+                REQUIRE(fire->getType() == EntityType::FIREBALL);
+            }
+
+            AND_THEN("the player will die")
+            {
+            }
         }
     }
 }

@@ -24,6 +24,17 @@ private:
     std::vector<std::unique_ptr<ITrait>> m_traits;
 };
 
+class LevelBehavior : public IBehavior
+{
+public:
+    LevelBehavior(std::shared_ptr<ILevel> level);
+
+    void run(unsigned ms) override;
+
+private:
+    std::vector<std::unique_ptr<ITrait>> m_traits;
+};
+
 class FallTrait : public ITrait
 {
 public:
@@ -85,6 +96,23 @@ private:
     std::shared_ptr<IEntity> m_entity;
 };
 
+class ExplosionTrait : public ITrait
+{
+public:
+    ExplosionTrait(std::shared_ptr<ILevel> level) :
+        m_level(level)
+    {
+    }
+
+    bool run(unsigned ms) override
+    {
+        return false;
+    }
+
+private:
+    std::shared_ptr<ILevel> m_level;
+    std::shared_ptr<IEntity> m_entity;
+};
 
 Behavior::Behavior(std::shared_ptr<ILevel> level, std::shared_ptr<IEntity> entity)
 {
@@ -107,8 +135,24 @@ void Behavior::run(unsigned ms)
     }
 }
 
+LevelBehavior::LevelBehavior(std::shared_ptr<ILevel> level)
+{
+}
+
+void LevelBehavior::run(unsigned ms)
+{
+    for (auto &trait : m_traits)
+    {
+        trait->run(ms);
+    }
+}
 
 std::shared_ptr<IBehavior> IBehavior::fromEntity(std::shared_ptr<ILevel> level, std::shared_ptr<IEntity> entity)
 {
     return std::shared_ptr<IBehavior>(new Behavior(level, entity));
+}
+
+std::shared_ptr<IBehavior> IBehavior::fromLevel(std::shared_ptr<ILevel> level)
+{
+    return std::shared_ptr<IBehavior>(new LevelBehavior(level));
 }

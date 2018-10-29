@@ -37,7 +37,15 @@ public:
 	virtual uint32_t getId() const = 0;
 
 
-	// Creation etc
+	virtual void remove() = 0;
+
+	virtual std::unique_ptr<ObserverCookie> onRemoval(std::function<void(std::shared_ptr<IEntity>)> cb) = 0;
+
+    virtual std::unique_ptr<ObserverCookie> onMovement(std::function<void(std::shared_ptr<IEntity>,
+            const point &from, const point &to)> cb) = 0;
+
+
+    // Creation etc
 	static std::shared_ptr<IEntity> createFromChar(char c, const point &where);
 	static std::shared_ptr<IEntity> createFromType(EntityType type, const point &where);
 	static bool isValid(char c);
@@ -55,6 +63,7 @@ public:
 
     virtual std::shared_ptr<IEntity> getEntityByPoint(const point &where) = 0;
 
+    virtual std::unique_ptr<ObserverCookie> onCollision(std::function<void(std::shared_ptr<IEntity> one, std::shared_ptr<IEntity> other)> cb) = 0;
 
 	static std::shared_ptr<IEntityStore> getInstance();
 };
