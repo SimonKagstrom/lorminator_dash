@@ -56,13 +56,42 @@ public:
             return false;
         };
 
+        auto entityShouldBeDestroyed = [](const std::shared_ptr<IEntity> ent)
+        {
+            if (!ent)
+            {
+                return false;
+            }
+
+            switch (ent->getType())
+            {
+            case EntityType::PLAYER:
+            case EntityType::GHOST:
+            case EntityType::BOMB:
+                return true;
+            default:
+                break;
+            }
+
+            return false;
+        };
+
         auto cur = m_entity->getPosition();
         auto below = m_level->tileAt(cur + Direction::DOWN);
 
         auto entityBelow = IEntityStore::getInstance()->getEntityByPoint(cur + Direction::DOWN);
 
         // Standing on an entity?
-        if (entityBelow && entityBelow->getType() != EntityType::PLAYER)
+        if (entityShouldBeDestroyed(entityBelow))
+        {
+            m_entity->remove();
+            entityBelow->remove();
+
+            m_level->explode(cur + Direction::DOWN);
+
+            return true;
+        }
+        else if (entityBelow)
         {
             // Fall is it's free to the side and down
             auto left = m_level->tileAt(cur + Direction::LEFT);
@@ -73,25 +102,38 @@ public:
             if (isEmpty(left) && isEmpty(downLeft))
             {
                 m_entity->setPosition(cur + Direction::LEFT);
-                return true;
+                return falling();
             }
             else if (isEmpty(right) && isEmpty(downRight))
             {
                 m_entity->setPosition(cur + Direction::RIGHT);
-                return true;
+                return falling();
             }
         }
         else if (!entityBelow && isEmpty(below))
         {
             m_entity->setPosition(cur + Direction::DOWN);
 
-            return true;
+            return falling();
         }
 
-        return false;
+        return notFalling();
     }
 
 private:
+    bool falling()
+    {
+        m_falling = true;
+        return true;
+    }
+
+    bool notFalling()
+    {
+        m_falling = false;
+        return false;
+    }
+
+    bool m_falling{false};
     std::shared_ptr<ILevel> m_level;
     std::shared_ptr<IEntity> m_entity;
 };
