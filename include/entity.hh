@@ -14,7 +14,7 @@ enum class EntityType
 	GHOST,
 	PLAYER,
 	DIAMOND,
-	BOMBS,
+	BOMB,
 	IRON_KEY,
 	GOLD_KEY,
 	RED_KEY,
