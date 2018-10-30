@@ -37,8 +37,8 @@ private:
     point m_position;
     uint32_t m_id;
 
-    Notifier1<std::shared_ptr<IEntity>> m_onRemoval;
-    Notifier3<std::shared_ptr<IEntity>, const point &, const point &> m_onMovement;
+    std::shared_ptr<Notifier1<std::shared_ptr<IEntity>>> m_onRemoval;
+    std::shared_ptr<Notifier3<std::shared_ptr<IEntity>, const point &, const point &>> m_onMovement;
 };
 
 class EntityStore : public IEntityStore
@@ -57,7 +57,8 @@ public:
 private:
     std::unordered_map<uint32_t, std::shared_ptr<IEntity>> m_entities;
     std::unordered_map<uint32_t, std::unique_ptr<ObserverCookie>> m_movementCookies;
-    Notifier2<std::shared_ptr<IEntity>, std::shared_ptr<IEntity>> m_onCollision;
+    std::unordered_map<uint32_t, std::unique_ptr<ObserverCookie>> m_removalCookies;
+    std::shared_ptr<Notifier2<std::shared_ptr<IEntity>, std::shared_ptr<IEntity>>> m_onCollision;
 };
 
 
@@ -69,6 +70,8 @@ Entity::Entity(EntityType type, const point &where) :
     static uint32_t g_entityId = 1;
 
     m_id = g_entityId++;
+    m_onMovement = std::make_shared<Notifier3<std::shared_ptr<IEntity>, const point &, const point &>>();
+    m_onRemoval = std::make_shared<Notifier1<std::shared_ptr<IEntity>>>();
 }
 
 Entity::~Entity()
@@ -92,24 +95,24 @@ uint32_t Entity::getId() const
 
 void Entity::setPosition(const point &dst)
 {
-    m_onMovement.invoke(shared_from_this(), m_position, dst);
+    m_onMovement->invoke(shared_from_this(), m_position, dst);
     m_position = dst;
 }
 
 void Entity::remove()
 {
-    m_onRemoval.invoke(shared_from_this());
+    m_onRemoval->invoke(shared_from_this());
 }
 
 std::unique_ptr<ObserverCookie> Entity::onRemoval(std::function<void(std::shared_ptr<IEntity>)> cb)
 {
-    return m_onRemoval.listen(cb);
+    return m_onRemoval->listen(cb);
 }
 
 std::unique_ptr<ObserverCookie> Entity::onMovement(std::function<void(std::shared_ptr<IEntity>,
         const point &from, const point &to)> cb)
 {
-    return m_onMovement.listen(cb);
+    return m_onMovement->listen(cb);
 }
 
 
@@ -151,6 +154,7 @@ std::shared_ptr<IEntity> IEntity::createFromType(EntityType type, const point &w
 
 EntityStore::EntityStore()
 {
+    m_onCollision = std::make_shared<Notifier2<std::shared_ptr<IEntity>, std::shared_ptr<IEntity>>>();
 }
 
 std::vector<std::shared_ptr<IEntity>> EntityStore::getEntities()
@@ -181,6 +185,17 @@ std::shared_ptr<IEntity> EntityStore::getEntityByPoint(const point &where)
 
 void EntityStore::add(std::shared_ptr<IEntity> entity)
 {
+    if (!entity)
+    {
+        printf("HUH???\n");
+    }
+
+    m_removalCookies[entity->getId()] = entity->onRemoval([this, entity](std::shared_ptr<IEntity> entity)
+    {
+        m_removalCookies.erase(entity->getId());
+        m_entities.erase(entity->getId());
+    });
+
     // Check for collisions on movement
     m_movementCookies[entity->getId()] = entity->onMovement([this](std::shared_ptr<IEntity> ent, const point &from, const point &to)
     {
@@ -188,7 +203,7 @@ void EntityStore::add(std::shared_ptr<IEntity> entity)
 
         if (other)
         {
-            m_onCollision.invoke(ent, other);
+            m_onCollision->invoke(ent, other);
         }
     });
 
@@ -198,7 +213,7 @@ void EntityStore::add(std::shared_ptr<IEntity> entity)
 std::unique_ptr<ObserverCookie> EntityStore::onCollision(std::function<void(std::shared_ptr<IEntity> one,
         std::shared_ptr<IEntity> other)> cb)
 {
-    return m_onCollision.listen(cb);
+    return m_onCollision->listen(cb);
 }
 
 std::shared_ptr<IEntityStore> IEntityStore::getInstance()
