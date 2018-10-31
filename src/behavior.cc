@@ -81,8 +81,10 @@ public:
 
         auto entityBelow = IEntityStore::getInstance()->getEntityByPoint(cur + Direction::DOWN);
 
-        // Standing on an entity?
-        if (entityShouldBeDestroyed(entityBelow))
+        printf("OBJ NOW FALLING: %d %p\n", isFalling(), this);
+
+        // Falling on an entity?
+        if (isFalling() && entityShouldBeDestroyed(entityBelow))
         {
             m_entity->remove();
             entityBelow->remove();
@@ -91,6 +93,7 @@ public:
 
             return true;
         }
+        // Standing on an entity
         else if (entityBelow)
         {
             // Fall is it's free to the side and down
@@ -102,34 +105,41 @@ public:
             if (isEmpty(left) && isEmpty(downLeft))
             {
                 m_entity->setPosition(cur + Direction::LEFT);
-                return falling();
+                return fall();
             }
             else if (isEmpty(right) && isEmpty(downRight))
             {
                 m_entity->setPosition(cur + Direction::RIGHT);
-                return falling();
+                return fall();
             }
         }
         else if (!entityBelow && isEmpty(below))
         {
             m_entity->setPosition(cur + Direction::DOWN);
 
-            return falling();
+            return fall();
         }
 
-        return notFalling();
+        return dontFall();
     }
 
 private:
-    bool falling()
+    bool isFalling() const
+    {
+        return m_falling;
+    }
+
+    bool fall()
     {
         m_falling = true;
+        printf("NOW falling %d, %p\n", m_falling, this);
         return true;
     }
 
-    bool notFalling()
+    bool dontFall()
     {
         m_falling = false;
+        printf("Nej falling %d, %p\n", m_falling, this);
         return false;
     }
 

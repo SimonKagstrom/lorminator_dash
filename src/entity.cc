@@ -185,12 +185,7 @@ std::shared_ptr<IEntity> EntityStore::getEntityByPoint(const point &where)
 
 void EntityStore::add(std::shared_ptr<IEntity> entity)
 {
-    if (!entity)
-    {
-        printf("HUH???\n");
-    }
-
-    m_removalCookies[entity->getId()] = entity->onRemoval([this, entity](std::shared_ptr<IEntity> entity)
+    m_removalCookies[entity->getId()] = entity->onRemoval([this](std::shared_ptr<IEntity> entity)
     {
         m_removalCookies.erase(entity->getId());
         m_entities.erase(entity->getId());
