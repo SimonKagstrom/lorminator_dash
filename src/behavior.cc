@@ -169,6 +169,9 @@ Behavior::Behavior(std::shared_ptr<ILevel> level, std::shared_ptr<IEntity> entit
     case EntityType::BOULDER:
         m_traits.push_back(std::unique_ptr<ITrait>(new FallTrait(level, entity)));
         break;
+    case EntityType::DIAMOND:
+        m_traits.push_back(std::unique_ptr<ITrait>(new FallTrait(level, entity)));
+        break;
     default:
         break;
     }
