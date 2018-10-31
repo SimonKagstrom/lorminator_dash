@@ -194,7 +194,6 @@ void Level::explode(const point &where)
 
         // destroy this point and create a fireball
         *tile = TileType::EMPTY;
-        printf("FB AT %d,%d\n", cur.x, cur.y);
         IEntity::createFromType(EntityType::FIREBALL, cur);
     }
 }

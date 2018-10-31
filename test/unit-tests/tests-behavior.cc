@@ -133,7 +133,6 @@ SCENARIO("a boulder falls on the player")
     {
         auto store = IEntityStore::getInstance();
 
-        printf("CREATING\n");
         std::shared_ptr<ILevel> lvl = ILevel::fromString("2 4 "
                 "o."
                 "p."
@@ -165,22 +164,21 @@ SCENARIO("a boulder falls on the player")
             {
                 behavior->run(FALL_TIME);
                 REQUIRE(boulder->getPosition() == (point){0,1});
-            }
 
-            AND_THEN("the boulder will cause an explosion when hitting the player")
-            {
-                printf("AGAIN\n");
-                // Because the player carries explosive material
-                behavior->run(FALL_TIME);
+                AND_THEN("the boulder will cause an explosion when hitting the player")
+                {
+                    // Because the player carries explosive material
+                    behavior->run(FALL_TIME);
 
-                auto fire = store->getEntityByPoint({0,2});
-                REQUIRE(fire);
-                printf("NOW!\n");
-                REQUIRE(fire->getType() == EntityType::FIREBALL);
-            }
+                    auto fire = store->getEntityByPoint({0,2});
+                    REQUIRE(fire);
+                    REQUIRE(fire->getType() == EntityType::FIREBALL);
 
-            AND_THEN("the player will die")
-            {
+                    AND_THEN("the player will die")
+                    {
+                    }
+                }
+
             }
         }
     }

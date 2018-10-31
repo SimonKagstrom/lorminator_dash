@@ -81,8 +81,6 @@ public:
 
         auto entityBelow = IEntityStore::getInstance()->getEntityByPoint(cur + Direction::DOWN);
 
-        printf("OBJ NOW FALLING: %d %p\n", isFalling(), this);
-
         // Falling on an entity?
         if (isFalling() && entityShouldBeDestroyed(entityBelow))
         {
@@ -132,14 +130,12 @@ private:
     bool fall()
     {
         m_falling = true;
-        printf("NOW falling %d, %p\n", m_falling, this);
         return true;
     }
 
     bool dontFall()
     {
         m_falling = false;
-        printf("Nej falling %d, %p\n", m_falling, this);
         return false;
     }
 
