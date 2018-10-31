@@ -206,16 +206,15 @@ SCENARIO("diamonds are forever")
     {
         THEN("the diamond will fall")
         {
-        }
-
-        WHEN("it hits the player")
-        {
-            THEN("there will be an explosion")
+            WHEN("it hits the player")
             {
-            }
+                THEN("there will be an explosion")
+                {
 
-            AND_THEN("the player will die")
-            {
+                    AND_THEN("the player will die")
+                    {
+                    }
+                }
             }
         }
     }
