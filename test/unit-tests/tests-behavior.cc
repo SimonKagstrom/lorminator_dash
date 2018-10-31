@@ -176,9 +176,11 @@ SCENARIO("a boulder falls on the player")
 
                     AND_THEN("the player will die")
                     {
+                        auto ents = store->getEntities();
+                        REQUIRE(std::find_if(ents.begin(), ents.end(),
+                                [](std::shared_ptr<IEntity> cur) {return cur->getType() == EntityType::PLAYER;}) == ents.end());
                     }
                 }
-
             }
         }
     }
