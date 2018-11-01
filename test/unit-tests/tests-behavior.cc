@@ -6,6 +6,7 @@
 #include <behavior.hh>
 
 static const unsigned FALL_TIME = 100;
+static const unsigned BOMB_TIMEOUT = 2000;
 
 SCENARIO("a boulder can fall")
 {
@@ -215,6 +216,44 @@ SCENARIO("diamonds are forever")
                     {
                     }
                 }
+            }
+        }
+    }
+}
+
+SCENARIO("bombs will explode")
+{
+    WHEN("a bomb is placed on an empty spot")
+    {
+        auto store = IEntityStore::getInstance();
+
+        std::shared_ptr<ILevel> lvl = ILevel::fromString("2 4 "
+                "b."
+                " ."
+                ".."
+                ".p"
+        );
+        REQUIRE(lvl);
+
+        auto bomb = store->getEntityByPoint({0,0});
+        REQUIRE(bomb);
+
+        auto behavior = IBehavior::fromEntity(lvl, bomb);
+        REQUIRE(bomb);
+
+        THEN("it will fall until it hits solid ground")
+        {
+            behavior->run(FALL_TIME);
+            REQUIRE(bomb->getPosition() == (point){0,1});
+
+            AND_THEN("it will explode after a while")
+            {
+                behavior->run(BOMB_TIMEOUT - FALL_TIME - 1);
+                REQUIRE(store->getEntityByPoint({0,1})->getType() == EntityType::BOMB);
+
+                // Should now explode
+                behavior->run(2);
+                REQUIRE(store->getEntityByPoint({0,1})->getType() == EntityType::FIREBALL);
             }
         }
     }

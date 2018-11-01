@@ -144,20 +144,34 @@ private:
     std::shared_ptr<IEntity> m_entity;
 };
 
-class ExplosionTrait : public ITrait
+class ExplodeAfterTrait : public ITrait
 {
 public:
-    ExplosionTrait(std::shared_ptr<ILevel> level) :
-        m_level(level)
+    ExplodeAfterTrait(int ms, std::shared_ptr<ILevel> level, std::shared_ptr<IEntity> entity) :
+        m_timeLeft(ms),
+        m_level(level),
+        m_entity(entity)
     {
     }
 
     bool run(unsigned ms) override
     {
+        m_timeLeft -= ms;
+
+        // The time has expired, so explode!
+        if (m_timeLeft <= 0)
+        {
+            auto where = m_entity->getPosition();
+
+            m_entity->remove();
+            m_level->explode(where);
+        }
+
         return false;
     }
 
 private:
+    int m_timeLeft;
     std::shared_ptr<ILevel> m_level;
     std::shared_ptr<IEntity> m_entity;
 };
@@ -171,6 +185,10 @@ Behavior::Behavior(std::shared_ptr<ILevel> level, std::shared_ptr<IEntity> entit
         break;
     case EntityType::DIAMOND:
         m_traits.push_back(std::unique_ptr<ITrait>(new FallTrait(level, entity)));
+        break;
+    case EntityType::BOMB:
+        m_traits.push_back(std::unique_ptr<ITrait>(new FallTrait(level, entity)));
+        m_traits.push_back(std::unique_ptr<ITrait>(new ExplodeAfterTrait(2000, level, entity)));
         break;
     default:
         break;
