@@ -5,8 +5,10 @@
 #include <entity.hh>
 #include <behavior.hh>
 
+// In ms
 static const unsigned FALL_TIME = 100;
 static const unsigned BOMB_TIMEOUT = 2000;
+static const unsigned FIREBALL_BURNOUT_TIME = 1000;
 
 SCENARIO("a boulder can fall")
 {
@@ -254,6 +256,39 @@ SCENARIO("bombs will explode")
                 // Should now explode
                 behavior->run(2);
                 REQUIRE(store->getEntityByPoint({0,1})->getType() == EntityType::FIREBALL);
+            }
+        }
+    }
+}
+
+SCENARIO("fireballs fall and disappears")
+{
+    WHEN("a fireball appears above an empty spot")
+    {
+        auto store = IEntityStore::getInstance();
+
+        std::shared_ptr<ILevel> lvl = ILevel::fromString("2 4 "
+                "f."
+                " ."
+                ".."
+                ".p"
+        );
+        REQUIRE(lvl);
+
+        auto fireball = store->getEntityByPoint({0,0});
+        REQUIRE(fireball);
+        auto behavior = IBehavior::fromEntity(lvl, fireball);
+
+        THEN("it will fall until it hits solid ground")
+        {
+            behavior->run(FALL_TIME);
+            REQUIRE(store->getEntityByPoint({0,1})->getType() == EntityType::FIREBALL);
+
+            AND_THEN("disappear when it has burned up")
+            {
+                behavior->run(FIREBALL_BURNOUT_TIME);
+
+                REQUIRE(!store->getEntityByPoint({0,1}));
             }
         }
     }

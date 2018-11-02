@@ -176,6 +176,34 @@ private:
     std::shared_ptr<IEntity> m_entity;
 };
 
+
+class DisappearAfterTrait : public ITrait
+{
+public:
+    DisappearAfterTrait(int ms, std::shared_ptr<IEntity> entity) :
+        m_timeLeft(ms),
+        m_entity(entity)
+    {
+    }
+
+    bool run(unsigned ms) override
+    {
+        m_timeLeft -= ms;
+
+        // The time has expired, so remove
+        if (m_timeLeft <= 0)
+        {
+            m_entity->remove();
+        }
+
+        return false;
+    }
+
+private:
+    int m_timeLeft;
+    std::shared_ptr<IEntity> m_entity;
+};
+
 Behavior::Behavior(std::shared_ptr<ILevel> level, std::shared_ptr<IEntity> entity)
 {
     switch (entity->getType())
@@ -189,6 +217,10 @@ Behavior::Behavior(std::shared_ptr<ILevel> level, std::shared_ptr<IEntity> entit
     case EntityType::BOMB:
         m_traits.push_back(std::unique_ptr<ITrait>(new FallTrait(level, entity)));
         m_traits.push_back(std::unique_ptr<ITrait>(new ExplodeAfterTrait(2000, level, entity)));
+        break;
+    case EntityType::FIREBALL:
+        m_traits.push_back(std::unique_ptr<ITrait>(new FallTrait(level, entity)));
+        m_traits.push_back(std::unique_ptr<ITrait>(new DisappearAfterTrait(1000, entity)));
         break;
     default:
         break;
