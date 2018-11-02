@@ -91,4 +91,14 @@ TEST_CASE("argument notifiers")
         n->invoke(35);
         REQUIRE(a == 2U);
     }
+
+    SECTION("a listener can be removed from its callback")
+    {
+        std::vector<std::unique_ptr<ObserverCookie>> cookies;
+
+        cookies.push_back(n->listen([&cookies](int arg){ cookies[0].reset(); }));
+
+        n->invoke(39);
+        // Should not crash
+    }
 }
