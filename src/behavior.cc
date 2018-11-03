@@ -532,6 +532,40 @@ private:
     std::vector<point> m_teleporterLocations;
 };
 
+class CollisionTrait : public ITrait
+{
+public:
+    CollisionTrait()
+    {
+        auto store = IEntityStore::getInstance();
+
+        m_cookie = store->onCollision([this](std::shared_ptr<IEntity> one, std::shared_ptr<IEntity> other){onCollision(one, other);});
+    }
+
+    bool run(unsigned ms) override
+    {
+        // Handled in the callback
+        return false;
+    }
+
+    void onCollision(std::shared_ptr<IEntity> one, std::shared_ptr<IEntity> other)
+    {
+        if (one->getType() == EntityType::FIREBALL)
+        {
+            other->remove();
+        }
+        else if (other->getType() == EntityType::FIREBALL)
+        {
+            one->remove();
+        }
+
+        // More to come
+    }
+
+private:
+    std::unique_ptr<ObserverCookie> m_cookie;
+};
+
 Behavior::Behavior(std::shared_ptr<ILevel> level, std::shared_ptr<IEntity> entity)
 {
     switch (entity->getType())
@@ -569,6 +603,7 @@ void Behavior::run(unsigned ms)
 
 LevelBehavior::LevelBehavior(std::shared_ptr<ILevel> level)
 {
+    m_traits.push_back(std::unique_ptr<ITrait>(new CollisionTrait()));
     m_traits.push_back(std::unique_ptr<ITrait>(new TransporterTrait(level)));
     m_traits.push_back(std::unique_ptr<ITrait>(new TeleporterTrait(level, 1500)));
 }
