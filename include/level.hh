@@ -26,6 +26,8 @@ public:
 
 	virtual std::optional<TileType> tileAt(const point &where) const = 0;
 
+	virtual void setTile(const point &where, TileType what) = 0;
+
 	virtual void explode(const point &where) = 0;
 
 	/**

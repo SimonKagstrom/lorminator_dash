@@ -44,6 +44,8 @@ public:
 
     virtual std::optional<TileType> tileAt(const point &where) const override;
 
+	virtual void setTile(const point &where, TileType what) override;
+
     virtual void explode(const point &where) override;
 
     virtual std::set<point> getIllumination(const point &where, Direction dir) override;
@@ -148,6 +150,17 @@ std::optional<TileType> Level::tileAt(const point &where) const
     out = m_tiles[idx];
 
     return out;
+}
+
+void Level::setTile(const point &where, TileType what)
+{
+    auto idx = pointToIndex(where);
+    if (idx < 0)
+    {
+        return;
+    }
+
+    m_tiles[idx] = what;
 }
 
 void Level::explode(const point &where)
