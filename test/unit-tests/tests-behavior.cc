@@ -430,22 +430,22 @@ SCENARIO("Transport bands can transport things")
 
 SCENARIO("teleporters transport entities between different points")
 {
+    auto store = IEntityStore::getInstance();
+
+    std::shared_ptr<ILevel> lvl = ILevel::fromString("9 9 "
+                                "t.......t" // {0,0}, {8,0}
+                                "........."
+                                "........."
+                                "........."
+                                "........."
+                                "........."
+                                "........."
+                                "........."
+                                "........p");
+    REQUIRE(lvl);
+
     WHEN("an entity stands on a teleporter")
     {
-        auto store = IEntityStore::getInstance();
-
-        std::shared_ptr<ILevel> lvl = ILevel::fromString("9 9 "
-                                      "t.......t" // {0,0}, {8,0}
-                                      "........."
-                                      "........."
-                                      "........."
-                                      "........."
-                                      "........."
-                                      "........."
-                                      "........."
-                                      "........p");
-        REQUIRE(lvl);
-
         auto ent = IEntity::createFromType(EntityType::BOULDER, {0,0});
 
         auto behavior = IBehavior::fromLevel(lvl);
@@ -455,16 +455,46 @@ SCENARIO("teleporters transport entities between different points")
             behavior->run(TELEPORTER_DELAY - 1);
 
             REQUIRE(ent->getPosition() == (point){0,0});
+
             AND_THEN("be moved to another teleporting location later")
             {
-            behavior->run(2); // now after the teleporting delay;
+                behavior->run(2); // now after the teleporting delay;
 
-            REQUIRE(ent->getPosition() == (point){8,0});
+                REQUIRE(ent->getPosition() == (point){8,0});
             }
         }
     }
 
     WHEN("an entity is teleported to a location where another entity stands")
     {
+        auto one = IEntity::createFromType(EntityType::BOULDER, {0,0});
+        auto other = IEntity::createFromType(EntityType::DIAMOND, {8,0});
+
+        auto behavior = IBehavior::fromLevel(lvl);
+
+        THEN("there will be explosions on all teleporter locations")
+        {
+            behavior->run(TELEPORTER_DELAY);
+
+            one = store->getEntityByPoint({0,0});
+            other = store->getEntityByPoint({8,0});
+
+            REQUIRE(one);
+            REQUIRE(other);
+
+            REQUIRE(one->getType() == EntityType::FIREBALL);
+            REQUIRE(other->getType() == EntityType::FIREBALL);
+
+            AND_THEN("the teleporters will disappear")
+            {
+                auto firstTile = lvl->tileAt({0,0});
+                auto secondTile = lvl->tileAt({8,0});
+
+                REQUIRE(firstTile);
+                REQUIRE(secondTile);
+                REQUIRE(firstTile == TileType::EMPTY);
+                REQUIRE(secondTile == TileType::EMPTY);
+            }
+        }
     }
 }

@@ -493,10 +493,27 @@ public:
         if (toTeleport)
         {
             m_timeout -= ms;
-            if (m_timeout < 0)
+            if (m_timeout <= 0)
             {
                 auto dst = m_teleporterLocations[random() % m_teleporterLocations.size()];
-                toTeleport->setPosition(dst);
+
+                auto entAtDst = store->getEntityByPoint(dst);
+
+                if (entAtDst)
+                {
+                    // An entity on the destination - explode and destroy the teleporters!
+                    for (auto &cur : m_teleporterLocations)
+                    {
+                        m_level->explode(cur);
+                        m_level->setTile(cur, TileType::EMPTY);
+                    }
+
+                    m_teleporterLocations.clear();
+                }
+                else
+                {
+                    toTeleport->setPosition(dst);
+                }
                 m_timeout = m_delay;
             }
         }
