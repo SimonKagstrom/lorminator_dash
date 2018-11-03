@@ -202,6 +202,13 @@ void EntityStore::add(std::shared_ptr<IEntity> entity)
         }
     });
 
+    // Another already here?
+    auto other = getEntityByPoint(entity->getPosition());
+    if (other)
+    {
+        m_onCollision.invoke(entity, other);
+    }
+
     m_entities[entity->getId()] = entity;
 }
 
