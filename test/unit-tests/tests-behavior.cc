@@ -11,6 +11,7 @@ static const unsigned BOMB_TIMEOUT = 2000;
 static const unsigned FIREBALL_BURNOUT_TIME = 1000;
 static const unsigned GHOST_MOVEMENT_TIME = 100;
 static const unsigned TRANSPORT_BAND_MOVEMENT_TIME = 500;
+static const unsigned TELEPORTER_DELAY = 1500;
 
 SCENARIO("a boulder can fall")
 {
@@ -424,5 +425,46 @@ SCENARIO("Transport bands can transport things")
         {
 
         }
+    }
+}
+
+SCENARIO("teleporters transport entities between different points")
+{
+    WHEN("an entity stands on a teleporter")
+    {
+        auto store = IEntityStore::getInstance();
+
+        std::shared_ptr<ILevel> lvl = ILevel::fromString("9 9 "
+                                      "t.......t" // {0,0}, {8,0}
+                                      "........."
+                                      "........."
+                                      "........."
+                                      "........."
+                                      "........."
+                                      "........."
+                                      "........."
+                                      "........p");
+        REQUIRE(lvl);
+
+        auto ent = IEntity::createFromType(EntityType::BOULDER, {0,0});
+
+        auto behavior = IBehavior::fromLevel(lvl);
+
+        THEN("it will stay put for a while")
+        {
+            behavior->run(TELEPORTER_DELAY - 1);
+
+            REQUIRE(ent->getPosition() == (point){0,0});
+            AND_THEN("be moved to another teleporting location later")
+            {
+            behavior->run(2); // now after the teleporting delay;
+
+            REQUIRE(ent->getPosition() == (point){8,0});
+            }
+        }
+    }
+
+    WHEN("an entity is teleported to a location where another entity stands")
+    {
     }
 }
