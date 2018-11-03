@@ -14,6 +14,8 @@ static const std::unordered_map<TileType, char> tileToChar =
     {TileType::STONE_WALL, '#'},
     {TileType::WEAK_STONE_WALL, 'w'},
     {TileType::TELEPORTER, 't'},
+    {TileType::LEFT_TRANSPORT, '<'},
+    {TileType::RIGHT_TRANSPORT, '>'},
 };
 static const std::unordered_map<char, TileType> charToTile =
 {
@@ -22,6 +24,8 @@ static const std::unordered_map<char, TileType> charToTile =
     {'#', TileType::STONE_WALL},
     {'w', TileType::WEAK_STONE_WALL},
     {'t', TileType::TELEPORTER},
+    {'<', TileType::LEFT_TRANSPORT},
+    {'>', TileType::RIGHT_TRANSPORT},
 };
 
 class Level : public ILevel

@@ -10,6 +10,7 @@ static const unsigned FALL_TIME = 100;
 static const unsigned BOMB_TIMEOUT = 2000;
 static const unsigned FIREBALL_BURNOUT_TIME = 1000;
 static const unsigned GHOST_MOVEMENT_TIME = 100;
+static const unsigned TRANSPORT_BAND_MOVEMENT_TIME = 500;
 
 SCENARIO("a boulder can fall")
 {
@@ -370,6 +371,58 @@ SCENARIO("Ghosts appear!")
     {
         THEN("an explosion will occur")
         {
+        }
+    }
+}
+
+SCENARIO("Transport bands can transport things")
+{
+    WHEN("objects are placed on a transport band")
+    {
+        auto store = IEntityStore::getInstance();
+
+        std::shared_ptr<ILevel> lvl = ILevel::fromString("9 9 "
+                                      "........."
+                                      "........."
+                                      "........."
+                                      "........."
+                                      "..   ob.." // {5,4}, {6,4}
+                                      ".<<<<<<.."
+                                      "........."
+                                      "........."
+                                      "........p");
+        REQUIRE(lvl);
+
+        auto boulder = store->getEntityByPoint({5,4});
+        auto bomb = store->getEntityByPoint({6,4});
+
+        REQUIRE(boulder);
+        REQUIRE(bomb);
+
+        auto behavior = IBehavior::fromLevel(lvl);
+        REQUIRE(behavior);
+
+        THEN("they will be transported along it until they hit a solid object")
+        {
+            behavior->run(TRANSPORT_BAND_MOVEMENT_TIME);
+            REQUIRE(boulder->getPosition() == (point){4,4});
+            REQUIRE(bomb->getPosition() == (point){5,4});
+
+            // Until the wall is hit
+            for (unsigned i = 0; i < 3; i++)
+            {
+                behavior->run(TRANSPORT_BAND_MOVEMENT_TIME);
+            }
+            REQUIRE(boulder->getPosition() == (point){2,4});
+            REQUIRE(bomb->getPosition() == (point){3,4});
+        }
+    }
+
+    WHEN("two transport bands with different directions touch each other")
+    {
+        THEN("objects will be transported back and forth")
+        {
+
         }
     }
 }
