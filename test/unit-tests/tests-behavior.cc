@@ -9,6 +9,7 @@
 static const unsigned FALL_TIME = 100;
 static const unsigned BOMB_TIMEOUT = 2000;
 static const unsigned FIREBALL_BURNOUT_TIME = 1000;
+static const unsigned GHOST_MOVEMENT_TIME = 100;
 
 SCENARIO("a boulder can fall")
 {
@@ -268,28 +269,107 @@ SCENARIO("fireballs fall and disappears")
         auto store = IEntityStore::getInstance();
 
         std::shared_ptr<ILevel> lvl = ILevel::fromString("2 4 "
-                "f."
-                " ."
-                ".."
-                ".p"
-        );
+                                                         "f."
+                                                         " ."
+                                                         ".."
+                                                         ".p");
         REQUIRE(lvl);
 
-        auto fireball = store->getEntityByPoint({0,0});
+        auto fireball = store->getEntityByPoint({0, 0});
         REQUIRE(fireball);
         auto behavior = IBehavior::fromEntity(lvl, fireball);
 
         THEN("it will fall until it hits solid ground")
         {
             behavior->run(FALL_TIME);
-            REQUIRE(store->getEntityByPoint({0,1})->getType() == EntityType::FIREBALL);
+            REQUIRE(store->getEntityByPoint({0, 1})->getType() == EntityType::FIREBALL);
 
             AND_THEN("disappear when it has burned up")
             {
                 behavior->run(FIREBALL_BURNOUT_TIME);
 
-                REQUIRE(!store->getEntityByPoint({0,1}));
+                REQUIRE(!store->getEntityByPoint({0, 1}));
             }
+        }
+    }
+}
+
+SCENARIO("Ghosts appear!")
+{
+    WHEN("a ghost appears")
+    {
+        auto store = IEntityStore::getInstance();
+
+        std::shared_ptr<ILevel> lvl = ILevel::fromString("9 9 "
+                                      ".... ...."
+                                      ".... ...."
+                                      "....   .."
+                                      ".... ...."
+                                      ".... ...."
+                                      "....g...." // 4, 5
+                                      "........."
+                                      "........."
+                                      "........p");
+        REQUIRE(lvl);
+
+        auto ghost = store->getEntityByPoint({4, 5});
+        REQUIRE(ghost);
+        auto behavior = IBehavior::fromEntity(lvl, ghost);
+
+        THEN("it will explore non-visited places along corridors")
+        {
+            std::vector<point> visitOrder;
+            auto onMovement = [&visitOrder](std::shared_ptr<IEntity> ent,
+                const point &from, const point &to)
+            {
+                visitOrder.push_back(to);
+            };
+            auto cookie = ghost->onMovement(onMovement);
+
+            for (auto i = 0; i < 5; i++)
+            {
+                behavior->run(GHOST_MOVEMENT_TIME);
+            }
+            REQUIRE(visitOrder.size() == 5U);
+
+            // Expected to walk along a line upwards
+            std::vector<point> expected = {{4,4}, {4,3}, {4,2}, {4,1}, {4,0}};
+            // or visit the bend
+            std::vector<point> alternatively = {{4,4}, {4,3}, {4,2},  {5,2}, {6,2}};
+
+            REQUIRE( (visitOrder == expected || visitOrder == alternatively) );
+
+            WHEN("it encounters a dead end")
+            {
+                THEN("it will retrace its steps until a non-visited place appears")
+                {
+                    visitOrder.clear();
+
+                    // Go back two steps until the bend and then up/to the side
+                    for (auto i = 0; i < 4; i++)
+                    {
+                        behavior->run(GHOST_MOVEMENT_TIME);
+                    }
+                    expected = {{4,1}, {4,2},  {5,2}, {6,2}};
+                    alternatively = {{5,2}, {4,2},  {4,1}, {4,0}};
+
+                    REQUIRE((visitOrder == expected || visitOrder == alternatively));
+                }
+            }
+        }
+    }
+
+    WHEN("a ghost can select between paths")
+    {
+        THEN("it will normally prefer continuing in the same direction as before")
+        {
+        }
+    }
+
+    WHEN("a ghost encounters the player")
+    {
+        THEN("an explosion will occur")
+        {
         }
     }
 }

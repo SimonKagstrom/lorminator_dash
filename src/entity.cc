@@ -10,6 +10,7 @@ static const std::unordered_map<char, EntityType> charToEntity =
     {'b', EntityType::BOMB},
     {'p', EntityType::PLAYER},
     {'f', EntityType::FIREBALL},
+    {'g', EntityType::GHOST},
 };
 
 class Entity : public IEntity, public std::enable_shared_from_this<Entity>
