@@ -7,6 +7,7 @@
 static const std::unordered_map<char, EntityType> charToEntity =
 {
     {'o', EntityType::BOULDER},
+    {'d', EntityType::DIAMOND},
     {'b', EntityType::BOMB},
     {'p', EntityType::PLAYER},
     {'f', EntityType::FIREBALL},

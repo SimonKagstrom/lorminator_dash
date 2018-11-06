@@ -31,6 +31,7 @@ add_executable(ut
 	test/unit-tests/tests-entity.cc
 	test/unit-tests/tests-level.cc
 	test/unit-tests/tests-observer.cc
+	test/unit-tests/tests-player.cc
 )
 set_target_properties(ut PROPERTIES
             CXX_STANDARD 17
