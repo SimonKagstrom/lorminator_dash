@@ -1,3 +1,12 @@
+#include <behavior.hh>
+#include <point.hh>
+#include <entity.hh>
+
+#include "itrait.hh"
+
+#include <memory>
+#include <vector>
+
 class DisappearAfterTrait : public ITrait
 {
 public:

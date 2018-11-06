@@ -1,3 +1,9 @@
+#include <behavior.hh>
+#include "itrait.hh"
+
+#include <memory>
+#include <vector>
+
 class CollisionTrait : public ITrait
 {
 public:

@@ -1,4 +1,12 @@
+#include <behavior.hh>
+#include <point.hh>
+#include <entity.hh>
+#include <level.hh>
+
 #include "itrait.hh"
+
+#include <memory>
+#include <vector>
 
 class ExplodeAfterTrait : public ITrait
 {
