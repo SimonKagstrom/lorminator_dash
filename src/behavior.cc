@@ -98,12 +98,12 @@ void LevelBehavior::run(unsigned ms)
     }
 }
 
-std::shared_ptr<IBehavior> IBehavior::fromEntity(std::shared_ptr<ILevel> level, std::shared_ptr<IEntity> entity)
+std::unique_ptr<IBehavior> IBehavior::fromEntity(std::shared_ptr<ILevel> level, std::shared_ptr<IEntity> entity)
 {
-    return std::shared_ptr<IBehavior>(new Behavior(level, entity));
+    return std::unique_ptr<IBehavior>(new Behavior(level, entity));
 }
 
-std::shared_ptr<IBehavior> IBehavior::fromLevel(std::shared_ptr<ILevel> level)
+std::unique_ptr<IBehavior> IBehavior::fromLevel(std::shared_ptr<ILevel> level)
 {
-    return std::shared_ptr<IBehavior>(new LevelBehavior(level));
+    return std::unique_ptr<IBehavior>(new LevelBehavior(level));
 }
