@@ -49,12 +49,14 @@ SCENARIO("The player takes diamonds")
     WHEN("the player walks over a diamond")
     {
         REQUIRE_CALL(*g_mockInput, getInput())
+            .TIMES(AT_LEAST(1))
             .RETURN(InputTypes::LEFT);
         behavior->run(100);
         REQUIRE(player->getPosition() == (point){3,5});
 
         // Back again
         REQUIRE_CALL(*g_mockInput, getInput())
+            .TIMES(AT_LEAST(1))
             .RETURN(InputTypes::RIGHT);
         behavior->run(100);
         REQUIRE(player->getPosition() == (point){4,5});
@@ -73,6 +75,7 @@ SCENARIO("The player takes diamonds")
     WHEN("the player stands beside the diamond and operates towards the diamond")
     {
         REQUIRE_CALL(*g_mockInput, getInput())
+            .TIMES(AT_LEAST(1))
             .RETURN(InputTypes::LEFT | InputTypes::OPERATE);
         behavior->run(100);
         // No movement
@@ -110,6 +113,27 @@ SCENARIO("The player changes its environment")
     {
         THEN("it cannot move further")
         {
+        }
+    }
+
+    WHEN("the player pushes a boulder")
+    {
+        THEN("it will move if there is empty space beside it")
+        {
+        }
+
+        WHEN("the boulder is above the player")
+        {
+            THEN("it will not move even with empty space above it")
+            {
+            }
+        }
+
+        WHEN("the boulder has dirt or other solid material beside it")
+        {
+            THEN("it will not move")
+            {
+            }
         }
     }
 }

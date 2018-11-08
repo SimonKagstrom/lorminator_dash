@@ -18,15 +18,8 @@ namespace player
 class Walk : public PlayerTraitBase
 {
 public:
-    Walk(std::shared_ptr<ILevel> level, std::shared_ptr<IEntity> entity) :
-        m_level(level), m_entity(entity)
+    Walk(std::shared_ptr<ILevel> level, std::shared_ptr<IEntity> entity) : PlayerTraitBase(level, entity)
     {
-        m_input = IInput::fromEntity(entity);
-        if (!m_input)
-        {
-            // Something is horribly wrong it we can't control the player
-            throw std::invalid_argument("Can't control the player???");
-        }
     }
 
     bool run(unsigned ms) override
@@ -67,14 +60,10 @@ public:
         }
 
         // Move the player
+        m_level->setTile(dst, TileType::EMPTY);
         m_entity->setPosition(dst);
 
         return false;
     }
-
-private:
-    std::shared_ptr<ILevel> m_level;
-    std::shared_ptr<IEntity> m_entity;
-    std::shared_ptr<IInput> m_input;
 };
 }
