@@ -12,7 +12,15 @@ include_directories(
 )
 
 add_executable(lorminator_dash
+	src/gui/io.cc
+	src/behavior.cc
+	src/entity.cc
+	src/entity-properties.cc
+	src/game.cc
+	src/level.cc
 	src/main.cc
+	src/observer.cc
+	src/utils.cc
 )
 set_target_properties(lorminator_dash PROPERTIES
             CXX_STANDARD 17
@@ -24,6 +32,7 @@ add_executable(ut
 	src/behavior.cc
 	src/entity.cc
 	src/entity-properties.cc
+	src/game.cc
 	src/level.cc
 	src/observer.cc
 	src/utils.cc

@@ -33,8 +33,8 @@ public:
 
 	virtual std::string toString() const = 0;
 
+
 	static std::unique_ptr<ILevel> fromString(const std::string &levelString);
-	static std::unique_ptr<ILevel> fromFile(const std::string &levelFile);
 
 	static bool tileIsPassable(TileType what);
 };
