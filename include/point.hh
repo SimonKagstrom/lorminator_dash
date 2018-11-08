@@ -5,7 +5,8 @@ enum class Direction
 	UP,
 	DOWN,
 	LEFT,
-	RIGHT
+	RIGHT,
+	NONE,   // No direction at all
 };
 
 struct point

@@ -51,11 +51,13 @@ SCENARIO("The player takes diamonds")
         REQUIRE_CALL(*g_mockInput, getInput())
             .RETURN(InputTypes::LEFT);
         behavior->run(100);
+        REQUIRE(player->getPosition() == (point){3,5});
 
         // Back again
         REQUIRE_CALL(*g_mockInput, getInput())
             .RETURN(InputTypes::RIGHT);
         behavior->run(100);
+        REQUIRE(player->getPosition() == (point){4,5});
 
         THEN("the diamond will disappear")
         {
@@ -70,8 +72,17 @@ SCENARIO("The player takes diamonds")
 
     WHEN("the player stands beside the diamond and operates towards the diamond")
     {
+        REQUIRE_CALL(*g_mockInput, getInput())
+            .RETURN(InputTypes::LEFT | InputTypes::OPERATE);
+        behavior->run(100);
+        // No movement
+        REQUIRE(player->getPosition() == (point){4,5});
+
         THEN("the diamond will disappear")
         {
+            d1 = store->getEntityByPoint({3,5});
+            REQUIRE(!d1);
+
             AND_THEN("the player diamond count will increase by one")
             {
             }

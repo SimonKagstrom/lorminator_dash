@@ -14,6 +14,7 @@
 #include "traits/disappear-after.cc"
 #include "traits/ghost-exploring.cc"
 #include "traits/colliding.cc"
+#include "traits/player-walk.cc"
 
 #include "traits/transporter-bands.cc"
 #include "traits/teleporting.cc"
@@ -62,6 +63,9 @@ Behavior::Behavior(std::shared_ptr<ILevel> level, std::shared_ptr<IEntity> entit
         break;
     case EntityType::GHOST:
         m_traits.push_back(std::unique_ptr<ITrait>(new GhostWalkingTrait(level, entity)));
+        break;
+    case EntityType::PLAYER:
+        m_traits.push_back(std::unique_ptr<ITrait>(new player::Walk(level, entity)));
         break;
     default:
         break;
