@@ -23,6 +23,7 @@ target_link_libraries(lorminator_dash ${SDL2_LIBRARY})
 add_executable(ut
 	src/behavior.cc
 	src/entity.cc
+	src/entity-properties.cc
 	src/level.cc
 	src/observer.cc
 	src/utils.cc

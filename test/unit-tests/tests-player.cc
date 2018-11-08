@@ -5,6 +5,7 @@
 #include <level.hh>
 #include <entity.hh>
 #include <behavior.hh>
+#include <entity-properties.hh>
 
 class MockInput : public IInput
 {
@@ -24,6 +25,7 @@ SCENARIO("The player takes diamonds")
     g_mockInput = std::make_shared<MockInput>();
 
     auto store = IEntityStore::getInstance();
+    auto propStore = IEntityProperties::getInstance();
 
     std::shared_ptr<ILevel> lvl = ILevel::fromString("9 9 "
                                     "........."
@@ -45,6 +47,9 @@ SCENARIO("The player takes diamonds")
     REQUIRE(d2);
 
     auto behavior = IBehavior::fromEntity(lvl, player);
+    auto props = propStore->fromEntity(player);
+
+    REQUIRE(props->asInt("diamonds") == 0);
 
     WHEN("the player walks over a diamond")
     {
@@ -68,6 +73,7 @@ SCENARIO("The player takes diamonds")
 
             AND_THEN("the player diamond count will increase by one")
             {
+                REQUIRE(props->asInt("diamonds") == 1);
             }
         }
     }
@@ -88,6 +94,7 @@ SCENARIO("The player takes diamonds")
 
             AND_THEN("the player diamond count will increase by one")
             {
+                REQUIRE(props->asInt("diamonds") == 1);
             }
         }
     }

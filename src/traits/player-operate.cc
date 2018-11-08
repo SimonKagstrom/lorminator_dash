@@ -57,12 +57,11 @@ public:
             if (entAtDst->getType() == EntityType::DIAMOND)
             {
                 entAtDst->remove();
+                m_props->set("diamonds", m_props->asInt("diamonds") + 1);
             }
         }
 
         return true;
     }
-
-private:
 };
 }

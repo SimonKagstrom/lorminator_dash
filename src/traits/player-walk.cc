@@ -57,6 +57,7 @@ public:
             {
                 // Remove and increase diamond count
                 entAtDst->remove();
+                m_props->set("diamonds", m_props->asInt("diamonds") + 1);
             }
             else if (type == EntityType::BOULDER)
             {

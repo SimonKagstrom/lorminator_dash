@@ -4,6 +4,7 @@
 #include <entity.hh>
 #include <point.hh>
 #include <input.hh>
+#include <entity-properties.hh>
 
 #include "itrait.hh"
 
@@ -21,6 +22,8 @@ namespace player
                 // Something is horribly wrong it we can't control the player
                 throw std::invalid_argument("Can't control the player???");
             }
+    
+            m_props = IEntityProperties::getInstance()->fromEntity(entity);
         }
 
         Direction keysToDir(uint32_t keys) const
@@ -50,5 +53,6 @@ namespace player
         std::shared_ptr<ILevel> m_level;
         std::shared_ptr<IEntity> m_entity;
         std::shared_ptr<IInput> m_input;
+        std::shared_ptr<IEntityProperties::IProperties> m_props;
     };
 }
