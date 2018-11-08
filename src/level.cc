@@ -37,11 +37,6 @@ public:
 
     virtual const struct extents &getSize() const override;
 
-
-    virtual bool pointIsPassable(const point &where) const override;
-
-    virtual bool pointIsSolid(const point &where) const override;
-
     virtual std::optional<TileType> tileAt(const point &where) const override;
 
 	virtual void setTile(const point &where, TileType what) override;
@@ -98,16 +93,6 @@ Level::~Level()
 const extents &Level::getSize() const
 {
     return m_size;
-}
-
-bool Level::pointIsPassable(const point &where) const
-{
-    return true;
-}
-
-bool Level::pointIsSolid(const point &where) const
-{
-    return false;
 }
 
 int Level::pointToIndex(const point &where) const
@@ -384,4 +369,14 @@ std::string Level::toString() const
     }
 
     return out;
+}
+
+bool ILevel::tileIsPassable(TileType what)
+{
+    if (what == TileType::DIRT || what == TileType::EMPTY || what == TileType::TELEPORTER)
+    {
+        return true;
+    }
+
+    return false;
 }

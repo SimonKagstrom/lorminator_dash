@@ -95,44 +95,131 @@ SCENARIO("The player takes diamonds")
 
 SCENARIO("The player changes its environment")
 {
+    g_mockInput = std::make_shared<MockInput>();
+
+    auto store = IEntityStore::getInstance();
+
+    std::shared_ptr<ILevel> lvl = ILevel::fromString("9 9 "
+                                    "........."
+                                    "........."
+                                    "........."
+                                    "...... .."
+                                    ".#..t.o.."
+                                    ".#..p.o ." // 4, 5
+                                    "........."
+                                    "........."
+                                    "........t");
+    REQUIRE(lvl);
+
+    auto player = store->getEntityByPoint({4,5});
+    auto b1 = store->getEntityByPoint({6,5});
+    auto b2 = store->getEntityByPoint({6,4});
+
+    REQUIRE(player);
+    REQUIRE(b1);
+    REQUIRE(b2);
+
+    auto playerBehavior = IBehavior::fromEntity(lvl, player);
+    auto b2Behavior = IBehavior::fromEntity(lvl, b2);
+
     WHEN("the player walks around a region of dirt")
     {
+        REQUIRE_CALL(*g_mockInput, getInput())
+            .TIMES(AT_LEAST(1))
+            .RETURN(InputTypes::LEFT);
+
+        // Two steps
+        playerBehavior->run(100);
+        playerBehavior->run(100);
+        REQUIRE(player->getPosition() == (point){2,5});
+
         THEN("the dirt will turn to empty tiles")
         {
+            auto t1 = lvl->tileAt({3,5});
+            auto t2 = lvl->tileAt({2,5});
+
+            REQUIRE(t1);
+            REQUIRE(t2);
+            REQUIRE(*t1 == TileType::EMPTY);
+            REQUIRE(*t2 == TileType::EMPTY);
         }
     }
 
     WHEN("the player walks over a teleporter")
     {
+        // Starts from the beginning again
+        REQUIRE_CALL(*g_mockInput, getInput())
+            .TIMES(AT_LEAST(1))
+            .RETURN(InputTypes::UP);
+
+        playerBehavior->run(100);
+        REQUIRE(player->getPosition() == (point){4,4});
+
         THEN("the teleporter will stay the same")
         {
+            auto t1 = lvl->tileAt({4,4});
+
+            REQUIRE(t1);
+            REQUIRE(*t1 == TileType::TELEPORTER);
         }
     }
 
     WHEN("the player encounters a wall")
     {
+        REQUIRE_CALL(*g_mockInput, getInput())
+            .TIMES(AT_LEAST(1))
+            .RETURN(InputTypes::LEFT);
+
+        // Three steps
+        playerBehavior->run(100);
+        playerBehavior->run(100);
+        playerBehavior->run(100);
+
         THEN("it cannot move further")
         {
+            REQUIRE(player->getPosition() == (point){2,5});
         }
     }
 
     WHEN("the player pushes a boulder")
     {
+        REQUIRE_CALL(*g_mockInput, getInput())
+            .TIMES(AT_LEAST(1))
+            .RETURN(InputTypes::RIGHT);
+
+        playerBehavior->run(100);
+        playerBehavior->run(100);
+
         THEN("it will move if there is empty space beside it")
         {
+            REQUIRE(player->getPosition() == (point){6,5});
+            REQUIRE(b1->getPosition() == (point){7,5});
+
+            WHEN("the boulder has dirt or other solid material beside it")
+            {
+                playerBehavior->run(100);
+                THEN("it will not move")
+                {
+                    // Can't move thhe boulder anymore
+                    REQUIRE(player->getPosition() == (point){6,5});
+                    REQUIRE(b1->getPosition() == (point){7,5});
+                }
+            }
         }
 
         WHEN("the boulder is above the player")
         {
+            REQUIRE_CALL(*g_mockInput, getInput())
+                .TIMES(AT_LEAST(1))
+                .RETURN(InputTypes::UP);
+
+            playerBehavior->run(100);
+
             THEN("it will not move even with empty space above it")
             {
-            }
-        }
-
-        WHEN("the boulder has dirt or other solid material beside it")
-        {
-            THEN("it will not move")
-            {
+                    // Can't move thhe boulder anymore
+                    REQUIRE(player->getPosition() == (point){6,5});
+                    REQUIRE(b2->getPosition() == (point){6,4});
             }
         }
     }

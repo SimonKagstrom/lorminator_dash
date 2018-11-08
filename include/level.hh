@@ -20,10 +20,6 @@ public:
 
 	virtual const struct extents &getSize() const = 0;
 
-	virtual bool pointIsPassable(const point &where) const = 0;
-
-	virtual bool pointIsSolid(const point &where) const = 0;
-
 	virtual std::optional<TileType> tileAt(const point &where) const = 0;
 
 	virtual void setTile(const point &where, TileType what) = 0;
@@ -39,4 +35,6 @@ public:
 
 	static std::unique_ptr<ILevel> fromString(const std::string &levelString);
 	static std::unique_ptr<ILevel> fromFile(const std::string &levelFile);
+
+	static bool tileIsPassable(TileType what);
 };

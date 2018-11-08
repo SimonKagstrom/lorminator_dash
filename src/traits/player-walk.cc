@@ -44,6 +44,11 @@ public:
             return false;
         }
 
+        if (!ILevel::tileIsPassable(*tileAtDst))
+        {
+            return false;
+        }
+
         if (entAtDst)
         {
             auto type = entAtDst->getType();
@@ -55,15 +60,41 @@ public:
             }
             else if (type == EntityType::BOULDER)
             {
-                return false;
+                if (dir == Direction::UP || dir == Direction::DOWN)
+                {
+                    // Can't push vertically
+                    return false;
+                }
+
+                auto afterBoulder = dst + dir;
+                auto tileAfterBoulder = m_level->tileAt(afterBoulder);
+
+                if (!tileAfterBoulder)
+                {
+                    // Out of bounds
+                    return false;
+                }
+
+                if (*tileAfterBoulder == TileType::EMPTY)
+                {
+                    // push!
+                    entAtDst->setPosition(afterBoulder);
+                }
+                else
+                {
+                    return false;
+                }
             }
         }
 
         // Move the player
-        m_level->setTile(dst, TileType::EMPTY);
+        if (*tileAtDst == TileType::DIRT)
+        {
+            m_level->setTile(dst, TileType::EMPTY);
+        }
         m_entity->setPosition(dst);
 
-        return false;
+        return true;
     }
 };
 }
