@@ -98,7 +98,7 @@ const extents &Level::getSize() const
 int Level::pointToIndex(const point &where) const
 {
     // Dont allow wrapping to the last line
-    if (where.x < 0 || where.y < 0)
+    if (where.x < 0 || where.y < 0 || where.x >= m_size.width || where.y >= m_size.height)
     {
         return -1;
     }
