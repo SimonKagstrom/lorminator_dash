@@ -63,6 +63,8 @@ public:
 
     virtual std::shared_ptr<IEntity> getEntityByPoint(const point &where) = 0;
 
+    virtual std::unique_ptr<ObserverCookie> onCreation(std::function<void(std::shared_ptr<IEntity> entity)> cb) = 0;
+
     virtual std::unique_ptr<ObserverCookie> onCollision(std::function<void(std::shared_ptr<IEntity> one, std::shared_ptr<IEntity> other)> cb) = 0;
 
 	static std::shared_ptr<IEntityStore> getInstance();

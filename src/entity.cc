@@ -55,6 +55,8 @@ public:
 
     void add(std::shared_ptr<IEntity> entity);
 
+    std::unique_ptr<ObserverCookie> onCreation(std::function<void(std::shared_ptr<IEntity> entity)> cb) override;
+
     std::unique_ptr<ObserverCookie> onCollision(std::function<void(std::shared_ptr<IEntity> one, std::shared_ptr<IEntity> other)> cb) override;
 
 private:
@@ -63,6 +65,7 @@ private:
     std::unordered_map<uint32_t, std::unique_ptr<ObserverCookie>> m_removalCookies;
 
     Notifier2<std::shared_ptr<IEntity>, std::shared_ptr<IEntity>> m_onCollision;
+    Notifier1<std::shared_ptr<IEntity>> m_onCreation;
 };
 
 
@@ -211,6 +214,12 @@ void EntityStore::add(std::shared_ptr<IEntity> entity)
     }
 
     m_entities[entity->getId()] = entity;
+    m_onCreation.invoke(entity);
+}
+
+std::unique_ptr<ObserverCookie> EntityStore::onCreation(std::function<void(std::shared_ptr<IEntity> entity)> cb)
+{
+    return m_onCreation.listen(cb);
 }
 
 std::unique_ptr<ObserverCookie> EntityStore::onCollision(std::function<void(std::shared_ptr<IEntity> one,
