@@ -48,7 +48,8 @@ SCENARIO("the game can be played")
             REQUIRE(rv == true);
         }
 
-        auto b2 = IEntityStore::getInstance()->getEntityByPoint({6, 4});
+        auto store =  IEntityStore::getInstance();
+        auto b2 = store->getEntityByPoint({6, 4});
         REQUIRE(b2);
 
         AND_THEN("the game can be played")
@@ -68,6 +69,9 @@ SCENARIO("the game can be played")
             AND_WHEN("the player is removed, the play method returns")
             {
                 REQUIRE(b2->getPosition() == (point){7,5});
+                auto fb = store->getEntityByPoint({3,5}); // Now a fireball
+                REQUIRE(fb);
+                REQUIRE(fb->getType() == EntityType::FIREBALL);
                 REQUIRE(rv == false); // Didn't finish
             }
         }

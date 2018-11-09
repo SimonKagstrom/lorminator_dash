@@ -96,6 +96,12 @@ private:
                 m_behavior[it->getId()] = IBehavior::fromEntity(m_level, it);
             }
 
+            // And listen for new creations
+            m_cookie = m_entityStore->onCreation([this](std::shared_ptr<IEntity> entity)
+            {
+                m_behavior[entity->getId()] = IBehavior::fromEntity(m_level, entity);
+            });
+
             return m_player != nullptr;
         }
 
@@ -129,6 +135,7 @@ private:
         std::shared_ptr<IEntity> m_player;
 
         std::unordered_map<uint32_t, std::unique_ptr<IBehavior>> m_behavior;
+        std::unique_ptr<ObserverCookie> m_cookie;
     };
 
     std::unique_ptr<CurrentLevel> m_currentLevel;
