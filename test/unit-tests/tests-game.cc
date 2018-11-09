@@ -4,6 +4,7 @@
 #include <input.hh>
 #include <io.hh>
 #include <game.hh>
+#include <entity.hh>
 
 #include "mock-input.hh"
 #include "mock-io.hh"
@@ -47,6 +48,9 @@ SCENARIO("the game can be played")
             REQUIRE(rv == true);
         }
 
+        auto b2 = IEntityStore::getInstance()->getEntityByPoint({6, 4});
+        REQUIRE(b2);
+
         AND_THEN("the game can be played")
         {
             // The player walks to the left to collect the diamond and then hit the wall
@@ -63,6 +67,7 @@ SCENARIO("the game can be played")
 
             AND_WHEN("the player is removed, the play method returns")
             {
+                REQUIRE(b2->getPosition() == (point){7,5});
                 REQUIRE(rv == false); // Didn't finish
             }
         }
