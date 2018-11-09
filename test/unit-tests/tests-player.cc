@@ -7,18 +7,7 @@
 #include <behavior.hh>
 #include <entity-properties.hh>
 
-class MockInput : public IInput
-{
-public:
-    MAKE_MOCK0(getInput, uint32_t());
-};
-
-static std::shared_ptr<MockInput> g_mockInput;
-std::shared_ptr<IInput> IInput::fromEntity(std::shared_ptr<IEntity> entity)
-{
-    return g_mockInput;
-}
-
+#include "mock-input.hh"
 
 SCENARIO("The player takes diamonds")
 {
@@ -98,6 +87,8 @@ SCENARIO("The player takes diamonds")
             }
         }
     }
+
+    g_mockInput = nullptr;
 }
 
 SCENARIO("The player changes its environment")
@@ -230,6 +221,8 @@ SCENARIO("The player changes its environment")
             }
         }
     }
+
+    g_mockInput = nullptr;
 }
 
 SCENARIO("The player can place bombs")
