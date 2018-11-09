@@ -86,6 +86,7 @@ private:
             auto entities = m_entityStore->getEntities();
 
             // Create behavior
+            m_levelBehavior = IBehavior::fromLevel(m_level);
             for (auto &it : entities)
             {
                 if (it->getType() == EntityType::PLAYER)
@@ -111,6 +112,7 @@ private:
             {
                 it.second->run(ms);
             }
+            m_levelBehavior->run(ms);
         }
 
         std::shared_ptr<IEntity> getPlayer() const
@@ -135,6 +137,7 @@ private:
         std::shared_ptr<IEntity> m_player;
 
         std::unordered_map<uint32_t, std::unique_ptr<IBehavior>> m_behavior;
+        std::unique_ptr<IBehavior> m_levelBehavior;
         std::unique_ptr<ObserverCookie> m_cookie;
     };
 
