@@ -1,5 +1,8 @@
 #pragma once
 
+#include <string>
+#include <ostream>
+
 enum class Direction
 {
 	UP,
@@ -90,3 +93,10 @@ struct extents
 		return !(*this == other);
 	}
 };
+
+static std::ostream& operator << (std::ostream& os, point const& value)
+{
+    os << "{" << value.x << ", " << value.y << "}";
+
+    return os;
+}
