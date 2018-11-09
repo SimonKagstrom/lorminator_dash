@@ -40,15 +40,42 @@ public:
         return m_currentInput;
     }
 
-    void display(const point &center, std::shared_ptr<ILevel> level, std::shared_ptr<IEntityStore> store) override
+    void display(const point &centerIn, std::shared_ptr<ILevel> level, std::shared_ptr<IEntityStore> store) override
     {
-        for (int y = 0; y < level->getSize().width; y++)
+        int windowWidth, windowHeight;
+
+        SDL_GetWindowSize(m_window, &windowWidth, &windowHeight);
+
+        int tileWidth = windowWidth / m_spriteSize.width;
+        int tileHeight = windowHeight / m_spriteSize.height;
+
+        auto center = (point){centerIn.x - tileWidth / 2, centerIn.y - tileHeight / 2};
+
+        if (center.x < 0)
         {
-            for (int x = 0; x < level->getSize().height; x++)
+            center.x = 0;
+        }
+        if (center.y < 0)
+        {
+            center.y = 0;
+        }
+
+        auto levelSize = level->getSize();
+
+        if (center.x + tileWidth >= levelSize.width)
+        {
+            center.x = levelSize.width - tileWidth;
+        }
+        if (center.y + tileHeight >= levelSize.height)
+        {
+            center.y = levelSize.height - tileHeight;
+        }
+
+        for (int y = 0; y < levelSize.height; y++)
+        {
+            for (int x = 0; x < levelSize.width; x++)
             {
                 auto cur = (point){x,y};
-                auto scaled = cur * m_spriteSize.width;
-
                 auto tile = level->tileAt(cur);
 
                 if (!tile)
@@ -56,8 +83,16 @@ public:
                     continue;
                 }
 
+                cur = cur - center;
+                if (cur.x < -1 || cur.y < -1)
+                {
+                    continue;
+                }
+
                 auto off = getSpriteFromTile(*tile);
                 auto rect = getRectFromOffset(off);
+
+                auto scaled = cur * m_spriteSize.width;
 
                 SDL_Rect dst = {scaled.x, scaled.y, (int)m_spriteSize.width, (int)m_spriteSize.height};
 
@@ -65,10 +100,17 @@ public:
             }
         }
 
+
         auto entities = store->getEntities();
         for (auto &it : entities)
         {
-            auto scaled = it->getPosition() * m_spriteSize.width;
+            auto cur = it->getPosition() - center;
+
+            if (cur.x < -1 || cur.y < -1)
+            {
+                continue;
+            }
+            auto scaled = cur * m_spriteSize.width;
 
             auto off = getSpriteFromEntity(it->getType());
             auto rect = getRectFromOffset(off);
