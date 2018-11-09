@@ -16,14 +16,14 @@ public:
 
     bool setLevel(const std::string &levelData) override
     {
-        std::shared_ptr<ILevel> level = ILevel::fromString(levelData);
-        
-        if (!level)
+        m_currentLevel.reset();
+        auto cur = std::make_unique<CurrentLevel>();
+
+        if (!cur->setLevel(levelData))
         {
             return false;
         }
-        m_currentLevel.reset();
-        m_currentLevel = std::make_unique<CurrentLevel>(level);
+        m_currentLevel = std::move(cur);
 
         return true;
     }
@@ -38,27 +38,51 @@ public:
             return false;
         }
 
+        auto player = m_currentLevel->getPlayer();
+        bool playerAlive = true;
+
+        // Check for player aliveness
+        auto cookie = player->onRemoval([&playerAlive](std::shared_ptr<IEntity> entity)
+        {
+            playerAlive = false;
+        });
+
         while (1)
         {
+            if (!playerAlive)
+            {
+                //  Didn't pass this level
+                return false;
+            }
+
             m_currentLevel->run(100);
 
-            io->display(m_currentLevel->getPlayer()->getPosition(),
-                m_currentLevel->getLevel(), m_currentLevel->getEntityStore());
+            io->display(player->getPosition(), m_currentLevel->getLevel(), m_currentLevel->getEntityStore());
             io->delay(100);
         }
 
-        return false;
+        return true;
     }
 
 private:
     class CurrentLevel
     {
     public:
-        CurrentLevel(std::shared_ptr<ILevel> level) :
-            m_level(level),
+        CurrentLevel() :
             m_entityStore(IEntityStore::getInstance()),
             m_entityProperties(IEntityProperties::getInstance())
         {
+        }
+
+        bool setLevel(const std::string &str)
+        {
+            m_level = ILevel::fromString(str);
+
+            if (!m_level)
+            {
+                return false;
+            }
+
             auto entities = m_entityStore->getEntities();
 
             // Create behavior
@@ -71,6 +95,8 @@ private:
 
                 m_behavior[it->getId()] = IBehavior::fromEntity(m_level, it);
             }
+
+            return m_player != nullptr;
         }
 
         void run(unsigned ms)
@@ -81,17 +107,17 @@ private:
             }
         }
 
-        std::shared_ptr<IEntity> getPlayer()
+        std::shared_ptr<IEntity> getPlayer() const
         {
             return m_player;
         }
 
-        std::shared_ptr<IEntityStore> getEntityStore()
+        std::shared_ptr<IEntityStore> getEntityStore() const
         {
-            return m_entityStpre;
+            return m_entityStore;
         }
 
-        std::shared_ptr<ILevel> getLevel()
+        std::shared_ptr<ILevel> getLevel() const
         {
             return m_level;
         }
@@ -107,3 +133,12 @@ private:
 
     std::unique_ptr<CurrentLevel> m_currentLevel;
 };
+
+
+
+std::shared_ptr<IGame> IGame::create()
+{
+    auto out = std::make_shared<Game>();
+
+    return out;
+}

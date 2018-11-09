@@ -36,9 +36,12 @@ add_executable(ut
 	src/level.cc
 	src/observer.cc
 	src/utils.cc
+	test/unit-tests/mock-input.cc
+	test/unit-tests/mock-io.cc
 	test/unit-tests/tests-main.cc
 	test/unit-tests/tests-behavior.cc
 	test/unit-tests/tests-entity.cc
+	test/unit-tests/tests-game.cc
 	test/unit-tests/tests-level.cc
 	test/unit-tests/tests-observer.cc
 	test/unit-tests/tests-player.cc
