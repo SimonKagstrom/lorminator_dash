@@ -67,6 +67,11 @@ struct point
 
 		return x < other.x;
 	}
+
+	point operator*(int val) const
+	{
+		return {x * val, y * val};
+	}
 };
 
 struct extents
