@@ -32,11 +32,13 @@ public:
             return false;
         }
 
+        auto store = IEntityStore::getInstance();
+
         auto dir = keysToDir(keys);
         auto dst = m_entity->getPosition() + dir;
 
         auto tileAtDst = m_level->tileAt(dst);
-        auto entAtDst = IEntityStore::getInstance()->getEntityByPoint(dst);
+        auto entAtDst = store->getEntityByPoint(dst);
 
         if (!tileAtDst)
         {
@@ -75,8 +77,9 @@ public:
                     // Out of bounds
                     return false;
                 }
+                auto entityAfterBoulder = store->getEntityByPoint(afterBoulder);
 
-                if (*tileAfterBoulder == TileType::EMPTY)
+                if (*tileAfterBoulder == TileType::EMPTY && !entityAfterBoulder)
                 {
                     // push!
                     entAtDst->setPosition(afterBoulder);
