@@ -49,6 +49,7 @@ SCENARIO("the game can be played")
         }
 
         auto store =  IEntityStore::getInstance();
+        auto b1 = store->getEntityByPoint({6, 5});
         auto b2 = store->getEntityByPoint({6, 4});
         REQUIRE(b2);
 
@@ -68,6 +69,7 @@ SCENARIO("the game can be played")
 
             AND_WHEN("the player is removed, the play method returns")
             {
+                REQUIRE(b1->getPosition() == (point){6,5});
                 REQUIRE(b2->getPosition() == (point){7,5});
                 auto fb = store->getEntityByPoint({3,5}); // Now a fireball
                 REQUIRE(fb);

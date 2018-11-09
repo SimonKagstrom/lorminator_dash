@@ -225,6 +225,91 @@ SCENARIO("The player changes its environment")
     g_mockInput = nullptr;
 }
 
+SCENARIO("the player cannot move over a boulder")
+{
+    g_mockInput = std::make_shared<MockInput>();
+
+    auto store = IEntityStore::getInstance();
+
+    std::shared_ptr<ILevel> lvl = ILevel::fromString("9 9 "
+            "...o....d"
+            "... ....d"
+            "... ....d"
+            "... .. .."
+            ".#. t.o  " // b2 Fall
+            ".##dp.o ." // player, b1
+            "........."
+            "........."
+            "........t");
+    REQUIRE(lvl);
+
+    auto player = store->getEntityByPoint({4,5});
+    auto b1 = store->getEntityByPoint({6,5});
+    auto b2 = store->getEntityByPoint({6,4});
+
+    REQUIRE(player);
+    REQUIRE(b1);
+    REQUIRE(b2);
+
+    std::vector<std::unique_ptr<IBehavior>> behavior;
+    behavior.push_back(IBehavior::fromEntity(lvl, player));
+    behavior.push_back(IBehavior::fromEntity(lvl, b1));
+    behavior.push_back(IBehavior::fromEntity(lvl, b2));
+
+    auto runBehavior = [&behavior]()
+    {
+        for (auto &it : behavior)
+        {
+            it->run(100);
+        }
+    };
+
+    WHEN("the player moves to the right")
+    {
+        REQUIRE_CALL(*g_mockInput, getInput())
+            .TIMES(AT_LEAST(1))
+            .RETURN(0);
+        runBehavior(); // Fall 
+
+        REQUIRE_CALL(*g_mockInput, getInput())
+            .TIMES(AT_LEAST(1))
+            .RETURN(InputTypes::RIGHT);
+
+        for (int i = 0; i < 2; i++)
+        {
+            runBehavior();
+        }
+
+        THEN("it wil not be able to walk into the boulder")
+        {
+            REQUIRE(b1->getPosition() == (point){6,5});
+            REQUIRE(b2->getPosition() == (point){7,5}); // Fallen
+            REQUIRE(player->getPosition() == (point){5,5}); // Stop
+
+            AND_THEN("if it moves upwards, it will not be able to move off-screen")
+            {
+                REQUIRE_CALL(*g_mockInput, getInput())
+                    .TIMES(AT_LEAST(1))
+                    .RETURN(InputTypes::UP);
+                runBehavior();
+                REQUIRE(player->getPosition() == (point){5,4});
+
+                REQUIRE_CALL(*g_mockInput, getInput())
+                    .TIMES(AT_LEAST(1))
+                    .RETURN(InputTypes::RIGHT);
+
+                for (int i = 0; i < 4; i++)
+                {
+                    runBehavior();
+                }
+                REQUIRE(player->getPosition() == (point){8,4});
+            }
+        }
+    }   
+
+    g_mockInput = nullptr;
+}
+
 SCENARIO("The player can place bombs")
 {
     WHEN("the player places a bomb")
