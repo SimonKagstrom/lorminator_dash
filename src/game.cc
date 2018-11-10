@@ -94,13 +94,13 @@ private:
                     m_player = it;
                 }
 
-                m_behavior[it->getId()] = IBehavior::fromEntity(m_level, it);
+                addEntity(it);
             }
 
             // And listen for new creations
             m_cookie = m_entityStore->onCreation([this](std::shared_ptr<IEntity> entity)
             {
-                m_behavior[entity->getId()] = IBehavior::fromEntity(m_level, entity);
+                addEntity(entity);
             });
 
             return m_player != nullptr;
@@ -113,6 +113,12 @@ private:
                 it.second->run(ms);
             }
             m_levelBehavior->run(ms);
+
+            // Remove all now invalid behaviors
+            for (auto &it : m_toErase)
+            {
+                m_behavior.erase(it);
+            }
         }
 
         std::shared_ptr<IEntity> getPlayer() const
@@ -131,12 +137,32 @@ private:
         }
 
 private:
+        void addEntity(std::shared_ptr<IEntity> entity)
+        {
+            auto id = entity->getId();
+
+            m_behavior[id] = IBehavior::fromEntity(m_level, entity);
+            m_removalCookies[id] = entity->onRemoval([this](std::shared_ptr<IEntity> toRemove)
+            {
+                auto it = m_behavior.find(toRemove->getId());
+                if (it != m_behavior.end())
+                {
+                    m_toErase.push_back(it->first);
+                }
+                m_removalCookies.erase(toRemove->getId());
+            });
+        }
+
         std::shared_ptr<ILevel> m_level;
         std::shared_ptr<IEntityStore> m_entityStore;
         std::shared_ptr<IEntityProperties> m_entityProperties;
         std::shared_ptr<IEntity> m_player;
 
         std::unordered_map<uint32_t, std::unique_ptr<IBehavior>> m_behavior;
+        std::unordered_map<uint32_t, std::unique_ptr<ObserverCookie>> m_removalCookies;
+
+        std::vector<uint32_t> m_toErase;
+
         std::unique_ptr<IBehavior> m_levelBehavior;
         std::unique_ptr<ObserverCookie> m_cookie;
     };
