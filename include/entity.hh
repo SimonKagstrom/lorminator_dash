@@ -6,6 +6,7 @@
 #include <observer.hh>
 
 struct point;
+enum class Direction;
 
 enum class EntityType
 {
@@ -33,6 +34,10 @@ public:
 	virtual point getPosition() const = 0;
 
 	virtual void setPosition(const point &dst) = 0;
+
+	virtual Direction getDirection() const = 0;
+
+	virtual void setDirection(Direction dir) = 0;
 
 	virtual uint32_t getId() const = 0;
 

@@ -26,6 +26,10 @@ public:
 
     void setPosition(const point &dst) override;
 
+	Direction getDirection() const override;
+
+	void setDirection(Direction dir) override;
+
     uint32_t getId() const override;
 
     void remove() override;
@@ -39,6 +43,7 @@ private:
     const EntityType m_type;
     point m_position;
     uint32_t m_id;
+    Direction m_direction{Direction::NONE};
 
     Notifier1<std::shared_ptr<IEntity>> m_onRemoval;
     Notifier3<std::shared_ptr<IEntity>, const point &, const point &> m_onMovement;
@@ -102,6 +107,16 @@ void Entity::setPosition(const point &dst)
 {
     m_onMovement.invoke(shared_from_this(), m_position, dst);
     m_position = dst;
+}
+
+Direction Entity::getDirection() const
+{
+    return m_direction;
+}
+
+void Entity::setDirection(Direction dir)
+{
+    m_direction = dir;
 }
 
 void Entity::remove()

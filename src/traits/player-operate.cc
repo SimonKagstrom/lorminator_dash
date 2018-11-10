@@ -41,6 +41,8 @@ public:
         auto dir = keysToDir(keys);
         auto dst = m_entity->getPosition() + dir;
 
+        m_entity->setDirection(dir);
+
         auto tileAtDst = m_level->tileAt(dst);
         auto entAtDst = IEntityStore::getInstance()->getEntityByPoint(dst); 
 

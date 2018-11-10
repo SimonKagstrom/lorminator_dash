@@ -47,6 +47,7 @@ SCENARIO("The player takes diamonds")
             .RETURN(InputTypes::LEFT);
         behavior->run(100);
         REQUIRE(player->getPosition() == (point){3,5});
+        REQUIRE(player->getDirection() == Direction::LEFT);
 
         // Back again
         REQUIRE_CALL(*g_mockInput, getInput())
@@ -54,6 +55,7 @@ SCENARIO("The player takes diamonds")
             .RETURN(InputTypes::RIGHT);
         behavior->run(100);
         REQUIRE(player->getPosition() == (point){4,5});
+        REQUIRE(player->getDirection() == Direction::RIGHT);
 
         THEN("the diamond will disappear")
         {
