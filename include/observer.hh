@@ -115,10 +115,10 @@ public:
     {
         NotifierBasex<std::function<void(A0)>>::doInvoke([this, arg0]()
         {
-                for (auto &kv : NotifierBasex<std::function<void(A0)>>::m_impl->m_listeners)
-                {
-                    kv.second(arg0);
-                }
+            for (auto &kv : NotifierBasex<std::function<void(A0)>>::m_impl->m_listeners)
+            {
+                kv.second(arg0);
+            }
         });
     }
 };
@@ -129,10 +129,13 @@ class Notifier2 : public NotifierBasex<std::function<void(A0, A1)>>
 public:
     void invoke(A0 arg0, A1 arg1)
     {
-        for (auto &kv : NotifierBasex<std::function<void(A0, A1)>>::m_impl->m_listeners)
+        NotifierBasex<std::function<void(A0, A1)>>::doInvoke([this, arg0, arg1]()
         {
-            kv.second(arg0, arg1);
-        }
+            for (auto &kv : NotifierBasex<std::function<void(A0, A1)>>::m_impl->m_listeners)
+            {
+                kv.second(arg0, arg1);
+            }
+        });
     }
 };
 
@@ -142,9 +145,12 @@ class Notifier3 : public NotifierBasex<std::function<void(A0, A1, A2)>>
 public:
     void invoke(A0 arg0, A1 arg1, A2 arg2)
     {
-        for (auto &kv : NotifierBasex<std::function<void(A0, A1, A2)>>::m_impl->m_listeners)
+        NotifierBasex<std::function<void(A0, A1, A2)>>::doInvoke([this, arg0, arg1, arg2]()
         {
-            kv.second(arg0, arg1, arg2);
-        }
+            for (auto &kv : NotifierBasex<std::function<void(A0, A1, A2)>>::m_impl->m_listeners)
+            {
+                kv.second(arg0, arg1, arg2);
+            }
+        });
     }
 };
