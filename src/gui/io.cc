@@ -3,6 +3,7 @@
 
 #include <level.hh>
 #include <entity.hh>
+#include <animator.hh>
 
 #include <point.hh>
 
@@ -38,6 +39,91 @@ public:
     uint32_t getInput() override
     {
         return m_currentInput;
+    }
+
+    void display(const std::shared_ptr<IEntity> centerIn, std::shared_ptr<ILevel> level, const std::unordered_map<uint32_t, std::shared_ptr<IAnimator>> &animators) override
+    {
+        int windowWidth, windowHeight;
+
+        SDL_GetWindowSize(m_window, &windowWidth, &windowHeight);
+
+        auto it = animators.find(centerIn->getId());
+        if (it == animators.end())
+        {
+            throw std::invalid_argument("No animator for player entity");
+        }
+        const auto centerAnimator = it->second;
+        auto pt = centerAnimator->getPixelPosition();
+
+        auto center = (point){pt.x - windowWidth / 2, pt.y - windowHeight / 2};
+
+        if (center.x < 0)
+        {
+            center.x = 0;
+        }
+        if (center.y < 0)
+        {
+            center.y = 0;
+        }
+
+        auto levelSize = level->getSize();
+
+        if (center.x + windowWidth >= levelSize.width * m_spriteSize.width)
+        {
+            center.x = levelSize.width  * m_spriteSize.width - windowWidth;
+        }
+        if (center.y + windowHeight >= levelSize.height * m_spriteSize.width)
+        {
+            center.y = levelSize.height * m_spriteSize.width - windowHeight;
+        }
+
+        for (int y = 0; y < levelSize.height; y++)
+        {
+            for (int x = 0; x < levelSize.width; x++)
+            {
+                auto cur = (point){x,y};
+                auto tile = level->tileAt(cur);
+
+                if (!tile)
+                {
+                    continue;
+                }
+
+                auto scaled = cur * m_spriteSize.width;
+
+                scaled = scaled - center;
+                if (scaled.x < -1 || scaled.y < -1)
+                {
+                    continue;
+                }
+
+                auto off = getSpriteFromTile(*tile);
+                auto rect = getRectFromOffset(off);
+
+                SDL_Rect dst = {scaled.x, scaled.y, (int)m_spriteSize.width, (int)m_spriteSize.height};
+
+                SDL_RenderCopy(m_renderer, m_tiles, &rect, &dst);
+            }
+        }
+
+        for (auto &it : animators)
+        {
+            auto cur = it.second->getPixelPosition() - center;
+
+            if (cur.x < -1 || cur.y < -1)
+            {
+                continue;
+            }
+
+            auto off = it.second->getFrame();
+            auto rect = getRectFromOffset((int)off);
+
+            SDL_Rect dst = {cur.x, cur.y, (int)m_spriteSize.width, (int)m_spriteSize.height};
+
+            SDL_RenderCopy(m_renderer, m_sprites, &rect, &dst);
+        }
+
+        SDL_RenderPresent(m_renderer);
     }
 
     void display(const point &centerIn, std::shared_ptr<ILevel> level, std::shared_ptr<IEntityStore> store) override

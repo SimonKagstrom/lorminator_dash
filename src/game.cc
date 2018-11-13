@@ -3,6 +3,7 @@
 #include <entity.hh>
 #include <entity-properties.hh>
 #include <behavior.hh>
+#include <animator.hh>
 #include <io.hh>
 
 #include <memory>
@@ -55,10 +56,13 @@ public:
                 return false;
             }
 
-            m_currentLevel->run(100);
-
-            io->display(player->getPosition(), m_currentLevel->getLevel(), m_currentLevel->getEntityStore());
-            io->delay(100);
+            m_currentLevel->run(160);
+            for (unsigned i = 0; i < 8; i++)
+            {
+                animate(i);
+                io->display(player, m_currentLevel->getLevel(), m_currentLevel->getAnimators());
+                io->delay(160/8);
+            }
         }
 
         return true;
@@ -136,20 +140,30 @@ private:
             return m_level;
         }
 
+        std::unordered_map<uint32_t, std::shared_ptr<IAnimator>> &getAnimators()
+        {
+            return m_animators;
+        }
+
 private:
         void addEntity(std::shared_ptr<IEntity> entity)
         {
             auto id = entity->getId();
 
             m_behavior[id] = IBehavior::fromEntity(m_level, entity);
+            m_animators[id] = IAnimator::fromEntity(entity, {64, 64}, 8);
+
             m_removalCookies[id] = entity->onRemoval([this](std::shared_ptr<IEntity> toRemove)
             {
-                auto it = m_behavior.find(toRemove->getId());
+                auto id = toRemove->getId();
+
+                auto it = m_behavior.find(id);
                 if (it != m_behavior.end())
                 {
                     m_toErase.push_back(it->first);
                 }
-                m_removalCookies.erase(toRemove->getId());
+                m_removalCookies.erase(id);
+                m_animators.erase(id);
             });
         }
 
@@ -161,11 +175,21 @@ private:
         std::unordered_map<uint32_t, std::unique_ptr<IBehavior>> m_behavior;
         std::unordered_map<uint32_t, std::unique_ptr<ObserverCookie>> m_removalCookies;
 
+        std::unordered_map<uint32_t, std::shared_ptr<IAnimator>> m_animators;
+
         std::vector<uint32_t> m_toErase;
 
         std::unique_ptr<IBehavior> m_levelBehavior;
         std::unique_ptr<ObserverCookie> m_cookie;
     };
+
+    void animate(unsigned round)
+    {
+        for (auto &it : m_currentLevel->getAnimators())
+        {
+            it.second->animate(round);
+        }
+    }
 
     std::unique_ptr<CurrentLevel> m_currentLevel;
 };

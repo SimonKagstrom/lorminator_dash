@@ -13,6 +13,7 @@ include_directories(
 
 add_executable(lorminator_dash
 	src/gui/io.cc
+	src/animator.cc
 	src/behavior.cc
 	src/entity.cc
 	src/entity-properties.cc
@@ -29,6 +30,7 @@ target_link_libraries(lorminator_dash ${SDL2_LIBRARY})
 
 
 add_executable(ut
+	src/animator.cc
 	src/behavior.cc
 	src/entity.cc
 	src/entity-properties.cc

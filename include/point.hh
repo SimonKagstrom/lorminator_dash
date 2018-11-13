@@ -17,6 +17,7 @@ struct point
     int x{0};
     int y{0};
 
+
     point operator+(const Direction other) const
     {
         auto out = *this;
