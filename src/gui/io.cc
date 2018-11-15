@@ -163,6 +163,11 @@ public:
         m_spriteSize = (extents){(unsigned)sprites->w, (unsigned)sprites->w};
     }
 
+    void *getRenderer() const override
+    {
+        return (void *)m_renderer;
+    }
+
     uint32_t msSince(uint32_t last) override
     {
         return SDL_GetTicks() - last;

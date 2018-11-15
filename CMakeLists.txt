@@ -13,6 +13,7 @@ include_directories(
 
 add_executable(lorminator_dash
 	src/gui/io.cc
+	src/gui/resource-store.cc
 	src/animator.cc
 	src/behavior.cc
 	src/entity.cc
