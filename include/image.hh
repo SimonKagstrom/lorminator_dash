@@ -1,5 +1,7 @@
 #pragma once
 
+#include <utility>
+
 enum class Image
 {
     PLAYER   =  0,
@@ -31,4 +33,21 @@ struct ImageEntry
 {
     Image image;
     unsigned frame;
+
+    bool operator==(const ImageEntry &other) const
+    {
+        return image == other.image && frame == other.frame;
+    }
 };
+
+namespace std
+{
+template <>
+struct hash<ImageEntry>
+{
+    std::size_t operator()(const ImageEntry& k) const
+    {
+        return std::hash<unsigned>()((unsigned)k.image) ^ std::hash<unsigned>()(k.frame);
+    }
+};
+}
