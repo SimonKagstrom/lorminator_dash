@@ -13,6 +13,14 @@ public:
         m_dirs(dirsToSearch)
     {
     }
+
+    ~ResourceStore()
+    {
+        for (auto &[key, value] : m_framesByImageEntry)
+        {
+            SDL_FreeSurface(value);
+        }
+    }
     
     void addImage(Image image, const std::string &filename) override
     {
@@ -35,12 +43,38 @@ public:
             throw std::invalid_argument("Extents mismatch for " + filename);
         }
 
-        auto renderer = (SDL_Renderer *)IIo::getInstance()->getRenderer();
+        auto fmt = img->format;
+
+        for (unsigned frame = 0; frame < (img->w * img->h) / (size.width * size.height); frame++)
+        {
+            auto surface = SDL_CreateRGBSurface(0, size.width, size.height,
+                fmt->BitsPerPixel, fmt->Rmask, fmt->Gmask, fmt->Bmask, fmt->Amask);
+
+            if (!surface)
+            {
+                throw std::invalid_argument("Can't create new surface for frame");
+            }
+
+            int x = (frame * size.width) % img->h;
+            int y = (frame * size.height) % img->w;
+            SDL_Rect srcRect = {x, y, (int)size.width, (int)size.height};
+
+            SDL_BlitSurface(img, &srcRect, surface, nullptr);
+
+            m_framesByImageEntry[(ImageEntry){image, frame}] = surface;
+        }
     }
 
     virtual void *getImageFrame(const ImageEntry &entry) override
     {
-        return nullptr;
+        auto it = m_framesByImageEntry.find(entry);
+
+        if (it == m_framesByImageEntry.end())
+        {
+            return nullptr;
+        }
+
+        return (void *)it->second;
     }
 
     static extents m_frameExtents;
@@ -79,6 +113,7 @@ private:
     }
 
     std::vector<std::string> m_dirs;
+    std::unordered_map<ImageEntry, SDL_Surface *> m_framesByImageEntry;
 };
 extents ResourceStore::m_frameExtents;
 

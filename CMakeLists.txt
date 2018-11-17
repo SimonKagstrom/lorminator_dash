@@ -3,6 +3,7 @@ project (lorminator_dash)
 
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 find_package(SDL2 REQUIRED)
+find_package(SDL2_image REQUIRED)
 
 include_directories(
     include/
