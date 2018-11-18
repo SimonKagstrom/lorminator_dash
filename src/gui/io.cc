@@ -20,10 +20,11 @@ public:
 
     ~SDL2Io()
     {
-        if (m_sprites)
+        for (auto [key, texture] : m_imageEntryToTexture)
         {
-//            SDL_FreeTexture(m_sprites);
+            SDL_DestroyTexture(texture);
         }
+
         if (m_renderer)
         {
             SDL_DestroyRenderer(m_renderer);
@@ -45,6 +46,9 @@ public:
     void display(const std::shared_ptr<IEntity> centerIn, std::shared_ptr<ILevel> level, const std::unordered_map<uint32_t, std::shared_ptr<IAnimator>> &animators) override
     {
         int windowWidth, windowHeight;
+
+        auto resourceStore = IResourceStore::getInstance();
+        auto frameSize = resourceStore->getFrameExtents();
 
         SDL_GetWindowSize(m_window, &windowWidth, &windowHeight);
 
@@ -69,15 +73,16 @@ public:
 
         auto levelSize = level->getSize();
 
-        if (center.x + windowWidth >= levelSize.width * m_spriteSize.width)
+        if (center.x + windowWidth >= levelSize.width * frameSize.width)
         {
-            center.x = levelSize.width  * m_spriteSize.width - windowWidth;
+            center.x = levelSize.width  * frameSize.width - windowWidth;
         }
-        if (center.y + windowHeight >= levelSize.height * m_spriteSize.width)
+        if (center.y + windowHeight >= levelSize.height * frameSize.width)
         {
-            center.y = levelSize.height * m_spriteSize.width - windowHeight;
+            center.y = levelSize.height * frameSize.width - windowHeight;
         }
 
+        SDL_RenderClear(m_renderer);
         for (int y = 0; y < levelSize.height; y++)
         {
             for (int x = 0; x < levelSize.width; x++)
@@ -90,7 +95,7 @@ public:
                     continue;
                 }
 
-                auto scaled = cur * m_spriteSize.width;
+                auto scaled = cur * frameSize.width;
 
                 scaled = scaled - center;
                 if (scaled.x < -1 || scaled.y < -1)
@@ -98,12 +103,12 @@ public:
                     continue;
                 }
 
-                auto off = getSpriteFromTile(*tile);
-                auto rect = getRectFromOffset(off);
+                auto off = getFrameFromTile(*tile);
+                auto texture = getTextureFromImageEntry({Image::TILES, off});
 
-                SDL_Rect dst = {scaled.x, scaled.y, (int)m_spriteSize.width, (int)m_spriteSize.height};
+                SDL_Rect dst = {scaled.x, scaled.y, (int)frameSize.width, (int)frameSize.height};
 
-                SDL_RenderCopy(m_renderer, m_tiles, &rect, &dst);
+                SDL_RenderCopy(m_renderer, texture, nullptr, &dst);
             }
         }
 
@@ -116,12 +121,12 @@ public:
                 continue;
             }
 
-            auto off = it.second->getFrame();
-            auto rect = getRectFromOffset((int)off.frame);
+            auto imageEntry = it.second->getFrame();
+            auto texture = getTextureFromImageEntry(imageEntry);
 
-            SDL_Rect dst = {cur.x, cur.y, (int)m_spriteSize.width, (int)m_spriteSize.height};
+            SDL_Rect dst = {cur.x, cur.y, (int)frameSize.width, (int)frameSize.height};
 
-            SDL_RenderCopy(m_renderer, m_sprites, &rect, &dst);
+            SDL_RenderCopy(m_renderer, texture, nullptr, &dst);
         }
 
         SDL_RenderPresent(m_renderer);
@@ -143,27 +148,6 @@ public:
             printf("Can't open SDL renderer???\n");
             exit(1);
         }
-
-
-        auto resourceStore = IResourceStore::getInstance();
-
-        auto sprites = SDL_LoadBMP("../resources/sprites.bmp");
-        if (!sprites)
-        {
-            printf("Looking for sprites.bmp in ../resources, failed...\n");
-            exit(1);
-        }
-        m_sprites = SDL_CreateTextureFromSurface(m_renderer, sprites);
-
-        auto tiles = SDL_LoadBMP("../resources/tiles.bmp");
-        if (!tiles)
-        {
-            printf("Looking for sprites.bmp in ../resources, failed...\n");
-            exit(1);
-        }
-        m_tiles = SDL_CreateTextureFromSurface(m_renderer,tiles);
-
-        m_spriteSize = (extents){(unsigned)sprites->w, (unsigned)sprites->w};
     }
 
     uint32_t msSince(uint32_t last) override
@@ -202,9 +186,14 @@ private:
 
         auto surface = (SDL_Surface*)resourceStore->getImageFrame(entry);
         auto texture = SDL_CreateTextureFromSurface(m_renderer, surface);
+
+        if (!surface)
+        {
+            throw std::invalid_argument("No surface?");
+        }
         if (!texture)
         {
-            throw std::invalid_argument("No surface??");
+            throw std::invalid_argument("No texture?");
         }
 
         m_imageEntryToTexture[entry] = texture;
@@ -234,9 +223,9 @@ private:
         }
     }
 
-    int getSpriteFromTile(TileType tile) const
+    unsigned getFrameFromTile(TileType tile) const
     {
-        const std::unordered_map<TileType, int> transform =
+        const std::unordered_map<TileType, unsigned> transform =
         {
             {TileType::EMPTY, 1},
             {TileType::DIRT, 2},
@@ -255,43 +244,11 @@ private:
         return it->second;
     }
 
-    int getSpriteFromEntity(EntityType tile) const
-    {
-        const std::unordered_map<EntityType, int> transform =
-        {
-            {EntityType::BOULDER, 4},
-            {EntityType::BLOCK, 15},
-            {EntityType::GHOST, 9},
-            {EntityType::PLAYER, 0},
-            {EntityType::DIAMOND, 5},
-            {EntityType::BOMB, 8},
-            {EntityType::IRON_KEY, 12},
-            {EntityType::GOLD_KEY, 13},
-            {EntityType::RED_KEY, 14},
-            {EntityType::FIREBALL, 10},
-
-        };
-
-        auto it = transform.find(tile);
-
-        return it->second;
-    }
-
-    SDL_Rect getRectFromOffset(int offset) const
-    {
-        SDL_Rect out {0, offset * (int)m_spriteSize.height, (int)m_spriteSize.width, (int)m_spriteSize.height};
-
-        return out;
-    }
-
     uint32_t m_currentInput{0};
 
     SDL_Window *m_window{nullptr};
     SDL_Renderer *m_renderer{nullptr};
-    SDL_Texture *m_sprites{nullptr};
-    SDL_Texture *m_tiles{nullptr};
 
-    struct extents m_spriteSize;
     std::unordered_map<ImageEntry, SDL_Texture *> m_imageEntryToTexture;
 };
 

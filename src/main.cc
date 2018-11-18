@@ -1,9 +1,11 @@
 #include <io.hh>
 #include <game.hh>
+#include <resource-store.hh>
 
 #include <optional>
 #include <fstream>
 #include <vector>
+#include <unordered_map>
 #include <string>
 
 static std::optional<std::string> resolveFilename(const std::vector<std::string> dirs, const std::string &filename)
@@ -19,7 +21,7 @@ static std::optional<std::string> resolveFilename(const std::vector<std::string>
         }
     }
 
-    return nullptr;
+    return std::optional<std::string>();
 }
 
 
@@ -27,6 +29,34 @@ int main(int argc, const char *argv[])
 {
     auto io = IIo::getInstance();
     auto game = IGame::create();
+    auto resourceStore = IResourceStore::getInstance();
+
+    const std::vector<std::string> dirsToSearch =
+    {
+        "resources",
+        "../resources",
+        "."
+    };
+
+    const std::unordered_map<Image, std::string> imagesToAdd =
+    {
+        {Image::PLAYER, "sprites/player.bmp"},
+        {Image::GHOST, "sprites/ghost.png"},
+        {Image::TILES, "tiles.bmp"},
+    };
+
+    for (auto [image, filename] : imagesToAdd)
+    {
+        auto resolved = resolveFilename(dirsToSearch, filename);
+
+        if (!resolved)
+        {
+            printf("Can't find %s\n", filename.c_str());
+            exit(1);
+        }
+
+        resourceStore->addImage(image, *resolved);
+   }
 
     io->setup(1024, 768);
 

@@ -5,6 +5,7 @@
 #include <behavior.hh>
 #include <animator.hh>
 #include <io.hh>
+#include <resource-store.hh>
 
 #include <memory>
 
@@ -74,7 +75,8 @@ private:
     public:
         CurrentLevel() :
             m_entityStore(IEntityStore::getInstance()),
-            m_entityProperties(IEntityProperties::getInstance())
+            m_entityProperties(IEntityProperties::getInstance()),
+            m_resourceStore(IResourceStore::getInstance())
         {
         }
 
@@ -151,7 +153,7 @@ private:
             auto id = entity->getId();
 
             m_behavior[id] = IBehavior::fromEntity(m_level, entity);
-            m_animators[id] = IAnimator::fromEntity(entity, {64, 64}, 8);
+            m_animators[id] = IAnimator::fromEntity(entity, m_resourceStore->getFrameExtents(), 8);
 
             m_removalCookies[id] = entity->onRemoval([this](std::shared_ptr<IEntity> toRemove)
             {
@@ -170,6 +172,7 @@ private:
         std::shared_ptr<ILevel> m_level;
         std::shared_ptr<IEntityStore> m_entityStore;
         std::shared_ptr<IEntityProperties> m_entityProperties;
+        std::shared_ptr<IResourceStore> m_resourceStore;
         std::shared_ptr<IEntity> m_player;
 
         std::unordered_map<uint32_t, std::unique_ptr<IBehavior>> m_behavior;

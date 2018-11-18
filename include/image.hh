@@ -15,18 +15,7 @@ enum class Image
     LEVER    = 16,
 
     // Tiles
-    GRAY       = 17,
-    BLACK      = 18,
-    DIRT       = 19,
-    BOMB_CRATE = 20,
-    MAGIC_WALL = 21,
-    LEFT_TRANSPORT = 22,
-    RIGHT_TRANSPORT= 23,
-    DOOR           = 27,
-    WALL           = 30,
-    TELEPORTER     = 32,
-    EXIT           = 34,
-    TRANSPORTER    = 36,
+    TILES,
 };
 
 struct ImageEntry

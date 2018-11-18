@@ -2,6 +2,7 @@
 #include <io.hh>
 
 #include <SDL.h>
+#include <SDL_image.h>
 
 
 class ResourceStore : public IResourceStore
@@ -21,17 +22,19 @@ public:
     
     void addImage(Image image, const std::string &filename) override
     {
-        auto img = SDL_LoadBMP(filename.c_str());
+        auto img = IMG_Load(filename.c_str());
         if (!img)
         {
             throw std::invalid_argument("Can't load " + filename + " as an image");
         }
 
         auto size = determineFrameExtents(img);
-        if (size != m_frameExtents)
+
+        if (m_frameExtents != (extents){0,0} && size != m_frameExtents)
         {
             throw std::invalid_argument("Extents mismatch for " + filename);
         }
+        m_frameExtents = size;
 
         auto fmt = img->format;
 
@@ -45,11 +48,14 @@ public:
                 throw std::invalid_argument("Can't create new surface for frame");
             }
 
-            int x = (frame * size.width) % img->h;
-            int y = (frame * size.height) % img->w;
+            int x = (frame * size.width) % img->w;
+            int y = (frame * size.height) % img->h;
             SDL_Rect srcRect = {x, y, (int)size.width, (int)size.height};
+            SDL_Rect dstRect = {0, 0, (int)size.width, (int)size.height};
 
-            SDL_BlitSurface(img, &srcRect, surface, nullptr);
+            printf("For %s: %d,%d and %d,%d\n", filename.c_str(), x, y, size.width, size.height);
+
+            SDL_BlitSurface(img, &srcRect, surface, &dstRect);
 
             m_framesByImageEntry[(ImageEntry){image, frame}] = surface;
         }

@@ -22,7 +22,7 @@ public:
         });
     }
 
-    virtual void animate(unsigned round)
+    virtual void animate(unsigned round) override
     {
         if (m_frameHandlers.empty())
         {

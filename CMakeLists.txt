@@ -10,6 +10,7 @@ include_directories(
     test/unit-tests/Catch2/single_include/catch2
     test/unit-tests/trompeloeil/include
 	${SDL2_INCLUDE_DIR}
+	${SDL2_IMAGE_INCLUDE_DIRS}
 )
 
 add_executable(lorminator_dash
@@ -28,7 +29,10 @@ add_executable(lorminator_dash
 set_target_properties(lorminator_dash PROPERTIES
             CXX_STANDARD 17
             CXX_EXTENSIONS OFF)
-target_link_libraries(lorminator_dash ${SDL2_LIBRARY})
+target_link_libraries(lorminator_dash
+	${SDL2_LIBRARY}
+	${SDL2_IMAGE_LIBRARIES}
+)
 
 
 add_executable(ut
