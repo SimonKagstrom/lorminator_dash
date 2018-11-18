@@ -1,16 +1,13 @@
 #include <resource-store.hh>
 #include <io.hh>
 
-#include <optional>
-#include <fstream>
 #include <SDL.h>
 
 
 class ResourceStore : public IResourceStore
 {
 public:
-    ResourceStore(const std::vector<std::string> &dirsToSearch) :
-        m_dirs(dirsToSearch)
+    ResourceStore()
     {
     }
 
@@ -24,14 +21,7 @@ public:
     
     void addImage(Image image, const std::string &filename) override
     {
-        auto resolved = resolveFilename(filename);
-
-        if (!resolved)
-        {
-            throw std::invalid_argument("Can't locate " + filename);
-        }
-
-        auto img = SDL_LoadBMP(resolved->c_str());
+        auto img = SDL_LoadBMP(filename.c_str());
         if (!img)
         {
             throw std::invalid_argument("Can't load " + filename + " as an image");
@@ -96,22 +86,6 @@ private:
         return (extents){0,0};
     }
 
-    std::optional<std::string> resolveFilename(const std::string &filename) const
-    {
-        for (auto &dir : m_dirs)
-        {
-            auto cur = dir + "/" + filename;
-
-            std::ifstream ifs(cur);
-            if (ifs.is_open())
-            {
-                return cur;
-            }
-        }
-
-        return nullptr;
-    }
-
     std::vector<std::string> m_dirs;
     std::unordered_map<ImageEntry, SDL_Surface *> m_framesByImageEntry;
 };
@@ -127,7 +101,18 @@ extents IResourceStore::getFrameExtents()
     return ResourceStore::m_frameExtents;
 }
 
-std::unique_ptr<IResourceStore> IResourceStore::create(const std::vector<std::string> &dirsToSearch)
+std::shared_ptr<IResourceStore> IResourceStore::getInstance()
 {
-    return std::make_unique<ResourceStore>(dirsToSearch);
+    static std::weak_ptr<IResourceStore> g_instance;
+
+    if (auto p = g_instance.lock())
+    {
+        return p;
+    }
+
+    // Create a new one
+    auto p = std::shared_ptr<IResourceStore>(new ResourceStore());
+    g_instance = p;
+
+    return p;
 }

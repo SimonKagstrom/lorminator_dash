@@ -1,6 +1,28 @@
 #include <io.hh>
 #include <game.hh>
 
+#include <optional>
+#include <fstream>
+#include <vector>
+#include <string>
+
+static std::optional<std::string> resolveFilename(const std::vector<std::string> dirs, const std::string &filename)
+{
+    for (auto &dir : dirs)
+    {
+        auto cur = dir + "/" + filename;
+
+        std::ifstream ifs(cur);
+        if (ifs.is_open())
+        {
+            return cur;
+        }
+    }
+
+    return nullptr;
+}
+
+
 int main(int argc, const char *argv[])
 {
     auto io = IIo::getInstance();

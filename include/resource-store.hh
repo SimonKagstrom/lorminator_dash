@@ -20,5 +20,5 @@ public:
 
 
     static extents getFrameExtents();
-    static std::unique_ptr<IResourceStore> create(const std::vector<std::string> &dirsToSearch);
+    static std::shared_ptr<IResourceStore> getInstance();
 };
