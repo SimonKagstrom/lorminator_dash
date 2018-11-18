@@ -6,6 +6,7 @@
 #include <animator.hh>
 
 #include <point.hh>
+#include <resource-store.hh>
 
 #include <SDL.h>
 
@@ -144,6 +145,8 @@ public:
         }
 
 
+        auto resourceStore = IResourceStore::getInstance();
+
         auto sprites = SDL_LoadBMP("../resources/sprites.bmp");
         if (!sprites)
         {
@@ -186,6 +189,29 @@ public:
     }
 
 private:
+    SDL_Texture *getTextureFromImageEntry(const ImageEntry &entry)
+    {
+        auto it = m_imageEntryToTexture.find(entry);
+
+        if (it != m_imageEntryToTexture.end())
+        {
+            return it->second;
+        }
+
+        auto resourceStore = IResourceStore::getInstance();
+
+        auto surface = (SDL_Surface*)resourceStore->getImageFrame(entry);
+        auto texture = SDL_CreateTextureFromSurface(m_renderer, surface);
+        if (!texture)
+        {
+            throw std::invalid_argument("No surface??");
+        }
+
+        m_imageEntryToTexture[entry] = texture;
+
+        return texture;
+    }
+
     void updateKeys(const SDL_Event &ev)
     {
         if (ev.type == SDL_KEYDOWN)
@@ -266,6 +292,7 @@ private:
     SDL_Texture *m_tiles{nullptr};
 
     struct extents m_spriteSize;
+    std::unordered_map<ImageEntry, SDL_Texture *> m_imageEntryToTexture;
 };
 
 std::shared_ptr<IIo> IIo::getInstance()
