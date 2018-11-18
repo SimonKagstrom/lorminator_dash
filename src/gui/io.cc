@@ -116,7 +116,7 @@ public:
             }
 
             auto off = it.second->getFrame();
-            auto rect = getRectFromOffset((int)off);
+            auto rect = getRectFromOffset((int)off.frame);
 
             SDL_Rect dst = {cur.x, cur.y, (int)m_spriteSize.width, (int)m_spriteSize.height};
 

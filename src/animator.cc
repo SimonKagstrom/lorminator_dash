@@ -10,9 +10,9 @@ class Animator : public IAnimator
 {
 public:
     Animator(Image frame, std::shared_ptr<IEntity> entity, int width, int nFrames) :
-        m_frame(frame),
+        m_frame({frame, 0}),
         m_pixelPosition(entity->getPosition() * width),
-        m_entity(entity), 
+        m_entity(entity),
         m_width(width),
         m_nFrames(nFrames)
     {
@@ -34,12 +34,12 @@ public:
         m_pixelPosition = cur.dst;
     }
 
-    virtual point getPixelPosition() const
+    virtual point getPixelPosition() const override
     {
         return m_pixelPosition;
     }
 
-    virtual Image getFrame() const
+    virtual ImageEntry getFrame() const override
     {
         return m_frame;
     }
@@ -99,7 +99,7 @@ protected:
         }
     }
 
-    Image m_frame;
+    ImageEntry m_frame;
     point m_pixelPosition;
     const std::shared_ptr<IEntity> m_entity;
     const int m_width;
