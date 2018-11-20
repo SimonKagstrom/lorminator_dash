@@ -147,8 +147,8 @@ protected:
         {
             9, // Up
             6, // Down
-            0, // Left
-            3, // Right
+            3, // Left
+            0, // Right
             0  // None
         };
 
