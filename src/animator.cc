@@ -11,11 +11,12 @@
 class Animator : public IAnimator
 {
 public:
-    Animator(Image frame, std::shared_ptr<IEntity> entity, int width, int nRounds) :
+    Animator(Image frame, std::shared_ptr<IEntity> entity, int width, unsigned nFrames, int nRounds) :
         m_frame({frame, 0}),
         m_pixelPosition(entity->getPosition() * width),
         m_entity(entity),
         m_width(width),
+        m_nFrames(nFrames),
         m_nRounds(nRounds)
     {
         m_movementCookie = m_entity->onMovement([this](std::shared_ptr<IEntity> entity, const point &from, const point &to)
@@ -34,6 +35,7 @@ public:
         m_frameHandlers.pop_front();
 
         m_pixelPosition = cur.dst;
+        m_frame.frame = cur.frame;
     }
 
     virtual point getPixelPosition() const override
@@ -49,13 +51,20 @@ public:
 protected:
     struct FrameHandler
     {
-        FrameHandler(const point &to) :
-            dst(to)
+        FrameHandler(const point &to, unsigned frameIn) :
+            dst(to),
+            frame(frameIn)
         {
         }
 
         const point dst;
+        const unsigned frame;
     };
+
+    virtual unsigned selectFrame(unsigned round)
+    {
+        return round % m_nFrames;
+    }
 
     void handleMovement(const point &from, const point &to)
     {
@@ -69,7 +78,7 @@ protected:
             (std::abs(dx) && std::abs(dy)))         // Not Manhattan-style movement
         {
             // Just move in a single frame
-            m_frameHandlers.push_back(FrameHandler(to * m_width));
+            m_frameHandlers.push_back(FrameHandler(to * m_width, 0));
             return;
         }
 
@@ -97,7 +106,7 @@ protected:
             point diff;
 
             diff = (diff + dir) * (i * pixelsPerFrame);
-            m_frameHandlers.push_back(FrameHandler(m_pixelPosition + diff));
+            m_frameHandlers.push_back(FrameHandler(m_pixelPosition + diff, i));
         }
     }
 
@@ -105,6 +114,7 @@ protected:
     point m_pixelPosition;
     const std::shared_ptr<IEntity> m_entity;
     const int m_width;
+    const unsigned m_nFrames;
     const int m_nRounds;
 
     std::unique_ptr<ObserverCookie> m_movementCookie;
@@ -115,5 +125,5 @@ std::unique_ptr<IAnimator> IAnimator::fromEntity(std::shared_ptr<IEntity> entity
 {
     auto resourceStore = IResourceStore::getInstance();
 
-    return std::make_unique<Animator>(Image::PLAYER, entity, size.width, nRounds);
+    return std::make_unique<Animator>(Image::PLAYER, entity, size.width, resourceStore->getImageFrameCount(Image::PLAYER), nRounds);
 }
