@@ -19,10 +19,18 @@ public:
 
     bool run(unsigned ms) override
     {
-        auto isEmpty = [](const std::optional<TileType> tile)
+        auto isEmpty = [this](const point &pt)
         {
+            auto tile = m_level->tileAt(pt);
             if (tile)
             {
+                auto entityAt = IEntityStore::getInstance()->getEntityByPoint(pt);
+
+                if (entityAt)
+                {
+                    return false;
+                }
+
                 return *tile == TileType::EMPTY;
             }
 
@@ -70,7 +78,7 @@ public:
         };
 
         auto cur = m_entity->getPosition();
-        auto below = m_level->tileAt(cur + Direction::DOWN);
+        auto below = cur + Direction::DOWN;
 
         auto entityBelow = IEntityStore::getInstance()->getEntityByPoint(cur + Direction::DOWN);
 
@@ -87,11 +95,11 @@ public:
         // Standing on an entity
         else if (shouldFallOnEntityBelow(entityBelow))
         {
-            // Fall is it's free to the side and down
-            auto left = m_level->tileAt(cur + Direction::LEFT);
-            auto downLeft = m_level->tileAt((cur + Direction::LEFT) + Direction::DOWN);
-            auto right = m_level->tileAt(cur + Direction::RIGHT);
-            auto downRight = m_level->tileAt((cur + Direction::RIGHT) + Direction::DOWN);
+            // Fall if it's free to the side and down
+            auto left = cur + Direction::LEFT;
+            auto downLeft = (cur + Direction::LEFT) + Direction::DOWN;
+            auto right = cur + Direction::RIGHT;
+            auto downRight = (cur + Direction::RIGHT) + Direction::DOWN;
 
             if (isEmpty(left) && isEmpty(downLeft))
             {

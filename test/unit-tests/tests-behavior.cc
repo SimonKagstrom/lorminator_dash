@@ -125,6 +125,34 @@ SCENARIO("a boulder can fall")
         }
     }
 
+    WHEN("a boulder falls on top of two other boulders")
+    {
+        auto store = IEntityStore::getInstance();
+
+        std::shared_ptr<ILevel> lvl = ILevel::fromString("3 5 "
+                ".o "
+                ".  "
+                ".oo"
+                "..."
+                ".p."
+                );
+        REQUIRE(lvl);
+
+        auto boulder = store->getEntityByPoint({1,0});
+        REQUIRE(boulder);
+
+        auto behavior = IBehavior::fromEntity(lvl, boulder);
+        REQUIRE(behavior);
+
+        THEN("it will not move back and forth")
+        {
+            behavior->run(FALL_TIME);
+            REQUIRE(boulder->getPosition() == (point){1,1});
+            behavior->run(FALL_TIME);
+            REQUIRE(boulder->getPosition() == (point){1,1});
+        }
+    }
+
     WHEN("only a short time has passed")
     {
         THEN("the boulder will not have moved. yet.")

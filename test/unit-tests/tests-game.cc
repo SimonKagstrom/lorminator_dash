@@ -38,6 +38,8 @@ SCENARIO("the game can be played")
             .RETURN((extents){64,64});
         ALLOW_CALL(*g_mockResourceStore, getImageFrameCount(_))
             .RETURN(4);
+        ALLOW_CALL(*g_mockIo, msSince(_))
+            .RETURN(8000);
 
         auto rv = game->setLevel("9 9 "
             "...o....d" // b1 Fall
