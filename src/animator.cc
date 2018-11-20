@@ -106,7 +106,7 @@ protected:
             point diff;
 
             diff = (diff + dir) * (i * pixelsPerFrame);
-            m_frameHandlers.push_back(FrameHandler(m_pixelPosition + diff, i));
+            m_frameHandlers.push_back(FrameHandler(m_pixelPosition + diff, selectFrame(i)));
         }
     }
 
@@ -124,6 +124,14 @@ protected:
 std::unique_ptr<IAnimator> IAnimator::fromEntity(std::shared_ptr<IEntity> entity, const extents &size, int nRounds)
 {
     auto resourceStore = IResourceStore::getInstance();
+
+    switch (entity->getType())
+    {
+    case EntityType::BOULDER:
+        return std::make_unique<Animator>(Image::BOULDER, entity, size.width, resourceStore->getImageFrameCount(Image::BOULDER), nRounds);
+    default:
+        break;
+    }
 
     return std::make_unique<Animator>(Image::PLAYER, entity, size.width, resourceStore->getImageFrameCount(Image::PLAYER), nRounds);
 }
