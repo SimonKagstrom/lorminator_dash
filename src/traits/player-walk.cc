@@ -81,7 +81,8 @@ public:
                 }
                 auto entityAfterBoulder = store->getEntityByPoint(afterBoulder);
 
-                if (*tileAfterBoulder == TileType::EMPTY && !entityAfterBoulder)
+                if ((*tileAfterBoulder == TileType::EMPTY || *tileAfterBoulder == TileType::TELEPORTER)
+                    && !entityAfterBoulder)
                 {
                     // push!
                     entAtDst->setPosition(afterBoulder);
