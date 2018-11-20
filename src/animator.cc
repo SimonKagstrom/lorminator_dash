@@ -4,17 +4,19 @@
 #include <point.hh>
 #include <entity.hh>
 
+#include <resource-store.hh>
+
 #include <list>
 
 class Animator : public IAnimator
 {
 public:
-    Animator(Image frame, std::shared_ptr<IEntity> entity, int width, int nFrames) :
+    Animator(Image frame, std::shared_ptr<IEntity> entity, int width, int nRounds) :
         m_frame({frame, 0}),
         m_pixelPosition(entity->getPosition() * width),
         m_entity(entity),
         m_width(width),
-        m_nFrames(nFrames)
+        m_nRounds(nRounds)
     {
         m_movementCookie = m_entity->onMovement([this](std::shared_ptr<IEntity> entity, const point &from, const point &to)
         {
@@ -89,8 +91,8 @@ protected:
             dir = Direction::DOWN;
         }
 
-        int pixelsPerFrame = m_width / m_nFrames;
-        for (unsigned i = 1; i <= m_nFrames; i++)
+        int pixelsPerFrame = m_width / m_nRounds;
+        for (unsigned i = 1; i <= m_nRounds; i++)
         {
             point diff;
 
@@ -103,13 +105,15 @@ protected:
     point m_pixelPosition;
     const std::shared_ptr<IEntity> m_entity;
     const int m_width;
-    const int m_nFrames;
+    const int m_nRounds;
 
     std::unique_ptr<ObserverCookie> m_movementCookie;
     std::list<FrameHandler> m_frameHandlers;
 };
 
-std::unique_ptr<IAnimator> IAnimator::fromEntity(std::shared_ptr<IEntity> entity, const extents &size, int nFrames)
+std::unique_ptr<IAnimator> IAnimator::fromEntity(std::shared_ptr<IEntity> entity, const extents &size, int nRounds)
 {
-    return std::make_unique<Animator>(Image::PLAYER, entity, size.width, nFrames);
+    auto resourceStore = IResourceStore::getInstance();
+
+    return std::make_unique<Animator>(Image::PLAYER, entity, size.width, nRounds);
 }
