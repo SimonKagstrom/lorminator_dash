@@ -61,10 +61,7 @@ protected:
         const unsigned frame;
     };
 
-    virtual unsigned selectFrame(unsigned round)
-    {
-        return round % m_nFrames;
-    }
+    virtual unsigned selectFrame(unsigned round) = 0;
 
     void handleMovement(const point &from, const point &to)
     {
@@ -121,6 +118,20 @@ protected:
     std::list<FrameHandler> m_frameHandlers;
 };
 
+class DefaultAnimator : public Animator
+{
+public:
+    DefaultAnimator(Image frame, std::shared_ptr<IEntity> entity, int width, unsigned nFrames, int nRounds) :
+        Animator(frame, entity, width, nFrames, nRounds)
+    {
+    }
+
+    virtual unsigned selectFrame(unsigned round) override
+    {
+        return round % m_nFrames;
+    }
+};
+
 class Gem : public Animator
 {
 public:
@@ -128,6 +139,7 @@ public:
         Animator(Image::GEM, entity, width, 1, nRounds),
         m_gemFrame(random() % IResourceStore::getInstance()->getImageFrameCount(Image::GEM))
     {
+        m_frame.frame = m_gemFrame;
     }
 
     unsigned selectFrame(unsigned round) override
@@ -146,12 +158,12 @@ std::unique_ptr<IAnimator> IAnimator::fromEntity(std::shared_ptr<IEntity> entity
     switch (entity->getType())
     {
     case EntityType::BOULDER:
-        return std::make_unique<Animator>(Image::BOULDER, entity, size.width, resourceStore->getImageFrameCount(Image::BOULDER), nRounds);
+        return std::make_unique<DefaultAnimator>(Image::BOULDER, entity, size.width, resourceStore->getImageFrameCount(Image::BOULDER), nRounds);
     case EntityType::DIAMOND:
         return std::make_unique<Gem>(entity, size.width, nRounds);
     default:
         break;
     }
 
-    return std::make_unique<Animator>(Image::PLAYER, entity, size.width, resourceStore->getImageFrameCount(Image::PLAYER), nRounds);
+    return std::make_unique<DefaultAnimator>(Image::PLAYER, entity, size.width, resourceStore->getImageFrameCount(Image::PLAYER), nRounds);
 }
