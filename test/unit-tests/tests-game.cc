@@ -8,6 +8,7 @@
 
 #include "mock-input.hh"
 #include "mock-io.hh"
+#include "mock-resource-store.hh"
 
 using trompeloeil::_;
 
@@ -31,6 +32,10 @@ SCENARIO("the game can be played")
     {
         g_mockInput = std::make_shared<MockInput>();
         g_mockIo = std::make_shared<MockIo>();
+        g_mockResourceStore = std::make_shared<MockResourceStore>();
+
+        ALLOW_CALL(*g_mockResourceStore, getFrameExtents())
+            .RETURN((extents){64,64});
 
         auto rv = game->setLevel("9 9 "
             "...o....d" // b1 Fall
@@ -79,6 +84,7 @@ SCENARIO("the game can be played")
         }
         g_mockInput = nullptr;
         g_mockIo = nullptr;
+        g_mockResourceStore = nullptr;
     }
 
 }

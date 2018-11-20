@@ -46,6 +46,7 @@ add_executable(ut
 	src/utils.cc
 	test/unit-tests/mock-input.cc
 	test/unit-tests/mock-io.cc
+	test/unit-tests/mock-resource-store.cc
 	test/unit-tests/tests-main.cc
 	test/unit-tests/tests-behavior.cc
 	test/unit-tests/tests-entity.cc
