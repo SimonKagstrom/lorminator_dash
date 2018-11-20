@@ -49,6 +49,26 @@ public:
             return false;
         };
 
+        auto shouldFallOnEntityBelow = [](const std::shared_ptr<IEntity> ent)
+        {
+            if (!ent)
+            {
+                return false;
+            }
+
+            switch (ent->getType())
+            {
+            case EntityType::BOMB:
+            case EntityType::BOULDER:
+            case EntityType::DIAMOND:
+                return true;
+            default:
+                break;
+            }
+
+            return false;
+        };
+
         auto cur = m_entity->getPosition();
         auto below = m_level->tileAt(cur + Direction::DOWN);
 
@@ -65,7 +85,7 @@ public:
             return true;
         }
         // Standing on an entity
-        else if (entityBelow)
+        else if (shouldFallOnEntityBelow(entityBelow))
         {
             // Fall is it's free to the side and down
             auto left = m_level->tileAt(cur + Direction::LEFT);
