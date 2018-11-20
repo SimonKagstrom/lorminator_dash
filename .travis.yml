@@ -1,0 +1,111 @@
+# Based on https://github.com/ldionne/hana/blob/master/.travis.yml
+
+language: cpp
+sudo: true
+notifications:
+  email: false
+
+# Use Linux unless specified otherwise
+os: linux
+dist: trusty
+
+cache:
+  directories:
+    - ${TRAVIS_BUILD_DIR}/deps
+
+matrix:
+  include:
+
+    ##########################################################################
+    # Clang on Linux
+    ##########################################################################
+
+    # Clang 5.0
+    - env: COMPILER=clang++-5.0 BUILD_TYPE=Debug
+      addons: &clang50
+        apt:
+          packages:
+            - clang-5.0
+            - g++-7
+          sources:
+            - ubuntu-toolchain-r-test
+            - llvm-toolchain-trusty-5.0
+            - sourceline: 'deb http://apt.llvm.org/trusty/ llvm-toolchain-trusty-5.0 main'
+              key_url: 'https://apt.llvm.org/llvm-snapshot.gpg.key'
+
+    - env: COMPILER=clang++-5.0 BUILD_TYPE=Release GSL_CXX_STANDARD=14
+      addons: *clang50
+
+    # Clang 6.0
+    - env: COMPILER=clang++-6.0 BUILD_TYPE=Debug GSL_CXX_STANDARD=14
+      addons: &clang60
+        apt:
+          packages:
+            - clang-6.0
+            - g++-7
+          sources:
+            - ubuntu-toolchain-r-test
+            - llvm-toolchain-trusty-6.0
+            - sourceline: 'deb http://apt.llvm.org/trusty/ llvm-toolchain-trusty-6.0 main'
+              key_url: 'https://apt.llvm.org/llvm-snapshot.gpg.key'
+
+    # Clang 6.0 c++17
+    - env: COMPILER=clang++-6.0 BUILD_TYPE=Debug GSL_CXX_STANDARD=17
+      addons: *clang60
+
+    ##########################################################################
+    # GCC on Linux
+    ##########################################################################
+
+    # GCC 7
+    - env: COMPILER=g++-7 BUILD_TYPE=Debug GSL_CXX_STANDARD=14
+      addons: &gcc7
+        apt:
+          packages: g++-7
+          sources:
+            - ubuntu-toolchain-r-test
+
+    # GCC 7 c++17 
+    - env: COMPILER=g++-7 BUILD_TYPE=Debug GSL_CXX_STANDARD=17
+      addons: *gcc7
+
+    - env: COMPILER=g++-7 BUILD_TYPE=Release GSL_CXX_STANDARD=17
+      addons: *gcc7
+
+before_install:
+  - sudo apt-get install -qq cppcheck binutils-dev libcurl4-openssl-dev zlib1g-dev libdw-dev libiberty-dev
+  - sudo apt-get install -qq libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev libegl1-mesa-dev libgles2-mesa-dev
+  - wget -O /tmp/master.tar.gz https://github.com/SimonKagstrom/kcov/archive/master.tar.gz
+
+# kcov stuff
+install:
+   # C++17
+  # Set the ${CXX} variable properly
+  - export CXX=${COMPILER}
+  - ${CXX} --version
+
+  # Travis machines have 2 cores
+  - JOBS=2
+  - tar xzf /tmp/master.tar.gz
+  - cd kcov-master
+  - mkdir build
+  - cd build
+  - cmake -DCMAKE_INSTALL_PREFIX=${HOME}/kcov ..
+  - make
+  - make install
+  - cd ../..
+  - rm -rf kcov-master
+  
+# scripts to run before build
+before_script:
+  - mkdir build
+  - cd build
+  - cmake -DCMAKE_CXX_FLAGS="-g2" ..
+
+# build app, and run tests (ie make & make test)
+script:
+  - cmake --build .
+  - /home/travis/kcov/bin/kcov --coveralls-id=$TRAVIS_JOB_ID --include-pattern=lorminator_dash --exclude-pattern=Catch2,trompeloeil /tmp/kcov ./ut
+
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
