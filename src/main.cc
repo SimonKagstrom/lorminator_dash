@@ -40,7 +40,7 @@ int main(int argc, const char *argv[])
 
     const std::unordered_map<Image, std::string> imagesToAdd =
     {
-        {Image::PLAYER, "sprites/player.bmp"},
+        {Image::PLAYER, "sprites/player.png"},
         {Image::GHOST, "sprites/ghost.png"},
         {Image::TILES, "tiles.bmp"},
     };
