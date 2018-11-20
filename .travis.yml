@@ -108,4 +108,4 @@ script:
   - /home/travis/kcov/bin/kcov --coveralls-id=$TRAVIS_JOB_ID --include-pattern=lorminator_dash --exclude-pattern=Catch2,trompeloeil /tmp/kcov ./ut
 
 after_success:
-  - bash <(curl -s https://codecov.io/bash)
+  - bash <(curl -s https://codecov.io/bash) -s /tmp/kcov
