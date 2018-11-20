@@ -98,7 +98,7 @@ public:
                 auto scaled = cur * frameSize.width;
 
                 scaled = scaled - center;
-                if (scaled.x < -1 || scaled.y < -1)
+                if (scaled.x < -(int)frameSize.width || scaled.y < -(int)frameSize.height)
                 {
                     continue;
                 }
@@ -116,7 +116,7 @@ public:
         {
             auto cur = it.second->getPixelPosition() - center;
 
-            if (cur.x < -1 || cur.y < -1)
+            if (cur.x < -(int)frameSize.width || cur.y < -(int)frameSize.height)
             {
                 continue;
             }
