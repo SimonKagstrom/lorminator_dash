@@ -56,8 +56,6 @@ public:
             SDL_Rect srcRect = {x, y, (int)size.width, (int)size.height};
             SDL_Rect dstRect = {0, 0, (int)size.width, (int)size.height};
 
-            printf("For %s: %d,%d and %d,%d\n", filename.c_str(), x, y, size.width, size.height);
-
             SDL_BlitSurface(img, &srcRect, surface, &dstRect);
 
             m_framesByImageEntry[(ImageEntry){image, frame}] = surface;
