@@ -121,6 +121,24 @@ protected:
     std::list<FrameHandler> m_frameHandlers;
 };
 
+class Gem : public Animator
+{
+public:
+    Gem(std::shared_ptr<IEntity> entity, int width, int nRounds) : 
+        Animator(Image::GEM, entity, width, 1, nRounds),
+        m_gemFrame(random() % IResourceStore::getInstance()->getImageFrameCount(Image::GEM))
+    {
+    }
+
+    unsigned selectFrame(unsigned round) override
+    {
+        return m_gemFrame;
+    }
+
+private:
+    const unsigned m_gemFrame;
+};
+
 std::unique_ptr<IAnimator> IAnimator::fromEntity(std::shared_ptr<IEntity> entity, const extents &size, int nRounds)
 {
     auto resourceStore = IResourceStore::getInstance();
@@ -129,6 +147,8 @@ std::unique_ptr<IAnimator> IAnimator::fromEntity(std::shared_ptr<IEntity> entity
     {
     case EntityType::BOULDER:
         return std::make_unique<Animator>(Image::BOULDER, entity, size.width, resourceStore->getImageFrameCount(Image::BOULDER), nRounds);
+    case EntityType::DIAMOND:
+        return std::make_unique<Gem>(entity, size.width, nRounds);
     default:
         break;
     }

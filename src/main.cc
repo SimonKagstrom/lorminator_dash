@@ -42,6 +42,7 @@ int main(int argc, const char *argv[])
     {
         {Image::PLAYER, "sprites/player.png"},
         {Image::BOULDER, "sprites/boulder.png"},
+        {Image::GEM, "sprites/diamonds.png"},
         {Image::GHOST, "sprites/ghost.png"},
         {Image::TILES, "tiles.bmp"},
     };
