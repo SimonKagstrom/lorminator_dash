@@ -186,7 +186,7 @@ std::unique_ptr<IAnimator> IAnimator::fromEntity(std::shared_ptr<IEntity> entity
     case EntityType::DIAMOND:
         return std::make_unique<Gem>(entity, size.width, nRounds);
     case EntityType::PLAYER:
-        return std::make_unique<PlayerAnimator∏>(entity, size.width, nRounds);
+        return std::make_unique<PlayerAnimator>(entity, size.width, nRounds);
     default:
         break;
     }
