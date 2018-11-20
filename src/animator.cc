@@ -35,7 +35,7 @@ public:
         m_frameHandlers.pop_front();
 
         m_pixelPosition = cur.dst;
-        m_frame.frame = cur.frame;
+        m_frame.frame = selectFrame(round);
     }
 
     virtual point getPixelPosition() const override
@@ -51,14 +51,12 @@ public:
 protected:
     struct FrameHandler
     {
-        FrameHandler(const point &to, unsigned frameIn) :
-            dst(to),
-            frame(frameIn)
+        FrameHandler(const point &to) :
+            dst(to)
         {
         }
 
         const point dst;
-        const unsigned frame;
     };
 
     virtual unsigned selectFrame(unsigned round) = 0;
@@ -75,7 +73,7 @@ protected:
             (std::abs(dx) && std::abs(dy)))         // Not Manhattan-style movement
         {
             // Just move in a single frame
-            m_frameHandlers.push_back(FrameHandler(to * m_width, 0));
+            m_frameHandlers.push_back(FrameHandler(to * m_width));
             return;
         }
 
@@ -103,7 +101,7 @@ protected:
             point diff;
 
             diff = (diff + dir) * (i * pixelsPerFrame);
-            m_frameHandlers.push_back(FrameHandler(m_pixelPosition + diff, selectFrame(i)));
+            m_frameHandlers.push_back(FrameHandler(m_pixelPosition + diff));
         }
     }
 
@@ -175,6 +173,22 @@ private:
     const unsigned m_gemFrame;
 };
 
+class FireballAnimator : public DefaultAnimator
+{
+public:
+    FireballAnimator(std::shared_ptr<IEntity> entity, int width, int nRounds) :
+        DefaultAnimator(Image::FIREBALL, entity, width, IResourceStore::getInstance()->getImageFrameCount(Image::FIREBALL), nRounds)
+    {
+    }
+
+    virtual void animate(unsigned round) override
+    {
+        DefaultAnimator::animate(round);
+
+        m_frame.frame = selectFrame(round);
+    }
+};
+
 std::unique_ptr<IAnimator> IAnimator::fromEntity(std::shared_ptr<IEntity> entity, const extents &size, int nRounds)
 {
     auto resourceStore = IResourceStore::getInstance();
@@ -183,6 +197,8 @@ std::unique_ptr<IAnimator> IAnimator::fromEntity(std::shared_ptr<IEntity> entity
     {
     case EntityType::BOULDER:
         return std::make_unique<DefaultAnimator>(Image::BOULDER, entity, size.width, resourceStore->getImageFrameCount(Image::BOULDER), nRounds);
+    case EntityType::FIREBALL:
+        return std::make_unique<FireballAnimator>(entity, size.width, nRounds);
     case EntityType::DIAMOND:
         return std::make_unique<Gem>(entity, size.width, nRounds);
     case EntityType::PLAYER:

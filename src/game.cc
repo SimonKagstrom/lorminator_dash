@@ -44,14 +44,16 @@ public:
         bool playerAlive = true;
 
         // Check for player aliveness
-        auto cookie = player->onRemoval([&playerAlive](std::shared_ptr<IEntity> entity)
+        unsigned timeSinceDead = 0;
+        auto cookie = player->onRemoval([&timeSinceDead, &playerAlive, io](std::shared_ptr<IEntity> entity)
         {
             playerAlive = false;
+            timeSinceDead = io->msSince(0);
         });
 
         while (1)
         {
-            if (!playerAlive)
+            if (!playerAlive && io->msSince(timeSinceDead) > 2500)
             {
                 //  Didn't pass this level
                 return false;

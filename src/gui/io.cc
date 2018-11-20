@@ -53,12 +53,12 @@ public:
         SDL_GetWindowSize(m_window, &windowWidth, &windowHeight);
 
         auto it = animators.find(centerIn->getId());
-        if (it == animators.end())
+        point pt = m_lastCenter;
+        if (it != animators.end())
         {
-            throw std::invalid_argument("No animator for player entity");
+            const auto centerAnimator = it->second;
+            pt = m_lastCenter = centerAnimator->getPixelPosition();
         }
-        const auto centerAnimator = it->second;
-        auto pt = centerAnimator->getPixelPosition();
 
         auto center = (point){pt.x - windowWidth / 2, pt.y - windowHeight / 2};
 
@@ -250,6 +250,7 @@ private:
     SDL_Renderer *m_renderer{nullptr};
 
     std::unordered_map<ImageEntry, SDL_Texture *> m_imageEntryToTexture;
+    point m_lastCenter{0,0};
 };
 
 std::shared_ptr<IIo> IIo::getInstance()
