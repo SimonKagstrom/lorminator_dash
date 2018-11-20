@@ -132,10 +132,34 @@ public:
     }
 };
 
+class PlayerAnimator : public Animator
+{
+public:
+    PlayerAnimator(std::shared_ptr<IEntity> entity, int width, int nRounds) :
+        Animator(Image::PLAYER, entity, width, 3, nRounds)
+    {
+    }
+
+protected:
+    unsigned selectFrame(unsigned round) override
+    {
+        const std::vector<unsigned> offsetByDirection =
+        {
+            9, // Up
+            6, // Down
+            0, // Left
+            3, // Right
+            0  // None
+        };
+
+        return offsetByDirection[(unsigned)m_entity->getDirection()] + round % 3;
+    }
+};
+
 class Gem : public Animator
 {
 public:
-    Gem(std::shared_ptr<IEntity> entity, int width, int nRounds) : 
+    Gem(std::shared_ptr<IEntity> entity, int width, int nRounds) :
         Animator(Image::GEM, entity, width, 1, nRounds),
         m_gemFrame(random() % IResourceStore::getInstance()->getImageFrameCount(Image::GEM))
     {
@@ -161,6 +185,8 @@ std::unique_ptr<IAnimator> IAnimator::fromEntity(std::shared_ptr<IEntity> entity
         return std::make_unique<DefaultAnimator>(Image::BOULDER, entity, size.width, resourceStore->getImageFrameCount(Image::BOULDER), nRounds);
     case EntityType::DIAMOND:
         return std::make_unique<Gem>(entity, size.width, nRounds);
+    case EntityType::PLAYER:
+        return std::make_unique<PlayerAnimator∏>(entity, size.width, nRounds);
     default:
         break;
     }
