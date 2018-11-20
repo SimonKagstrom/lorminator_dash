@@ -16,9 +16,12 @@ public:
 
     virtual void addImage(Image image, const std::string &filename) = 0;
 
+    virtual unsigned getImageFrameCount(Image image) const = 0;
+
     virtual void *getImageFrame(const ImageEntry &entry) = 0;
 
+    virtual extents getFrameExtents() const = 0;
 
-    static extents getFrameExtents();
+
     static std::shared_ptr<IResourceStore> getInstance();
 };

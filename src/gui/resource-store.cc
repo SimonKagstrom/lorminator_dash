@@ -38,7 +38,10 @@ public:
 
         auto fmt = img->format;
 
-        for (unsigned frame = 0; frame < (img->w * img->h) / (size.width * size.height); frame++)
+        unsigned frameCount = (img->w * img->h) / (size.width * size.height);
+        m_frameCountByImage[image] = frameCount;
+
+        for (unsigned frame = 0; frame < frameCount; frame++)
         {
             auto surface = SDL_CreateRGBSurface(0, size.width, size.height,
                 fmt->BitsPerPixel, fmt->Rmask, fmt->Gmask, fmt->Bmask, fmt->Amask);
@@ -61,6 +64,18 @@ public:
         }
     }
 
+    virtual unsigned getImageFrameCount(Image image) const override
+    {
+        auto it = m_frameCountByImage.find(image);
+
+        if (it == m_frameCountByImage.end())
+        {
+            throw std::invalid_argument("No frame count for image");
+        }
+
+        return it->second;
+    }
+
     virtual void *getImageFrame(const ImageEntry &entry) override
     {
         auto it = m_framesByImageEntry.find(entry);
@@ -73,7 +88,15 @@ public:
         return (void *)it->second;
     }
 
-    static extents m_frameExtents;
+    virtual extents getFrameExtents() const override
+    {
+        if (ResourceStore::m_frameExtents == (extents){0,0})
+        {
+            throw std::invalid_argument("frame extens not set, yet");
+        }
+
+        return m_frameExtents;
+    }
 
 private:
     extents determineFrameExtents(const SDL_Surface *image)
@@ -94,18 +117,9 @@ private:
 
     std::vector<std::string> m_dirs;
     std::unordered_map<ImageEntry, SDL_Surface *> m_framesByImageEntry;
+    std::unordered_map<Image, unsigned> m_frameCountByImage;
+    extents m_frameExtents{0,0};
 };
-extents ResourceStore::m_frameExtents;
-
-extents IResourceStore::getFrameExtents()
-{
-    if (ResourceStore::m_frameExtents == (extents){0,0})
-    {
-        throw std::invalid_argument("frame extens not set, yet");
-    }
-
-    return ResourceStore::m_frameExtents;
-}
 
 std::shared_ptr<IResourceStore> IResourceStore::getInstance()
 {
