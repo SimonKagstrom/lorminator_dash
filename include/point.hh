@@ -83,6 +83,18 @@ struct point
     }
 };
 
+namespace std
+{
+template <>
+struct hash<point>
+{
+    std::size_t operator()(const point& k) const
+    {
+        return std::hash<int>()(k.x) ^ std::hash<int>()(k.y);
+    }
+};
+}
+
 struct extents
 {
     unsigned width{0};
