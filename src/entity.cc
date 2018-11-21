@@ -66,6 +66,8 @@ public:
 
 private:
     std::unordered_map<uint32_t, std::shared_ptr<IEntity>> m_entities;
+    std::unordered_map<point, std::shared_ptr<IEntity>> m_entitiesByPoint;
+
     std::unordered_map<uint32_t, std::unique_ptr<ObserverCookie>> m_movementCookies;
     std::unordered_map<uint32_t, std::unique_ptr<ObserverCookie>> m_removalCookies;
 
@@ -190,16 +192,14 @@ std::vector<std::shared_ptr<IEntity>> EntityStore::getEntities()
 
 std::shared_ptr<IEntity> EntityStore::getEntityByPoint(const point &where)
 {
-    // Make this more efficient later
-    for (auto &it : m_entities)
+    auto it = m_entitiesByPoint.find(where);
+
+    if (it == m_entitiesByPoint.end())
     {
-        if (it.second->getPosition() == where)
-        {
-            return it.second;
-        }
+        return nullptr;
     }
 
-    return nullptr;
+    return it->second;
 }
 
 void EntityStore::add(std::shared_ptr<IEntity> entity)
@@ -208,6 +208,7 @@ void EntityStore::add(std::shared_ptr<IEntity> entity)
     {
         m_removalCookies.erase(entity->getId());
         m_entities.erase(entity->getId());
+        m_entitiesByPoint.erase(entity->getPosition());
     });
 
     // Check for collisions on movement
@@ -219,6 +220,8 @@ void EntityStore::add(std::shared_ptr<IEntity> entity)
         {
             m_onCollision.invoke(ent, other);
         }
+        m_entitiesByPoint.erase(from);
+        m_entitiesByPoint[to] = ent;
     });
 
     // Another already here?
@@ -229,6 +232,7 @@ void EntityStore::add(std::shared_ptr<IEntity> entity)
     }
 
     m_entities[entity->getId()] = entity;
+    m_entitiesByPoint[entity->getPosition()] = entity;
     m_onCreation.invoke(entity);
 }
 
