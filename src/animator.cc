@@ -63,8 +63,11 @@ protected:
 
     void handleMovement(const point &from, const point &to)
     {
+        const int pixelsPerFrame = m_width / m_nRounds;
         int dx = to.x - from.x;
         int dy = to.y - from.y;
+
+        point diff = (point){dx,dy} * pixelsPerFrame;
 
         m_frameHandlers.clear();
         m_pixelPosition = from * m_width;
@@ -77,31 +80,9 @@ protected:
             return;
         }
 
-        Direction dir{Direction::NONE};
-        if (from.x < to.x && from.y == to.y)
-        {
-            dir = Direction::RIGHT;
-        }
-        else if (from.x > to.x && from.y == to.y)
-        {
-            dir = Direction::LEFT;
-        }
-        else if (from.x == to.x && from.y > to.y)
-        {
-            dir = Direction::UP;
-        }
-        else if (from.x == to.x && from.y < to.y)
-        {
-            dir = Direction::DOWN;
-        }
-
-        int pixelsPerFrame = m_width / m_nRounds;
         for (unsigned i = 1; i <= m_nRounds; i++)
         {
-            point diff;
-
-            diff = (diff + dir) * (i * pixelsPerFrame);
-            m_frameHandlers.push_back(FrameHandler(m_pixelPosition + diff));
+            m_frameHandlers.push_back(FrameHandler(m_pixelPosition + (diff * i)));
         }
     }
 
