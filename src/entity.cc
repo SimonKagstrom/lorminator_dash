@@ -58,6 +58,8 @@ public:
 
     std::shared_ptr<IEntity> getEntityByPoint(const point &where) override;
 
+    std::shared_ptr<IEntity> getEntityById(uint32_t id) override;
+
     void add(std::shared_ptr<IEntity> entity);
 
     std::unique_ptr<ObserverCookie> onCreation(std::function<void(std::shared_ptr<IEntity> entity)> cb) override;
@@ -195,6 +197,18 @@ std::shared_ptr<IEntity> EntityStore::getEntityByPoint(const point &where)
     auto it = m_entitiesByPoint.find(where);
 
     if (it == m_entitiesByPoint.end())
+    {
+        return nullptr;
+    }
+
+    return it->second;
+}
+
+std::shared_ptr<IEntity> EntityStore::getEntityById(uint32_t id)
+{
+    auto it = m_entities.find(id);
+
+    if (it == m_entities.end())
     {
         return nullptr;
     }

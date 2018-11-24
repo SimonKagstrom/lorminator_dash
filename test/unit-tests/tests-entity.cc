@@ -83,6 +83,10 @@ SCENARIO("Entities can be placed and retrieved from the entity store")
             REQUIRE(!e91_1);
             REQUIRE(e90_1);
             REQUIRE(e92_1);
+
+            auto byId = store->getEntityById(e90_1->getId());
+            REQUIRE(byId);
+            REQUIRE(byId->getId() == e90_1->getId());
         }
     }
 }
