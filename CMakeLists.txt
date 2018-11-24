@@ -5,6 +5,9 @@ set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 find_package(SDL2 REQUIRED)
 find_package(SDL2_image REQUIRED)
 
+enable_testing()
+
+
 include_directories(
     include/
     test/unit-tests/Catch2/single_include/catch2
@@ -52,9 +55,14 @@ add_executable(ut
 	test/unit-tests/tests-entity.cc
 	test/unit-tests/tests-game.cc
 	test/unit-tests/tests-level.cc
+	test/unit-tests/tests-lightning.cc
 	test/unit-tests/tests-observer.cc
 	test/unit-tests/tests-player.cc
 )
 set_target_properties(ut PROPERTIES
             CXX_STANDARD 17
             CXX_EXTENSIONS OFF)
+
+add_test(NAME unittest
+	COMMAND kcov --include-pattern=lorminator_dash --exclude-pattern=Catch2,trompeloeil --configure=lldb-use-raw-breakpoint-writes=1 kcov-output  ./ut
+)
