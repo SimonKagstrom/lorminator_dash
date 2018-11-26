@@ -13,4 +13,5 @@ enum class TileType
 	TELEPORTER,
 	CONVEYOR,
 	EXIT,
+	UNKNOWN,
 };
