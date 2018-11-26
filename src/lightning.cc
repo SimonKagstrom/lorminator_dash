@@ -17,9 +17,14 @@ public:
         for (auto entId : m_visibleEntities)
         {
             auto ent = m_store->getEntityById(entId);
+            if (!ent)
+            {
+                continue;
+            }
+         
             auto pos = ent->getPosition();
 
-            if (ent && lighted.find(pos) == lighted.end())
+            if (lighted.find(pos) == lighted.end())
             {
                 m_shadowEntities[pos] = ent->getType();
             }
