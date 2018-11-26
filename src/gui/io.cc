@@ -107,7 +107,6 @@ public:
                 auto texture = getTextureFromImageEntry({Image::TILES, off});
 
                 SDL_Rect dst = {scaled.x, scaled.y, (int)frameSize.width, (int)frameSize.height};
-
                 SDL_RenderCopy(m_renderer, texture, nullptr, &dst);
             }
         }
@@ -148,6 +147,9 @@ public:
             printf("Can't open SDL renderer???\n");
             exit(1);
         }
+
+        auto gray = getTextureFromImageEntry({Image::GRAY, 0});
+        SDL_SetTextureBlendMode(gray, SDL_BLENDMODE_MOD);
     }
 
     uint32_t msSince(uint32_t last) override

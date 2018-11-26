@@ -16,6 +16,9 @@ enum class Image
 
     // Tiles
     TILES,
+
+    // Special
+    GRAY,
 };
 
 struct ImageEntry

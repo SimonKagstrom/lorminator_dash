@@ -46,6 +46,7 @@ int main(int argc, const char *argv[])
         {Image::GEM, "sprites/diamonds.png"},
         {Image::GHOST, "sprites/ghost.png"},
         {Image::TILES, "tiles.bmp"},
+        {Image::GRAY, "gray.png"},
     };
 
     for (auto [image, filename] : imagesToAdd)
