@@ -6,6 +6,7 @@
 #include <animator.hh>
 #include <io.hh>
 #include <resource-store.hh>
+#include <lightning.hh>
 
 #include <memory>
 
@@ -51,6 +52,9 @@ public:
             timeSinceDead = io->msSince(0);
         });
 
+        auto lightning = m_currentLevel->getLightning();
+        auto level = m_currentLevel->getLevel();
+
         while (1)
         {
             if (!playerAlive && io->msSince(timeSinceDead) > 2500)
@@ -60,10 +64,13 @@ public:
             }
 
             m_currentLevel->run(160);
+            auto lighted = level->getIllumination(player->getPosition(), player->getDirection());
+            lightning->updateLightning(lighted);
+
             for (unsigned i = 0; i < 8; i++)
             {
                 animate(i);
-                io->display(player, m_currentLevel->getLevel(), m_currentLevel->getAnimators());
+                io->display(player, m_currentLevel->getLevel(), lightning, m_currentLevel->getAnimators());
                 io->delay(160/8);
             }
         }
@@ -111,6 +118,8 @@ private:
                 addEntity(entity);
             });
 
+            m_lightning = ILightning::create(m_level);
+
             return m_player != nullptr;
         }
 
@@ -144,6 +153,11 @@ private:
             return m_level;
         }
 
+        std::shared_ptr<ILightning> getLightning() const
+        {
+            return m_lightning;
+        }
+
         std::unordered_map<uint32_t, std::shared_ptr<IAnimator>> &getAnimators()
         {
             return m_animators;
@@ -172,6 +186,7 @@ private:
         }
 
         std::shared_ptr<ILevel> m_level;
+        std::shared_ptr<ILightning> m_lightning;
         std::shared_ptr<IEntityStore> m_entityStore;
         std::shared_ptr<IEntityProperties> m_entityProperties;
         std::shared_ptr<IResourceStore> m_resourceStore;

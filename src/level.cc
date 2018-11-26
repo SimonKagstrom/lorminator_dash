@@ -219,11 +219,11 @@ std::set<point> Level::getIllumination(const point &where, Direction dir)
     {
         std::for_each(radius.begin(), radius.end(), [](point &cur){ cur.y *= -1; });
     }
-    else if (dir == Direction::LEFT)
+    else if (dir == Direction::RIGHT)
     {
         std::for_each(radius.begin(), radius.end(), [](point &cur){ std::swap(cur.x, cur.y); });
     }
-    else if (dir == Direction::RIGHT)
+    else if (dir == Direction::LEFT)
     {
         std::for_each(radius.begin(), radius.end(), [](point &cur){ std::swap(cur.x, cur.y); cur.x *= -1; });
     }

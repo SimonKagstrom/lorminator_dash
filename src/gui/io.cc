@@ -7,6 +7,7 @@
 
 #include <point.hh>
 #include <resource-store.hh>
+#include <lightning.hh>
 
 #include <SDL.h>
 
@@ -43,7 +44,9 @@ public:
         return m_currentInput;
     }
 
-    void display(const std::shared_ptr<IEntity> centerIn, std::shared_ptr<ILevel> level, const std::unordered_map<uint32_t, std::shared_ptr<IAnimator>> &animators) override
+    void display(const std::shared_ptr<IEntity> centerIn, std::shared_ptr<ILevel> level,
+        const std::shared_ptr<ILightning> lightning,
+        const std::unordered_map<uint32_t, std::shared_ptr<IAnimator>> &animators) override
     {
         int windowWidth, windowHeight;
 
@@ -88,7 +91,7 @@ public:
             for (int x = 0; x < levelSize.width; x++)
             {
                 auto cur = (point){x,y};
-                auto tile = level->tileAt(cur);
+                auto tile = lightning->tileAt(cur);
 
                 if (!tile)
                 {
@@ -229,6 +232,7 @@ private:
     {
         const std::unordered_map<TileType, unsigned> transform =
         {
+            {TileType::UNKNOWN, 0},
             {TileType::EMPTY, 1},
             {TileType::DIRT, 2},
             {TileType::MAGIC_WALL, 4},

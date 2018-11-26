@@ -69,7 +69,7 @@ SCENARIO("the game can be played")
                 .TIMES(AT_LEAST(1))
                 .RETURN(InputTypes::LEFT);
 
-            REQUIRE_CALL(*g_mockIo, display(_,_,_))
+            REQUIRE_CALL(*g_mockIo, display(_,_,_,_))
                 .TIMES(AT_LEAST(1));
             REQUIRE_CALL(*g_mockIo, delay(_))
                 .TIMES(AT_LEAST(1));

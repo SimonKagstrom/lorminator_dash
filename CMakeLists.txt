@@ -25,6 +25,7 @@ add_executable(lorminator_dash
 	src/entity-properties.cc
 	src/game.cc
 	src/level.cc
+	src/lightning.cc
 	src/main.cc
 	src/observer.cc
 	src/utils.cc
