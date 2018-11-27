@@ -176,7 +176,7 @@ static bool points_in_x(const std::set<point> &points, const extents &size, cons
     {
         for (auto x = 0; x < size.width; x++)
         {
-            if (str[cnt] == 'x')
+            if (str[cnt] != '.')
             {
                 left.erase({x, y});
             }
@@ -258,6 +258,10 @@ SCENARIO("Explosions can cause havoc on levels", "[level]")
                 };
 
                 REQUIRE(ballPoints == expectedPoints);
+
+                THEN("the fireballs clear dirt tiles")
+                {
+                }
             }
         }
 
@@ -479,30 +483,39 @@ SCENARIO("The light can show your way", "[level]")
                     "....x...."
                     "...xxx..."
                     "...xxx..."
-                    "....x...."
-                    "........."
+                    "..xxyxx.."
+                    "...xxx..."
                     "........."
                     "........."));
+      }
+    }
 
+    WHEN("in a narrow corridor")
+    {
+        auto lvl = ILevel::fromString("9 7 "
+                "........p"
+                "...#.#..."
+                "...#.#..."
+                "...#.#..."
+                "...#.#..."
+                "...#.#..."
+                ".........");
+        REQUIRE(lvl);
+
+        THEN("the light only shows the corridor")
+        {
             auto lightDown = lvl->getIllumination({4, 3}, Direction::DOWN);
 
             REQUIRE(points_in_x(lightDown, {9, 7},
                     "........."
                     "........."
-                    "........."
+                    "...#x#..."
+                    "...#x#..."
+                    "...#x#..."
+                    "...#x#..."
                     "....x...."
-                    "...xxx..."
-                    "...xxx..."
-                    "....x...."
-));
-        }
-    }
-
-    WHEN("in a narrow corridor")
-    {
-        THEN("the light only shows the corridor")
-        {
-        }
+            ));
+          }
     }
 
     WHEN("there are blocking stuff around")
