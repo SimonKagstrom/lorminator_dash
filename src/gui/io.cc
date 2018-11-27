@@ -85,6 +85,8 @@ public:
             center.y = levelSize.height * frameSize.width - windowHeight;
         }
 
+        auto lighted = lightning->getLighted();
+
         auto gray = getTextureFromImageEntry({Image::GRAY, 0});
         SDL_RenderClear(m_renderer);
         for (int y = 0; y < levelSize.height; y++)
@@ -111,7 +113,12 @@ public:
                 auto texture = getTextureFromImageEntry({Image::TILES, off});
 
                 SDL_Rect dst = {scaled.x, scaled.y, (int)frameSize.width, (int)frameSize.height};
+
                 SDL_RenderCopy(m_renderer, texture, nullptr, &dst);
+                if (lighted.find(cur) == lighted.end())
+                {
+                    SDL_RenderCopy(m_renderer, gray, nullptr, &dst);
+                }
             }
         }
 

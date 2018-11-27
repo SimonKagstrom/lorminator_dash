@@ -14,6 +14,8 @@ public:
 
     void updateLightning(const std::set<point> &lighted) override
     {
+        m_lighted = lighted;
+
         for (auto entId : m_visibleEntities)
         {
             auto ent = m_store->getEntityById(entId);
@@ -52,6 +54,11 @@ public:
         }
     }
 
+    const std::set<point> getLighted() const override
+    {
+        return m_lighted;
+    }
+
     std::optional<TileType> tileAt(const point &where) const override
     {
         // Bounds check
@@ -86,6 +93,7 @@ private:
     std::vector<TileType> m_tiles;
     std::vector<uint32_t> m_visibleEntities;
     std::unordered_map<point, EntityType> m_shadowEntities;
+    std::set<point> m_lighted;
 
     std::shared_ptr<IEntityStore> m_store;
 };

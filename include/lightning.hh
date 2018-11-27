@@ -25,6 +25,8 @@ public:
 
     virtual std::optional<TileType> tileAt(const point &where) const = 0;
 
+    virtual const std::set<point> getLighted() const = 0;
+
     /// Return the entity ID:s which are visible
     virtual const std::vector<uint32_t> &getVisibleEntities() = 0;
     virtual std::vector<ShadowEntity> getShadowEntities() = 0;
