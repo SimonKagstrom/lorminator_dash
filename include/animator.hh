@@ -3,10 +3,10 @@
 #include <memory>
 
 #include <image.hh>
+#include <entity.hh>
 
 struct point;
 struct extents;
-class IEntity;
 
 class IAnimator
 {
@@ -23,4 +23,5 @@ public:
 
 
     static std::unique_ptr<IAnimator> fromEntity(std::shared_ptr<IEntity> entity, const extents &size, int nFrames);
+    static ImageEntry imageEntryFromType(EntityType type);
 };

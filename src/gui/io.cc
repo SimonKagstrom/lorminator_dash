@@ -85,6 +85,7 @@ public:
             center.y = levelSize.height * frameSize.width - windowHeight;
         }
 
+        auto gray = getTextureFromImageEntry({Image::GRAY, 0});
         SDL_RenderClear(m_renderer);
         for (int y = 0; y < levelSize.height; y++)
         {
@@ -114,21 +115,44 @@ public:
             }
         }
 
-        for (auto &it : animators)
+        for (auto &id : lightning->getVisibleEntities())
         {
-            auto cur = it.second->getPixelPosition() - center;
+            auto it = animators.find(id);
+
+            if (it == animators.end())
+            {
+                continue;
+            }
+
+            auto cur = it->second->getPixelPosition() - center;
 
             if (cur.x < -(int)frameSize.width || cur.y < -(int)frameSize.height)
             {
                 continue;
             }
 
-            auto imageEntry = it.second->getFrame();
+            auto imageEntry = it->second->getFrame();
             auto texture = getTextureFromImageEntry(imageEntry);
 
             SDL_Rect dst = {cur.x, cur.y, (int)frameSize.width, (int)frameSize.height};
 
             SDL_RenderCopy(m_renderer, texture, nullptr, &dst);
+        }
+
+        for (auto &shadow : lightning->getShadowEntities())
+        {
+            auto texture = getTextureFromImageEntry(IAnimator::imageEntryFromType(shadow.type));
+            auto cur = shadow.pt * frameSize.width - center;
+
+            if (cur.x < -(int)frameSize.width || cur.y < -(int)frameSize.height)
+            {
+                continue;
+            }
+
+            SDL_Rect dst = {cur.x, cur.y, (int)frameSize.width, (int)frameSize.height};
+
+            SDL_RenderCopy(m_renderer, texture, nullptr, &dst);
+            SDL_RenderCopy(m_renderer, gray, nullptr, &dst);
         }
 
         SDL_RenderPresent(m_renderer);

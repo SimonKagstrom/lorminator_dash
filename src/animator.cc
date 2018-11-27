@@ -190,3 +190,22 @@ std::unique_ptr<IAnimator> IAnimator::fromEntity(std::shared_ptr<IEntity> entity
 
     return std::make_unique<DefaultAnimator>(Image::PLAYER, entity, size.width, resourceStore->getImageFrameCount(Image::PLAYER), nRounds);
 }
+
+ImageEntry IAnimator::imageEntryFromType(EntityType type)
+{
+    switch(type)
+    {
+    case EntityType::BOULDER:
+        return {Image::BOULDER, 0};
+    case EntityType::FIREBALL:
+        return {Image::FIREBALL, 0};
+    case EntityType::DIAMOND:
+        return {Image::GEM, 0};
+    case EntityType::BOMB:
+        return {Image::BOMB, 0};
+    default:
+        break;
+    }
+
+    return {Image::PLAYER, 0};
+}
