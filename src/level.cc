@@ -244,13 +244,13 @@ std::set<point> Level::getIllumination(const point &where, Direction dir)
 
             auto tile = rawTile(cur);
 
+            // We can light that!
+            out.insert(cur);
+
             if (*tile != TileType::DIRT && *tile != TileType::EMPTY)
             {
                 return BresenhamCallbackRv::STOP_SCANNING;
             }
-
-            // We can light that!
-            out.insert(cur);
 
             return BresenhamCallbackRv::CONTINUE_SCANNING;
         });
