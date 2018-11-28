@@ -7,6 +7,7 @@
 
 struct point;
 struct extents;
+class ILevel;
 
 class IAnimator
 {

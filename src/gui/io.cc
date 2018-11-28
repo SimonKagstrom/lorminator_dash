@@ -8,6 +8,7 @@
 #include <point.hh>
 #include <resource-store.hh>
 #include <lightning.hh>
+#include <level-animator.hh>
 
 #include <SDL.h>
 
@@ -45,7 +46,7 @@ public:
     }
 
     void display(const std::shared_ptr<IEntity> centerIn, std::shared_ptr<ILevel> level,
-        const std::shared_ptr<ILightning> lightning,
+        const std::shared_ptr<ILightning> lightning, std::shared_ptr<ILevelAnimator> levelAnimator,
         const std::unordered_map<uint32_t, std::shared_ptr<IAnimator>> &animators) override
     {
         int windowWidth, windowHeight;
@@ -109,8 +110,8 @@ public:
                     continue;
                 }
 
-                auto off = getFrameFromTile(*tile);
-                auto texture = getTextureFromImageEntry({Image::TILES, off});
+                auto imageEntry = levelAnimator->getImageEntryAt(cur);
+                auto texture = getTextureFromImageEntry(imageEntry);
 
                 SDL_Rect dst = {scaled.x, scaled.y, (int)frameSize.width, (int)frameSize.height};
 
@@ -257,28 +258,6 @@ private:
             m_currentInput &= ev.key.keysym.sym == SDLK_SPACE ? ~InputTypes::OPERATE : ~0;
             m_currentInput &= ev.key.keysym.sym == SDLK_b ? ~InputTypes::BOMB : ~0;
         }
-    }
-
-    unsigned getFrameFromTile(TileType tile) const
-    {
-        const std::unordered_map<TileType, unsigned> transform =
-        {
-            {TileType::UNKNOWN, 0},
-            {TileType::EMPTY, 1},
-            {TileType::DIRT, 2},
-            {TileType::MAGIC_WALL, 4},
-            {TileType::LEFT_TRANSPORT, 5},
-            {TileType::RIGHT_TRANSPORT, 6},
-            {TileType::STONE_WALL, 13},
-            {TileType::WEAK_STONE_WALL, 14},
-            {TileType::TELEPORTER, 15},
-            {TileType::CONVEYOR, 21},
-            {TileType::EXIT, 15},
-        };
-
-        auto it = transform.find(tile);
-
-        return it->second;
     }
 
     uint32_t m_currentInput{0};
