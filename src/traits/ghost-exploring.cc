@@ -25,6 +25,12 @@ public:
 
             if (ent)
             {
+                if (ent->getType() != EntityType::PLAYER)
+                {
+                    // OK, a bit ugly to detect here, but anyways
+                    m_level->explode(where);
+                }
+
                 // Not a possible point
                 return;
             }
