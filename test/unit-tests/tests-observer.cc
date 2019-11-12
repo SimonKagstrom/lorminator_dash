@@ -82,7 +82,7 @@ TEST_CASE("argument notifiers")
         auto cookie = n->listen([&a](int arg){ REQUIRE(arg == 35); a++;});
 
         REQUIRE(a == 0U);
-        n->invoke(35);
+        (*n)(35);
         REQUIRE(a == 1U);
         n->invoke(35);
         REQUIRE(a == 2U);

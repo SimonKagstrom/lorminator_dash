@@ -98,6 +98,11 @@ protected:
 class Notifier0 : public NotifierBasex<std::function<void()>>
 {
 public:
+    void operator()()
+    {
+        invoke();
+    }
+
     void invoke()
     {
         for (auto &kv : m_impl->m_listeners)
@@ -111,6 +116,11 @@ template<typename A0>
 class Notifier1 : public NotifierBasex<std::function<void(A0)>>
 {
 public:
+    void operator()(A0 arg0)
+    {
+        invoke(arg0);
+    }
+
     void invoke(A0 arg0)
     {
         NotifierBasex<std::function<void(A0)>>::doInvoke([this, arg0]()
@@ -127,6 +137,11 @@ template<typename A0, typename A1>
 class Notifier2 : public NotifierBasex<std::function<void(A0, A1)>>
 {
 public:
+    void operator()(A0 arg0, A1 arg1)
+    {
+        invoke(arg0, arg1);
+    }
+
     void invoke(A0 arg0, A1 arg1)
     {
         NotifierBasex<std::function<void(A0, A1)>>::doInvoke([this, arg0, arg1]()
@@ -143,6 +158,11 @@ template<typename A0, typename A1, typename A2>
 class Notifier3 : public NotifierBasex<std::function<void(A0, A1, A2)>>
 {
 public:
+    void operator()(A0 arg0, A1 arg1, A2 arg2)
+    {
+        invoke(arg0, arg1, arg2);
+    }
+
     void invoke(A0 arg0, A1 arg1, A2 arg2)
     {
         NotifierBasex<std::function<void(A0, A1, A2)>>::doInvoke([this, arg0, arg1, arg2]()
