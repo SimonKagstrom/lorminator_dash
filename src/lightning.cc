@@ -14,6 +14,50 @@ public:
 
     void updateLightning(const std::set<point> &lighted) override
     {
+        if (m_hideUnknown)
+        {
+            updateLightningHideUnknown(lighted);
+        }
+        else
+        {
+            updateLightningShowUnknown(lighted);
+        }
+    }
+
+    void updateLightningShowUnknown(const std::set<point> &lighted)
+    {
+        m_lighted = lighted;
+
+        m_visibleEntities.clear();
+        m_shadowEntities.clear();
+        for (auto ent : m_store->getEntities())
+        {
+            auto pos = ent->getPosition();
+            if (lighted.find(pos) == lighted.end())
+            {
+                m_shadowEntities[pos] = ent->getType();
+            }
+            else
+            {
+                m_visibleEntities.push_back(ent->getId());
+            }
+        }
+
+        // Update visible tiles and entities
+        for (auto pt : lighted)
+        {
+            m_shadowEntities.erase(pt);
+
+            auto tile = m_level->tileAt(pt);
+            if (tile)
+            {
+                m_tiles[pt.y * m_size.width + pt.x] = *tile;
+            }
+        }
+    }
+
+    void updateLightningHideUnknown(const std::set<point> &lighted)
+    {
         m_lighted = lighted;
 
         for (auto entId : m_visibleEntities)
@@ -66,8 +110,12 @@ public:
         {
             return std::optional<TileType>();
         }
+        if (m_hideUnknown)
+        {
+            return m_tiles[where.y * m_size.width + where.x];
+        }
 
-        return m_tiles[where.y * m_size.width + where.x];
+        return m_level->tileAt(where);
     }
 
     const std::vector<uint32_t> &getVisibleEntities() override
@@ -87,6 +135,19 @@ public:
         return out;
     }
 
+
+    void setUnknownBehavior(const ILightning::UnknownBehavior &what)
+    {
+        if (what == ILightning::UnknownBehavior::HIDE)
+        {
+            m_hideUnknown = true;
+        }
+        else
+        {
+            m_hideUnknown = false;
+        }
+    }
+
 private:
     const extents m_size;
     std::shared_ptr<ILevel> m_level;
@@ -96,6 +157,7 @@ private:
     std::set<point> m_lighted;
 
     std::shared_ptr<IEntityStore> m_store;
+    bool m_hideUnknown{true};
 };
 
 std::unique_ptr<ILightning> ILightning::create(std::shared_ptr<ILevel> level)

@@ -123,6 +123,8 @@ private:
             m_lightning = ILightning::create(m_level);
             m_levelAnimator = ILevelAnimator::fromLightning(m_lightning);
 
+            m_lightning->setUnknownBehavior(ILightning::UnknownBehavior::SHOW);
+
             return m_player != nullptr;
         }
 

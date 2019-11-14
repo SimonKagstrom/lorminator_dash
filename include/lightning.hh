@@ -11,6 +11,13 @@
 class ILightning
 {
 public:
+    enum class UnknownBehavior
+    {
+        HIDE,
+        SHOW,
+    };
+
+
     struct ShadowEntity
     {
         point pt;
@@ -30,6 +37,8 @@ public:
     /// Return the entity ID:s which are visible
     virtual const std::vector<uint32_t> &getVisibleEntities() = 0;
     virtual std::vector<ShadowEntity> getShadowEntities() = 0;
+
+	virtual void setUnknownBehavior(const UnknownBehavior &what) = 0;
 
     static std::unique_ptr<ILightning> create(std::shared_ptr<ILevel> level);
 };
