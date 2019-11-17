@@ -37,10 +37,14 @@ public:
             }
 
             auto tile = m_level->tileAt(where);
-            if (tile && *tile == TileType::EMPTY)
+            if (tile)
             {
-                // Ghosts can only walk to empty positions
-                dst.push_back(where);
+                // Ghosts can only walk to some positions
+                if (*tile == TileType::EMPTY ||
+                    *tile == TileType::TELEPORTER)
+                {
+                    dst.push_back(where);
+                }
             }
         };
 
