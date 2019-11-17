@@ -41,7 +41,12 @@ public:
             m_timeout -= ms;
             if (m_timeout <= 0)
             {
-                auto dst = m_teleporterLocations[random() % m_teleporterLocations.size()];
+                point dst;
+
+                do
+                {
+                    dst = m_teleporterLocations[random() % m_teleporterLocations.size()];
+                } while (dst == toTeleport->getPosition());
 
                 auto entAtDst = store->getEntityByPoint(dst);
 
