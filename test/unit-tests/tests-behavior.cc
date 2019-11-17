@@ -326,10 +326,10 @@ SCENARIO("fireballs fall and disappears")
 
 SCENARIO("Ghosts appear!")
 {
-    WHEN("a ghost appears")
-    {
-        auto store = IEntityStore::getInstance();
+    auto store = IEntityStore::getInstance();
 
+    WHEN("a ghost appears, all alone")
+    {
         std::shared_ptr<ILevel> lvl = ILevel::fromString("9 9 "
                                       ".... ...."
                                       ".... ...."
@@ -396,10 +396,39 @@ SCENARIO("Ghosts appear!")
         }
     }
 
-    WHEN("a ghost encounters the player")
+    WHEN("a ghost appears together with the player")
     {
-        THEN("an explosion will occur")
+        std::shared_ptr<ILevel> lvl = ILevel::fromString("9 9 "
+                                      ".... ...."
+                                      ".... ...."
+                                      "....   .."
+                                      "....p...." // 4, 3
+                                      ".... ...."
+                                      "....g...." // 4, 5
+                                      "........."
+                                      "........."
+                                      ".........");
+        REQUIRE(lvl);
+
+        auto ghost = store->getEntityByPoint({4, 5});
+        REQUIRE(ghost);
+        auto behavior = IBehavior::fromEntity(lvl, ghost);
+
+        THEN("the ghost will explore")
         {
+            for (auto i = 0; i < 4; i++)
+            {
+                behavior->run(GHOST_MOVEMENT_TIME);
+            }
+            AND_WHEN("the ghost encounters the player")
+            {
+                THEN("an explosion will occur")
+                {
+                    auto fireball = store->getEntityByPoint({4,3});
+                    REQUIRE(fireball);
+                    REQUIRE(fireball->getType() == EntityType::FIREBALL);
+                }
+            }
         }
     }
 }

@@ -7,6 +7,7 @@
 
 #include <memory>
 #include <vector>
+#include <assert.h>
 
 class GhostWalkingTrait : public ITrait
 {
@@ -25,7 +26,7 @@ public:
 
             if (ent)
             {
-                if (ent->getType() != EntityType::PLAYER)
+                if (ent->getType() == EntityType::PLAYER)
                 {
                     // OK, a bit ugly to detect here, but anyways
                     m_level->explode(where);
@@ -68,7 +69,7 @@ public:
             return out;
         };
 
-        auto select = [this, intersection](const std::vector<point> &positions)
+        auto select = [this, lookup, intersection](const std::vector<point> &positions)
         {
             auto unique = intersection(positions);
 
@@ -87,22 +88,30 @@ public:
             }
 
             // All has been visited before
-            auto &which = positions[random() % positions.size()];
+            unsigned smallest = 0xffffffff;
+            auto which = positions[0];
 
-            for (auto &it : m_visitedPositions)
+            auto selected = m_visitedPositions.end();
+            for (auto &cur : positions)
             {
-                if (it.where == which)
+                auto it = lookup(cur);
+                assert(it != m_visitedPositions.end());
+
+                if (it->count < smallest)
                 {
-                    it.count++;
-                    break;
+                    which = it->where;
+                    selected = it;
+                    smallest = it->count;
                 }
             }
+            assert(selected != m_visitedPositions.end());
+            selected->count++;
 
             // Order by count
             std::sort(m_visitedPositions.begin(), m_visitedPositions.end(),
                 [](const visit &one, const visit &other)
                 {
-                     return one.count > other.count;
+                     return one.count >= other.count;
                 });
 
             return which;
